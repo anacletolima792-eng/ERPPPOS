@@ -1,0 +1,102 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Usuários do sistema ERP/PDV",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "vendedor"] },
+        "avatar": { "type": "string" },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Cadastro de produtos e estoque",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "barcode": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "categoryName": { "type": "string" },
+        "price": { "type": "number" },
+        "costPrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "minStock": { "type": "number" },
+        "unit": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "code", "price", "stock"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Categorias de produtos",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "color": { "type": "string" },
+        "icon": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Clientes do sistema",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "document": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "creditLimit": { "type": "number" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Registro de vendas finalizadas",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "saleNumber": { "type": "string" },
+        "operatorId": { "type": "string" },
+        "operatorName": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "discount": { "type": "number" },
+        "total": { "type": "number" },
+        "totalCost": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "amountPaid": { "type": "number" },
+        "change": { "type": "number" },
+        "status": { "type": "string", "enum": ["completed", "canceled", "returned"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["saleNumber", "items", "total", "paymentMethod", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": "User", "description": "Usuários do sistema" },
+    "products": { "schema": "Product", "description": "Produtos cadastrados" },
+    "categories": { "schema": "Category", "description": "Categorias de produtos" },
+    "customers": { "schema": "Customer", "description": "Clientes cadastrados" },
+    "sales": { "schema": "Sale", "description": "Vendas realizadas" }
+  }
+}

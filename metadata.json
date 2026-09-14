@@ -1,0 +1,10 @@
+{
+  "name": "Remix PDV \u0026 ERP Pro",
+  "description": "Sistema completo de PDV e ERP mobile-first com Firestore, controle de estoque, frente de caixa, relatórios e gestão de vendas.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
