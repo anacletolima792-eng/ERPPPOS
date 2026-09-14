@@ -54,12 +54,12 @@ export const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
           type="button"
           id="btn-category-dropdown"
           onClick={() => setIsOpen(!isOpen)}
-          className={`flex-1 flex items-center justify-between gap-2 px-3.5 py-2.5 bg-white hover:bg-slate-50 border rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-2xs ${
+          className={`flex-1 flex items-center justify-between gap-2 px-3.5 py-2.5 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-2xs ${
             isOpen
               ? 'border-blue-500 ring-2 ring-blue-500/20'
               : selectedCategoryId !== 'all'
-              ? 'border-blue-300 bg-blue-50/40 text-blue-900'
-              : 'border-slate-200 text-slate-700'
+              ? 'border-blue-300 dark:border-blue-700 bg-blue-50/40 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200'
+              : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
           }`}
           aria-expanded={isOpen}
           aria-haspopup="listbox"
@@ -69,7 +69,7 @@ export const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
               className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${
                 selectedCategoryId !== 'all' && selectedCategory?.color
                   ? 'bg-opacity-20'
-                  : 'bg-slate-100 text-slate-500'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
               }`}
               style={{
                 backgroundColor:
@@ -84,20 +84,20 @@ export const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                   style={{ backgroundColor: selectedCategory.color }}
                 />
               ) : (
-                <Layers className="w-3.5 h-3.5 text-slate-500" />
+                <Layers className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
               )}
             </div>
 
             <div className="flex items-center gap-2 truncate">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">
+              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider hidden sm:inline">
                 Categoria:
               </span>
-              <span className="font-bold text-slate-800 truncate">
+              <span className="font-bold text-slate-800 dark:text-slate-100 truncate">
                 {selectedCategoryId === 'all'
                   ? 'Todas as Categorias'
                   : selectedCategory?.name || 'Categoria'}
               </span>
-              <span className="text-[11px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 font-bold">
+              <span className="text-[11px] px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold">
                 {selectedCategoryId === 'all'
                   ? `${totalCount} itens`
                   : `${getCategoryCount(selectedCategoryId)} itens`}
@@ -105,7 +105,7 @@ export const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1 shrink-0 text-slate-400">
+          <div className="flex items-center gap-1 shrink-0 text-slate-400 dark:text-slate-500">
             {selectedCategoryId !== 'all' && (
               <button
                 type="button"
@@ -114,15 +114,15 @@ export const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                   e.stopPropagation();
                   onSelectCategory('all');
                 }}
-                className="p-1 hover:bg-slate-200 rounded-md text-slate-400 hover:text-slate-600 transition-colors"
+                className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                 title="Limpar filtro de categoria"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
             <ChevronDown
-              className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                isOpen ? 'rotate-180 text-blue-600' : ''
+              className={`w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform duration-200 ${
+                isOpen ? 'rotate-180 text-blue-600 dark:text-blue-400' : ''
               }`}
             />
           </div>
@@ -134,7 +134,7 @@ export const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
         <div
           id="category-dropdown-menu"
           role="listbox"
-          className="absolute left-0 right-0 top-full mt-1.5 z-40 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 max-h-72 overflow-y-auto"
+          className="absolute left-0 right-0 top-full mt-1.5 z-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1.5 max-h-72 overflow-y-auto"
         >
           {/* Option: Todas as Categorias */}
           <button
@@ -144,27 +144,27 @@ export const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
             onClick={() => handleSelect('all')}
             className={`w-full px-3 py-2.5 text-left flex items-center justify-between text-xs sm:text-sm transition-colors cursor-pointer ${
               selectedCategoryId === 'all'
-                ? 'bg-blue-50/80 text-blue-700 font-bold'
-                : 'text-slate-700 hover:bg-slate-50 font-medium'
+                ? 'bg-blue-50/80 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold'
+                : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-5 h-5 rounded-md bg-slate-100 flex items-center justify-center text-slate-500 shrink-0">
+              <div className="w-5 h-5 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 shrink-0">
                 <Layers className="w-3.5 h-3.5" />
               </div>
               <span>Todas as Categorias</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                 {totalCount}
               </span>
               {selectedCategoryId === 'all' && (
-                <Check className="w-4 h-4 text-blue-600 stroke-[2.5]" />
+                <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 stroke-[2.5]" />
               )}
             </div>
           </button>
 
-          <div className="my-1 border-t border-slate-100" />
+          <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
 
           {/* Option: Individual Categories */}
           {categories.map((c) => {
@@ -180,15 +180,15 @@ export const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                 onClick={() => handleSelect(c.id)}
                 className={`w-full px-3 py-2.5 text-left flex items-center justify-between text-xs sm:text-sm transition-colors cursor-pointer ${
                   isSelected
-                    ? 'bg-blue-50/80 text-blue-700 font-bold'
-                    : 'text-slate-700 hover:bg-slate-50 font-medium'
+                    ? 'bg-blue-50/80 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold'
+                    : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div
                     className="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
                     style={{
-                      backgroundColor: c.color ? `${c.color}20` : '#f1f5f9',
+                      backgroundColor: c.color ? `${c.color}20` : undefined,
                     }}
                   >
                     <span
@@ -203,14 +203,14 @@ export const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                   <span
                     className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                       isSelected
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-slate-100 text-slate-400'
+                        ? 'bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-400'
                     }`}
                   >
                     {count}
                   </span>
                   {isSelected && (
-                    <Check className="w-4 h-4 text-blue-600 stroke-[2.5]" />
+                    <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 stroke-[2.5]" />
                   )}
                 </div>
               </button>
@@ -218,7 +218,7 @@ export const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
           })}
 
           {categories.length === 0 && (
-            <div className="px-3 py-4 text-center text-xs text-slate-400">
+            <div className="px-3 py-4 text-center text-xs text-slate-400 dark:text-slate-500">
               Nenhuma categoria cadastrada.
             </div>
           )}

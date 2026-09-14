@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserProfile, UserRole } from '../types';
-import { subscribeUsers, saveUserProfile } from '../services/firestoreService';
+import { subscribeUsers, saveUserProfile, DEFAULT_USERS } from '../services/firestoreService';
 import { safeStorage } from '../utils/storage';
 
 interface AuthContextType {
@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return DEFAULT_ADMIN;
   });
 
-  const [availableUsers, setAvailableUsers] = useState<UserProfile[]>([DEFAULT_ADMIN]);
+  const [availableUsers, setAvailableUsers] = useState<UserProfile[]>(DEFAULT_USERS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -57,8 +57,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           localStorage.setItem('pdv_current_user', JSON.stringify(users[0]));
         }
       } else {
-        // Ensure default user is in Firestore
-        saveUserProfile(DEFAULT_ADMIN);
+        // Ensure default users are in Firestore
+        DEFAULT_USERS.forEach((u) => saveUserProfile(u));
       }
       setLoading(false);
     });

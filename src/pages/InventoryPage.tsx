@@ -12,6 +12,7 @@ import {
   FileSpreadsheet,
   Barcode,
   ScanLine,
+  ZoomIn,
 } from 'lucide-react';
 import { Product, Category } from '../types';
 import { formatCurrency } from '../utils/formatters';
@@ -20,6 +21,7 @@ import { ProductFormModal } from '../components/ProductFormModal';
 import { CameraBarcodeScannerModal } from '../components/CameraBarcodeScannerModal';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { QuantityStepper } from '../components/QuantityStepper';
+import { ProductImageZoomModal } from '../components/ProductImageZoomModal';
 import { useAuth } from '../hooks/useAuth';
 
 interface InventoryPageProps {
@@ -38,6 +40,7 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
   const [isDeletingProduct, setIsDeletingProduct] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCameraSearchOpen, setIsCameraSearchOpen] = useState(false);
+  const [zoomedProduct, setZoomedProduct] = useState<Product | null>(null);
 
   // Filter products
   const filteredProducts = useMemo(() => {
@@ -266,9 +269,31 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
                   >
                     {/* Info */}
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="w-11 h-11 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
+                      <div
+                        onClick={(e) => {
+                          if (p.imageUrl) {
+                            e.stopPropagation();
+                            setZoomedProduct(p);
+                          }
+                        }}
+                        className={`w-11 h-11 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden relative group/img ${
+                          p.imageUrl ? 'cursor-zoom-in hover:ring-2 hover:ring-orange-400' : ''
+                        }`}
+                        title={p.imageUrl ? 'Clique para ampliar a foto' : undefined}
+                      >
                         {p.imageUrl ? (
-                          <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                          <>
+                            <img
+                              src={p.imageUrl}
+                              alt={p.name}
+                              referrerPolicy="no-referrer"
+                              className="w-full h-full object-cover transition-transform group-hover/img:scale-110"
+                            />
+                            {/* Zoom hint on hover */}
+                            <div className="absolute inset-0 bg-black/25 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                              <ZoomIn className="w-3.5 h-3.5 text-white drop-shadow" />
+                            </div>
+                          </>
                         ) : (
                           <Package className="w-5 h-5 text-slate-400" />
                         )}
@@ -420,6 +445,21 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
         onConfirm={handleConfirmDeleteProduct}
         onClose={() => setProductToDelete(null)}
       />
+
+      {/* Product Image Zoom Modal */}
+      {zoomedProduct && zoomedProduct.imageUrl && (
+        <ProductImageZoomModal
+          isOpen={Boolean(zoomedProduct)}
+          onClose={() => setZoomedProduct(null)}
+          imageUrl={zoomedProduct.imageUrl}
+          productName={zoomedProduct.name}
+          productCode={zoomedProduct.code}
+          productPrice={zoomedProduct.price}
+          productStock={zoomedProduct.stock}
+          productUnit={zoomedProduct.unit}
+          categoryName={zoomedProduct.categoryName}
+        />
+      )}
     </div>
   );
 };

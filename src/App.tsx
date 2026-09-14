@@ -8,6 +8,7 @@ import { SalesHistoryPage } from './pages/SalesHistoryPage';
 import { MorePage } from './pages/MorePage';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { CartProvider } from './hooks/useCart';
+import { ThemeProvider } from './hooks/useTheme';
 import {
   subscribeProducts,
   subscribeCategories,
@@ -23,6 +24,7 @@ import {
 } from './services/firestoreService';
 
 const MainApp: React.FC = () => {
+  const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState<NavTab>('pdv');
   const [products, setProducts] = useState<Product[]>(() => getStoredProducts());
   const [categories, setCategories] = useState<Category[]>(() => getStoredCategories());
@@ -30,6 +32,13 @@ const MainApp: React.FC = () => {
   const [sales, setSales] = useState<Sale[]>(() => getStoredSales());
   const [users, setUsers] = useState<UserProfile[]>(() => getStoredUsers());
   const [loading, setLoading] = useState(false);
+
+  // Se o operador logado for qualquer vendedor (não admin), permite estritamente as abas PDV e Vendas
+  useEffect(() => {
+    if (!isAdmin && activeTab !== 'pdv' && activeTab !== 'sales') {
+      setActiveTab('pdv');
+    }
+  }, [isAdmin, activeTab]);
 
   // Set up real-time listeners for all Firestore collections
   useEffect(() => {
@@ -83,7 +92,7 @@ const MainApp: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 select-none">
       {/* Current Active View */}
-      {(activeTab === 'dashboard' || (activeTab as string) === 'home') && (
+      {isAdmin && (activeTab === 'dashboard' || (activeTab as string) === 'home') && (
         <DashboardPage
           sales={sales}
           products={products}
@@ -99,7 +108,7 @@ const MainApp: React.FC = () => {
         />
       )}
 
-      {activeTab === 'inventory' && (
+      {isAdmin && activeTab === 'inventory' && (
         <InventoryPage
           products={products}
           categories={categories}
@@ -114,7 +123,7 @@ const MainApp: React.FC = () => {
         />
       )}
 
-      {activeTab === 'more' && (
+      {isAdmin && activeTab === 'more' && (
         <MorePage
           customers={customers}
           categories={categories}
@@ -130,11 +139,13 @@ const MainApp: React.FC = () => {
 
 export function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <MainApp />
-      </CartProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <CartProvider>
+          <MainApp />
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

@@ -76,9 +76,9 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
   };
 
   return (
-    <div className="h-[100dvh] bg-slate-50 text-slate-900 font-sans flex flex-col overflow-hidden pb-16 sm:pb-20">
+    <div className="h-[100dvh] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col overflow-hidden pb-16 sm:pb-20 transition-colors">
       {/* Fixed Top Controls Section */}
-      <div className="shrink-0 bg-slate-50 z-20 border-b border-slate-200/80 shadow-2xs">
+      <div className="shrink-0 bg-slate-50 dark:bg-slate-950 z-20 border-b border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors">
         {/* Top Header */}
         <Header
           onOpenOperatorModal={() => setIsOperatorModalOpen(true)}
@@ -103,9 +103,9 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar por nome, código ou bipar..."
-                className="w-full bg-white sm:bg-slate-100 border border-slate-200 rounded-lg py-2 pl-9 sm:pl-10 pr-3 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-2xs"
+                className="w-full bg-white dark:bg-slate-900 sm:bg-slate-100 dark:sm:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg py-2 pl-9 sm:pl-10 pr-3 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-800 transition-all shadow-2xs"
               />
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5" />
             </div>
 
             <div className="flex items-center gap-1.5 shrink-0">
@@ -114,15 +114,15 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
                 type="button"
                 id="btn-open-barcode"
                 onClick={() => setIsScannerOpen(true)}
-                className="p-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition-colors flex items-center justify-center text-xs font-bold shadow-2xs cursor-pointer h-9 w-9 sm:w-auto sm:px-3"
+                className="p-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors flex items-center justify-center text-xs font-bold shadow-2xs cursor-pointer h-9 w-9 sm:w-auto sm:px-3"
                 title="Leitor de Código de Barras"
               >
-                <Barcode className="w-4 h-4 text-blue-600 stroke-[2.2]" />
+                <Barcode className="w-4 h-4 text-blue-600 dark:text-blue-400 stroke-[2.2]" />
                 <span className="hidden md:inline">Scanner</span>
               </button>
 
               {/* View Mode Toggle */}
-              <div className="flex items-center bg-white border border-slate-200 rounded-lg p-0.5 shadow-2xs h-9">
+              <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 shadow-2xs h-9">
                 <button
                   type="button"
                   id="btn-view-list"
@@ -130,7 +130,7 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
                   className={`p-1.5 rounded-md text-xs transition-colors cursor-pointer ${
                     viewMode === 'list'
                       ? 'bg-blue-600 text-white font-bold'
-                      : 'text-slate-400 hover:text-slate-600'
+                      : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
                   }`}
                   title="Visualização em Lista"
                 >
@@ -143,7 +143,7 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
                   className={`p-1.5 rounded-md text-xs transition-colors cursor-pointer ${
                     viewMode === 'grid'
                       ? 'bg-blue-600 text-white font-bold'
-                      : 'text-slate-400 hover:text-slate-600'
+                      : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
                   }`}
                   title="Visualização em Grade"
                 >
@@ -168,14 +168,14 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
         {loading ? (
           <div className="py-16 text-center space-y-2">
             <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-xs text-slate-500 font-medium">Carregando catálogo do Firestore...</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Carregando catálogo do Firestore...</p>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 my-4 space-y-3 shadow-xs">
-            <PackageX className="w-12 h-12 mx-auto text-slate-300 stroke-1" />
+          <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 my-4 space-y-3 shadow-xs">
+            <PackageX className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 stroke-1" />
             <div>
-              <h4 className="font-bold text-slate-800 text-sm">Nenhum produto encontrado</h4>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Nenhum produto encontrado</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1">
                 {searchTerm
                   ? `Nenhum resultado para "${searchTerm}". Tente outro termo ou código.`
                   : 'O banco de dados ainda não possui produtos cadastrados.'}
