@@ -185,13 +185,11 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
             {products.length === 0 && (
               <button
                 type="button"
-                id="btn-seed-empty-pdv"
-                onClick={handleSeedData}
-                disabled={isSeeding}
+                id="btn-add-first-product"
+                onClick={() => setIsProductFormOpen(true)}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-xs transition-all cursor-pointer"
               >
-                <Sparkles className="w-4 h-4" />
-                <span>{isSeeding ? 'Criando dados de exemplo...' : 'Criar Produtos de Demonstração'}</span>
+                <span>Cadastrar Primeiro Produto</span>
               </button>
             )}
           </div>

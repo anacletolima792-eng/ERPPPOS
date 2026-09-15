@@ -79,11 +79,11 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
 
   // Company settings state (persisted to localStorage & Firestore)
   const [initialSettings, setInitialSettings] = useState<StoreSettings | null>(null);
-  const [companyName, setCompanyName] = useState(() => localStorage.getItem('pdv_company_name') || 'ERP / PDV Material & Construção');
-  const [companyCnpj, setCompanyCnpj] = useState(() => localStorage.getItem('pdv_company_cnpj') || '12.345.678/0001-90');
-  const [companyPhone, setCompanyPhone] = useState(() => localStorage.getItem('pdv_company_phone') || '(11) 98765-4321');
-  const [companyAddress, setCompanyAddress] = useState(() => localStorage.getItem('pdv_company_address') || 'Av. Principal, 1500 - Centro');
-  const [companyPixKey, setCompanyPixKey] = useState(() => localStorage.getItem('pdv_company_pix') || 'pix@empresa.com.br');
+  const [companyName, setCompanyName] = useState(() => localStorage.getItem('pdv_company_name') || 'Meu Estabelecimento');
+  const [companyCnpj, setCompanyCnpj] = useState(() => localStorage.getItem('pdv_company_cnpj') || '');
+  const [companyPhone, setCompanyPhone] = useState(() => localStorage.getItem('pdv_company_phone') || '');
+  const [companyAddress, setCompanyAddress] = useState(() => localStorage.getItem('pdv_company_address') || '');
+  const [companyPixKey, setCompanyPixKey] = useState(() => localStorage.getItem('pdv_company_pix') || '');
   const [companyReceiptMsg, setCompanyReceiptMsg] = useState(() => localStorage.getItem('pdv_company_msg') || 'Obrigado pela preferência! Volte sempre.');
   const [isSavingCompany, setIsSavingCompany] = useState(false);
   const [isSavedCompany, setIsSavedCompany] = useState(false);
@@ -163,11 +163,11 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
       setCompanyPixKey(initialSettings.pixKey || '');
       setCompanyReceiptMsg(initialSettings.receiptFooter || '');
     } else {
-      setCompanyName(localStorage.getItem('pdv_company_name') || 'ERP / PDV Material & Construção');
-      setCompanyCnpj(localStorage.getItem('pdv_company_cnpj') || '12.345.678/0001-90');
-      setCompanyPhone(localStorage.getItem('pdv_company_phone') || '(11) 98765-4321');
-      setCompanyAddress(localStorage.getItem('pdv_company_address') || 'Av. Principal, 1500 - Centro');
-      setCompanyPixKey(localStorage.getItem('pdv_company_pix') || 'pix@empresa.com.br');
+      setCompanyName(localStorage.getItem('pdv_company_name') || 'Meu Estabelecimento');
+      setCompanyCnpj(localStorage.getItem('pdv_company_cnpj') || '');
+      setCompanyPhone(localStorage.getItem('pdv_company_phone') || '');
+      setCompanyAddress(localStorage.getItem('pdv_company_address') || '');
+      setCompanyPixKey(localStorage.getItem('pdv_company_pix') || '');
       setCompanyReceiptMsg(localStorage.getItem('pdv_company_msg') || 'Obrigado pela preferência! Volte sempre.');
     }
     showToast('Alterações da loja canceladas/revertidas.');

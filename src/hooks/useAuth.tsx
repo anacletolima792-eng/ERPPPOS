@@ -15,13 +15,12 @@ interface AuthContextType {
 }
 
 const DEFAULT_ADMIN: UserProfile = {
-  id: 'user-admin-carlos',
-  name: 'Carlos Admin',
-  email: 'admin@erppdv.com',
+  id: 'user-admin',
+  name: 'Administrador',
+  email: 'admin@sistema.com',
   role: 'admin',
   active: true,
   pin: '1234',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
   createdAt: new Date().toISOString(),
 };
 

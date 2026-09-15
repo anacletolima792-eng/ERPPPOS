@@ -44,10 +44,10 @@ export const getStoredData = <T>(key: string, fallback: T): T => {
   if (typeof window === 'undefined') return fallback;
   try {
     const raw = safeStorage.getItem(key);
-    if (raw) {
+    if (raw !== null && raw !== undefined) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(fallback)) {
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed as unknown as T;
+        if (Array.isArray(parsed)) return parsed as unknown as T;
       } else if (parsed && typeof parsed === 'object') {
         return { ...fallback, ...parsed };
       }
@@ -68,134 +68,27 @@ export const setStoredData = <T>(key: string, data: T): void => {
   }
 };
 
-// ==================== INITIAL DEFAULT DATA ====================
-export const DEFAULT_CATEGORIES: Category[] = [
-  { id: 'cat-mat-construcao', name: 'Material de Construção', color: '#f97316' },
-  { id: 'cat-ferramentas', name: 'Ferramentas & Acessórios', color: '#0ea5e9' },
-  { id: 'cat-tintas', name: 'Tintas & Acabamento', color: '#8b5cf6' },
-  { id: 'cat-eletrica', name: 'Elétrica & Iluminação', color: '#eab308' },
-  { id: 'cat-geral', name: 'Utilidades & Papelaria', color: '#10b981' },
-];
+// Auto-clean any old demo seed from browser local storage once
+if (typeof window !== 'undefined') {
+  try {
+    const WIPE_KEY = 'erp_pdv_demo_wiped_v2';
+    if (!safeStorage.getItem(WIPE_KEY)) {
+      safeStorage.removeItem(STORAGE_KEYS.PRODUCTS);
+      safeStorage.removeItem(STORAGE_KEYS.CATEGORIES);
+      safeStorage.removeItem(STORAGE_KEYS.CUSTOMERS);
+      safeStorage.removeItem(STORAGE_KEYS.SALES);
+      safeStorage.removeItem(STORAGE_KEYS.USERS);
+      safeStorage.removeItem('pdv_cart_items');
+      safeStorage.removeItem('pdv_current_user');
+      safeStorage.setItem(WIPE_KEY, 'true');
+    }
+  } catch {}
+}
 
-export const DEFAULT_PRODUCTS: Product[] = [
-  {
-    id: 'prod-lapis-irwin',
-    name: 'LÁPIS PED IRWIN',
-    code: '#00018',
-    barcode: '7891234560018',
-    categoryId: 'cat-ferramentas',
-    price: 3.50,
-    costPrice: 1.80,
-    stock: 27,
-    minStock: 10,
-    unit: 'UN',
-    imageUrl: 'https://images.unsplash.com/photo-1585336261026-0610332bbad8?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'prod-placa',
-    name: 'PLACA SINALIZAÇÃO ATENÇÃO',
-    code: '#00019',
-    barcode: '7891234560019',
-    categoryId: 'cat-mat-construcao',
-    price: 18.00,
-    costPrice: 9.50,
-    stock: 1,
-    minStock: 5,
-    unit: 'UN',
-    imageUrl: 'https://images.unsplash.com/photo-1578885136359-16c8bd4d3a8e?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'prod-cal',
-    name: 'CAL HIDRATADA 20KG',
-    code: '#00020',
-    barcode: '7891234560020',
-    categoryId: 'cat-mat-construcao',
-    price: 18.00,
-    costPrice: 11.20,
-    stock: 4,
-    minStock: 8,
-    unit: 'UN',
-    imageUrl: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'prod-tropical',
-    name: 'TELHA TROPICAL 2.44 X 0.50',
-    code: '#00022',
-    barcode: '7891234560022',
-    categoryId: 'cat-mat-construcao',
-    price: 18.00,
-    costPrice: 12.00,
-    stock: 12,
-    minStock: 5,
-    unit: 'UN',
-    imageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'prod-cimento',
-    name: 'CIMENTO CP-II VOTORAN 50KG',
-    code: '#00023',
-    barcode: '7891234560023',
-    categoryId: 'cat-mat-construcao',
-    price: 34.90,
-    costPrice: 26.00,
-    stock: 45,
-    minStock: 15,
-    unit: 'SC',
-    imageUrl: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'prod-disco-corte',
-    name: 'DISCO DE CORTE FINO 4.1/2 INOX',
-    code: '#00024',
-    barcode: '7891234560024',
-    categoryId: 'cat-ferramentas',
-    price: 6.50,
-    costPrice: 3.10,
-    stock: 60,
-    minStock: 20,
-    unit: 'UN',
-    imageUrl: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'prod-tinta-acrilica',
-    name: 'TINTA ACRÍLICA BRANCO NEVE 3.6L',
-    code: '#00025',
-    barcode: '7891234560025',
-    categoryId: 'cat-tintas',
-    price: 89.90,
-    costPrice: 54.00,
-    stock: 8,
-    minStock: 4,
-    unit: 'GL',
-    imageUrl: 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'prod-fita-isolante',
-    name: 'FITA ISOLANTE 3M 20 METROS',
-    code: '#00026',
-    barcode: '7891234560026',
-    categoryId: 'cat-eletrica',
-    price: 12.00,
-    costPrice: 6.20,
-    stock: 35,
-    minStock: 10,
-    unit: 'UN',
-    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'prod-parafuso-bucha',
-    name: 'KIT PARAFUSO + BUCHA 8MM (50 UN)',
-    code: '#00027',
-    barcode: '7891234560027',
-    categoryId: 'cat-ferramentas',
-    price: 14.50,
-    costPrice: 7.00,
-    stock: 18,
-    minStock: 5,
-    unit: 'PCT',
-    imageUrl: 'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?auto=format&fit=crop&w=400&q=80',
-  },
-];
+// ==================== INITIAL CLEAN DATA ====================
+export const DEFAULT_CATEGORIES: Category[] = [];
+
+export const DEFAULT_PRODUCTS: Product[] = [];
 
 export const DEFAULT_CUSTOMERS: Customer[] = [
   {
@@ -206,102 +99,31 @@ export const DEFAULT_CUSTOMERS: Customer[] = [
     document: '',
     notes: 'Cliente padrão para vendas rápidas no balcão',
   },
-  {
-    id: 'cust-carlos',
-    name: 'Carlos Construtor & Reformas',
-    document: '12.345.678/0001-90',
-    phone: '(11) 98765-4321',
-    email: 'carlos.obras@gmail.com',
-    address: 'Rua dos Pedreiros, 45 - São Paulo/SP',
-    notes: 'Cliente preferencial',
-  },
-  {
-    id: 'cust-marina',
-    name: 'Marina Silva Engenharia',
-    document: '987.654.321-00',
-    phone: '(11) 97123-4567',
-    email: 'marina.eng@outlook.com',
-    address: 'Alameda das Flores, 820 - Apto 42',
-    notes: 'Compras faturadas no dia 20',
-  },
 ];
 
 export const DEFAULT_USERS: UserProfile[] = [
   {
-    id: 'user-admin-carlos',
-    name: 'Carlos Admin',
-    email: 'admin@erppdv.com',
+    id: 'user-admin',
+    name: 'Administrador',
+    email: 'admin@sistema.com',
     role: 'admin',
     active: true,
     pin: '1234',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'user-vendedor-ana',
-    name: 'Ana Vendedora',
-    email: 'ana.vendas@erppdv.com',
-    role: 'vendedor',
-    active: true,
-    pin: '0000',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
     createdAt: new Date().toISOString(),
   },
 ];
 
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
-  storeName: 'ERP / PDV Material & Construção',
-  cnpj: '12.345.678/0001-90',
-  phone: '(11) 98765-4321',
-  address: 'Av. Principal, 1500 - Centro',
-  pixKey: 'pix@empresa.com.br',
-  pixKeyType: 'email',
+  storeName: 'Meu Estabelecimento',
+  cnpj: '',
+  phone: '',
+  address: '',
+  pixKey: '',
+  pixKeyType: 'random',
   receiptFooter: 'Obrigado pela preferência! Volte sempre.',
 };
 
-export const DEFAULT_SALES: Sale[] = [
-  {
-    id: 'sale-demo-01',
-    saleNumber: 'VD-849201',
-    operatorId: 'user-admin-carlos',
-    operatorName: 'Carlos Admin',
-    customerId: 'cust-carlos',
-    customerName: 'Carlos Construtor & Reformas',
-    items: [
-      {
-        productId: 'prod-cimento',
-        productName: 'CIMENTO CP-II VOTORAN 50KG',
-        productCode: '#00023',
-        quantity: 10,
-        unit: 'SC',
-        unitPrice: 34.90,
-        costPrice: 26.00,
-        discount: 0,
-        total: 349.00,
-      },
-      {
-        productId: 'prod-cal',
-        productName: 'CAL HIDRATADA 20KG',
-        productCode: '#00020',
-        quantity: 4,
-        unit: 'UN',
-        unitPrice: 18.00,
-        costPrice: 11.20,
-        discount: 0,
-        total: 72.00,
-      },
-    ],
-    subtotal: 421.00,
-    discount: 21.00,
-    total: 400.00,
-    totalCost: 304.80,
-    paymentMethod: 'pix',
-    amountPaid: 400.00,
-    change: 0,
-    status: 'completed',
-    createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-  },
-];
+export const DEFAULT_SALES: Sale[] = [];
 
 // Read initial stored values synchronously
 export const normalizeProduct = (p: any, fallbackIndex = 0): Product => ({
@@ -371,18 +193,8 @@ export const subscribeProducts = (callback: (products: Product[]) => void) => {
         setStoredData(STORAGE_KEYS.PRODUCTS, firestoreProducts);
         callback(firestoreProducts);
       } else {
-        // Cloud is empty, check if we have local products and sync them up
         const local = getStoredProducts();
-        if (local.length > 0) {
-          callback(local);
-          // Sync up to Firestore in background
-          const batch = writeBatch(db);
-          for (const p of local) {
-            const ref = doc(db, 'products', p.id);
-            batch.set(ref, cleanFirestoreData(p), { merge: true });
-          }
-          batch.commit().catch((err) => console.warn('Sync up products warning:', err));
-        }
+        callback(local);
       }
     },
     (error) => {
@@ -504,14 +316,7 @@ export const subscribeCategories = (callback: (categories: Category[]) => void) 
         callback(list);
       } else {
         const local = getStoredCategories();
-        if (local.length > 0) {
-          callback(local);
-          const batch = writeBatch(db);
-          for (const c of local) {
-            batch.set(doc(db, 'categories', c.id), cleanFirestoreData(c), { merge: true });
-          }
-          batch.commit().catch((err) => console.warn('Sync up categories warning:', err));
-        }
+        callback(local);
       }
     },
     (error) => {
@@ -598,14 +403,7 @@ export const subscribeCustomers = (callback: (customers: Customer[]) => void) =>
         callback(list);
       } else {
         const local = getStoredCustomers();
-        if (local.length > 0) {
-          callback(local);
-          const batch = writeBatch(db);
-          for (const c of local) {
-            batch.set(doc(db, 'customers', c.id), cleanFirestoreData(c), { merge: true });
-          }
-          batch.commit().catch((err) => console.warn('Sync up customers warning:', err));
-        }
+        callback(local);
       }
     },
     (error) => {
@@ -959,14 +757,7 @@ export const subscribeUsers = (callback: (users: UserProfile[]) => void) => {
         callback(list);
       } else {
         const local = getStoredUsers();
-        if (local.length > 0) {
-          callback(local);
-          const batch = writeBatch(db);
-          for (const u of local) {
-            batch.set(doc(db, 'users', u.id), cleanFirestoreData(u), { merge: true });
-          }
-          batch.commit().catch((err) => console.warn('Sync up users warning:', err));
-        }
+        callback(local);
       }
     },
     (error) => {
