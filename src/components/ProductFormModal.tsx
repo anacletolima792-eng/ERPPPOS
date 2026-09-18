@@ -10,9 +10,11 @@ import {
   Sparkles,
   Check,
   ZoomIn,
+  Plus,
+  Tag,
 } from 'lucide-react';
 import { Product, Category } from '../types';
-import { createProduct, updateProduct, deleteProduct } from '../services/firestoreService';
+import { createProduct, updateProduct, deleteProduct, createCategory } from '../services/firestoreService';
 import { CameraBarcodeScannerModal } from './CameraBarcodeScannerModal';
 import { CameraCaptureModal } from './CameraCaptureModal';
 import { ConfirmModal } from './ConfirmModal';
@@ -58,6 +60,61 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPreviewZoomOpen, setIsPreviewZoomOpen] = useState(false);
   const [isPhotoCameraOpen, setIsPhotoCameraOpen] = useState(false);
+
+  // Quick category creation state
+  const [localCategories, setLocalCategories] = useState<Category[]>(categories);
+  const [isQuickAddCategory, setIsQuickAddCategory] = useState(false);
+  const [quickCategoryName, setQuickCategoryName] = useState('');
+  const [quickCategoryColor, setQuickCategoryColor] = useState('#0ea5e9');
+  const [isSavingCategory, setIsSavingCategory] = useState(false);
+  const [quickCategoryError, setQuickCategoryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLocalCategories(categories);
+  }, [categories]);
+
+  const CATEGORY_COLORS = [
+    '#0ea5e9', // Azul
+    '#f97316', // Laranja
+    '#10b981', // Verde
+    '#8b5cf6', // Roxo
+    '#eab308', // Amarelo
+    '#ef4444', // Vermelho
+    '#64748b', // Cinza
+  ];
+
+  const handleSaveQuickCategory = async () => {
+    const trimmed = quickCategoryName.trim();
+    if (!trimmed) {
+      setQuickCategoryError('Informe o nome da categoria.');
+      return;
+    }
+    try {
+      setIsSavingCategory(true);
+      setQuickCategoryError(null);
+      const newId = await createCategory({
+        name: trimmed,
+        color: quickCategoryColor,
+      });
+      const newCat: Category = {
+        id: newId,
+        name: trimmed,
+        color: quickCategoryColor,
+      };
+      setLocalCategories((prev) => {
+        if (prev.some((c) => c.id === newId)) return prev;
+        return [...prev, newCat];
+      });
+      setCategoryId(newId);
+      setQuickCategoryName('');
+      setIsQuickAddCategory(false);
+    } catch (err: any) {
+      console.error('Erro ao criar categoria:', err);
+      setQuickCategoryError(err?.message || 'Falha ao criar categoria.');
+    } finally {
+      setIsSavingCategory(false);
+    }
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -526,20 +583,128 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Categoria</label>
-              <select
-                id="select-prod-category"
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-medium bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none"
-              >
-                <option value="">Sem categoria</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold text-slate-700 block">Categoria</label>
+                <button
+                  type="button"
+                  id="btn-toggle-quick-category"
+                  onClick={() => {
+                    setIsQuickAddCategory(!isQuickAddCategory);
+                    setQuickCategoryError(null);
+                  }}
+                  className="text-[11px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer transition-colors"
+                  title="Criar nova categoria"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Nova Categoria</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <select
+                  id="select-prod-category"
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  className="flex-1 px-3 py-2 text-xs font-medium bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none"
+                >
+                  <option value="">Sem categoria</option>
+                  {localCategories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  type="button"
+                  id="btn-add-category-inline"
+                  onClick={() => {
+                    setIsQuickAddCategory(!isQuickAddCategory);
+                    setQuickCategoryError(null);
+                  }}
+                  title="Criar nova categoria"
+                  className={`h-[38px] w-[38px] rounded-xl flex items-center justify-center shrink-0 border transition-all cursor-pointer ${
+                    isQuickAddCategory
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                      : 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:border-blue-300 active:scale-95'
+                  }`}
+                >
+                  <Plus className={`w-4 h-4 transition-transform ${isQuickAddCategory ? 'rotate-45' : ''}`} />
+                </button>
+              </div>
+
+              {/* Box expansível para cadastrar nova categoria */}
+              {isQuickAddCategory && (
+                <div className="mt-2 p-2.5 bg-blue-50/90 border border-blue-200 rounded-xl space-y-2 animate-in fade-in slide-in-from-top-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-blue-900 flex items-center gap-1">
+                      <Tag className="w-3.5 h-3.5 text-blue-600" />
+                      Criar Categoria Rápida
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsQuickAddCategory(false)}
+                      className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      id="input-quick-category-name"
+                      placeholder="Nome da categoria (ex: Chaves, Ferramentas)"
+                      value={quickCategoryName}
+                      onChange={(e) => setQuickCategoryName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSaveQuickCategory();
+                        }
+                      }}
+                      autoFocus
+                      className="flex-1 px-2.5 py-1.5 text-xs bg-white border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800"
+                    />
+                    <button
+                      type="button"
+                      id="btn-save-quick-category"
+                      onClick={handleSaveQuickCategory}
+                      disabled={isSavingCategory || !quickCategoryName.trim()}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold shrink-0 flex items-center gap-1 shadow-xs cursor-pointer"
+                    >
+                      {isSavingCategory ? (
+                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Check className="w-3.5 h-3.5" />
+                      )}
+                      <span>Salvar</span>
+                    </button>
+                  </div>
+
+                  {/* Cores rápidas */}
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <span className="text-[10px] font-semibold text-slate-500">Cor:</span>
+                    <div className="flex items-center gap-1">
+                      {CATEGORY_COLORS.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setQuickCategoryColor(c)}
+                          className={`w-4 h-4 rounded-full transition-transform cursor-pointer ${
+                            quickCategoryColor === c ? 'scale-125 ring-2 ring-blue-500 ring-offset-1' : 'hover:scale-110'
+                          }`}
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {quickCategoryError && (
+                    <p className="text-[11px] text-red-600 font-medium">{quickCategoryError}</p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>

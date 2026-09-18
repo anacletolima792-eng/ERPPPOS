@@ -31,7 +31,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const saved = safeStorage.getItem('pdv_current_user');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object' && parsed.id && parsed.role) {
+          return parsed;
+        }
       } catch (e) {
         console.error('Error parsing stored user:', e);
       }
@@ -50,10 +53,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const currentStillExists = users.find(u => u.id === currentUser.id);
         if (currentStillExists) {
           setCurrentUser(currentStillExists);
-          localStorage.setItem('pdv_current_user', JSON.stringify(currentStillExists));
+          safeStorage.setItem('pdv_current_user', JSON.stringify(currentStillExists));
         } else if (users.length > 0) {
           setCurrentUser(users[0]);
-          localStorage.setItem('pdv_current_user', JSON.stringify(users[0]));
+          safeStorage.setItem('pdv_current_user', JSON.stringify(users[0]));
         }
       } else {
         // Ensure default users are in Firestore
@@ -103,8 +106,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const isAdmin = currentUser.role === 'admin';
-  const isSeller = currentUser.role === 'vendedor';
+  const isAdmin = currentUser?.role === 'admin';
+  const isSeller = currentUser?.role === 'vendedor';
 
   return (
     <AuthContext.Provider

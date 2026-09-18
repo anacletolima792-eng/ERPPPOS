@@ -3,6 +3,7 @@ import { X, Printer, Share2, Check, SlidersHorizontal, ExternalLink, Download, R
 import { Sale, StoreSettings } from '../types';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { getStoreSettings } from '../services/firestoreService';
+import { generatePrintReceiptUrl } from '../utils/printReceiptHelper';
 
 interface ReceiptModalProps {
   sale: Sale | null;
@@ -14,12 +15,19 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, isOpen, onClos
   const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
   const [copied, setCopied] = useState(false);
   const [paperWidth, setPaperWidth] = useState<'80mm' | '58mm'>('80mm');
+  const [printSuccessNotice, setPrintSuccessNotice] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       getStoreSettings().then(setStoreSettings).catch(console.error);
+      setPrintSuccessNotice(false);
+      if (sale) {
+        try {
+          sessionStorage.setItem('pdv_current_print_sale', JSON.stringify(sale));
+        } catch (e) {}
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, sale]);
 
   if (!isOpen || !sale) return null;
 
@@ -149,7 +157,17 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, isOpen, onClos
     `;
   };
 
+  const printUrl = generatePrintReceiptUrl(sale, storeSettings, paperWidth);
+
   const handlePrint = () => {
+    setPrintSuccessNotice(true);
+
+    try {
+      sessionStorage.setItem('pdv_current_print_sale', JSON.stringify(sale));
+    } catch (e) {}
+
+    const isInIframe = window.self !== window.top;
+
     // 1. Prepare dedicated #print-root element
     let printRoot = document.getElementById('print-root');
     if (!printRoot) {
@@ -162,88 +180,95 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, isOpen, onClos
     document.documentElement.style.setProperty('--print-width', targetWidth);
 
     printRoot.innerHTML = `
-      <div style="width: ${targetWidth}; margin: 0 auto; padding: 2mm; font-family: 'Courier New', Courier, monospace; font-size: ${paperWidth === '80mm' ? '11px' : '9.5px'}; line-height: 1.3; color: #000;">
+      <div style="width: ${targetWidth}; margin: 0 auto; padding: 2mm; font-family: 'Courier New', Courier, monospace; font-size: ${
+      paperWidth === '80mm' ? '11px' : '9.5px'
+    }; line-height: 1.3; color: #000;">
         ${buildReceiptInnerHtml()}
       </div>
     `;
 
-    // 2. Trigger native print dialog
+    // 2. Hidden Iframe Print Strategy (bypasses some browser modal restrictions)
     try {
-      window.print();
-    } catch (err) {
-      console.warn('Direct print blocked or failed, opening fallback print window:', err);
-      handleOpenPrintWindow();
+      let printIframe = document.getElementById('receipt-print-iframe') as HTMLIFrameElement;
+      if (!printIframe) {
+        printIframe = document.createElement('iframe');
+        printIframe.id = 'receipt-print-iframe';
+        printIframe.style.position = 'fixed';
+        printIframe.style.right = '0';
+        printIframe.style.bottom = '0';
+        printIframe.style.width = '0';
+        printIframe.style.height = '0';
+        printIframe.style.border = '0';
+        document.body.appendChild(printIframe);
+      }
+      const doc = printIframe.contentDocument || printIframe.contentWindow?.document;
+      if (doc) {
+        doc.open();
+        doc.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <title>Cupom #${sale.saleNumber}</title>
+              <style>
+                @page { size: ${paperWidth} auto; margin: 0mm !important; }
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                body {
+                  font-family: 'Courier New', Courier, monospace;
+                  font-size: ${paperWidth === '80mm' ? '11px' : '9.5px'};
+                  line-height: 1.3;
+                  color: #000;
+                  background: #fff;
+                  width: ${targetWidth};
+                  margin: 0 auto;
+                  padding: 2mm;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                }
+              </style>
+            </head>
+            <body>
+              ${buildReceiptInnerHtml()}
+            </body>
+          </html>
+        `);
+        doc.close();
+        setTimeout(() => {
+          try {
+            printIframe.contentWindow?.focus();
+            printIframe.contentWindow?.print();
+          } catch (e) {
+            console.warn('Iframe print warning:', e);
+          }
+        }, 250);
+      }
+    } catch (e) {
+      console.warn('Print iframe error:', e);
+    }
+
+    // 3. Trigger native print dialog directly (only when opened in a top-level window)
+    if (!isInIframe) {
+      try {
+        window.print();
+      } catch (err) {
+        console.warn('Direct print error:', err);
+      }
+    } else {
+      // In sandboxed preview iframes, direct window.print() can blank or lock the preview frame in Chromium.
+      // Opening the dedicated print receipt tab safely provides guaranteed native printing.
+      try {
+        window.open(printUrl, '_blank');
+      } catch (e) {
+        console.warn('Iframe window.open warning:', e);
+      }
     }
   };
 
   const handleOpenPrintWindow = () => {
-    const is80 = paperWidth === '80mm';
-    const targetWidth = is80 ? '78mm' : '56mm';
-    const fontSize = is80 ? '11px' : '9.5px';
-
-    const fullHtml = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <title>Cupom #${sale.saleNumber}</title>
-          <style>
-            @page {
-              size: ${paperWidth} auto;
-              margin: 0mm !important;
-            }
-            * { box-sizing: border-box; margin: 0; padding: 0; }
-            body {
-              font-family: 'Courier New', Courier, monospace;
-              font-size: ${fontSize};
-              line-height: 1.3;
-              color: #000;
-              background: #fff;
-              width: ${targetWidth};
-              margin: 0 auto;
-              padding: 4mm 2mm;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .btn-print-action {
-              display: block;
-              width: 100%;
-              padding: 10px;
-              margin-bottom: 15px;
-              background: #0f172a;
-              color: #ffffff;
-              font-weight: bold;
-              border: none;
-              border-radius: 8px;
-              font-size: 14px;
-              cursor: pointer;
-            }
-            @media print {
-              .btn-print-action { display: none !important; }
-              body { padding: 0 !important; width: 100% !important; }
-            }
-          </style>
-        </head>
-        <body>
-          <button class="btn-print-action" onclick="window.print()">🖨️ Clique Aqui para Imprimir Cupom</button>
-          ${buildReceiptInnerHtml()}
-          <script>
-            window.onload = function() {
-              setTimeout(function() {
-                window.print();
-              }, 300);
-            };
-          </script>
-        </body>
-      </html>
-    `;
-
-    const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const printWindow = window.open(url, '_blank');
-    if (printWindow) {
-      printWindow.focus();
-    }
+    try {
+      sessionStorage.setItem('pdv_current_print_sale', JSON.stringify(sale));
+    } catch (e) {}
+    window.open(printUrl, '_blank');
   };
 
   const handleShareWhatsApp = () => {
@@ -516,7 +541,24 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, isOpen, onClos
         </div>
 
         {/* Action Buttons */}
-        <div className="p-4 border-t border-slate-200 bg-white space-y-2">
+        <div className="p-4 border-t border-slate-200 bg-white space-y-2.5">
+          {printSuccessNotice && (
+            <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center justify-between gap-2 animate-in fade-in">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="font-semibold truncate">Impressão enviada!</span>
+              </div>
+              <a
+                href={printUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-700 hover:text-emerald-800 font-bold underline text-[11px] shrink-0"
+              >
+                Abrir em nova aba ↗
+              </a>
+            </div>
+          )}
+
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -528,15 +570,16 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, isOpen, onClos
               <span>Imprimir Cupom ({paperWidth})</span>
             </button>
 
-            <button
-              type="button"
+            <a
+              href={printUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               id="btn-open-print-tab"
-              onClick={handleOpenPrintWindow}
               title="Abrir cupom em nova aba para imprimir ou salvar em PDF"
               className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center transition-colors border border-slate-200 cursor-pointer"
             >
               <ExternalLink className="w-4 h-4" />
-            </button>
+            </a>
           </div>
 
           <div className="flex items-center gap-2">

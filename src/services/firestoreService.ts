@@ -145,12 +145,24 @@ export const normalizeProduct = (p: any, fallbackIndex = 0): Product => ({
 
 export const getStoredProducts = (): Product[] => {
   const list = getStoredData(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
-  return list.map((p, idx) => normalizeProduct(p, idx));
+  return (Array.isArray(list) ? list : []).map((p, idx) => normalizeProduct(p, idx));
 };
-export const getStoredCategories = (): Category[] => getStoredData(STORAGE_KEYS.CATEGORIES, DEFAULT_CATEGORIES);
-export const getStoredCustomers = (): Customer[] => getStoredData(STORAGE_KEYS.CUSTOMERS, DEFAULT_CUSTOMERS);
-export const getStoredSales = (): Sale[] => getStoredData(STORAGE_KEYS.SALES, DEFAULT_SALES);
-export const getStoredUsers = (): UserProfile[] => getStoredData(STORAGE_KEYS.USERS, DEFAULT_USERS);
+export const getStoredCategories = (): Category[] => {
+  const list = getStoredData(STORAGE_KEYS.CATEGORIES, DEFAULT_CATEGORIES);
+  return Array.isArray(list) ? list : [];
+};
+export const getStoredCustomers = (): Customer[] => {
+  const list = getStoredData(STORAGE_KEYS.CUSTOMERS, DEFAULT_CUSTOMERS);
+  return Array.isArray(list) ? list : DEFAULT_CUSTOMERS;
+};
+export const getStoredSales = (): Sale[] => {
+  const list = getStoredData(STORAGE_KEYS.SALES, DEFAULT_SALES);
+  return Array.isArray(list) ? list : [];
+};
+export const getStoredUsers = (): UserProfile[] => {
+  const list = getStoredData(STORAGE_KEYS.USERS, DEFAULT_USERS);
+  return Array.isArray(list) ? list : DEFAULT_USERS;
+};
 export const getStoredSettings = (): StoreSettings => getStoredData(STORAGE_KEYS.SETTINGS, DEFAULT_STORE_SETTINGS);
 
 // Helper to clean objects for Firestore

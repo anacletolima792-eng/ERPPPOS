@@ -34,18 +34,18 @@
 }
 
 /* Thermal receipt print styles for 80mm / 58mm POS Printers */
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
 #print-root {
   display: none;
 }
 
-@page {
-  size: 80mm auto;
-  margin: 0mm !important;
-}
-
 @media print {
   @page {
-    size: auto;
+    size: 80mm auto;
     margin: 0mm !important;
   }
 
@@ -60,13 +60,36 @@
     print-color-adjust: exact !important;
   }
 
-  /* Hide app screen and modal backdrop */
-  #root {
+  /* When on dedicated print view */
+  body.printing-dedicated {
+    background: #ffffff !important;
+  }
+  body.printing-dedicated #root {
+    display: block !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body.printing-dedicated .print-wrapper {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    display: block !important;
+  }
+  body.printing-dedicated #printable-receipt-card {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    padding: 2mm 0 !important;
+    margin: 0 auto !important;
+  }
+  body.printing-dedicated #print-root {
     display: none !important;
   }
 
-  /* Show only the dedicated thermal print root */
-  #print-root {
+  /* Show only the dedicated thermal print root when printing modal receipt */
+  body:not(.printing-dedicated) #print-root {
     display: block !important;
     visibility: visible !important;
     position: static !important;

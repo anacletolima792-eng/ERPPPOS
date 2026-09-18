@@ -3,18 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>PDV & ERP Pro</title>
+    <title>Remix PDV &amp; ERP Pro</title>
     <meta name="description" content="Sistema completo de PDV e ERP mobile-first com Firestore, controle de estoque, frente de caixa, relatórios e gestão de vendas." />
-    <meta property="og:title" content="PDV & ERP Pro" />
+    <meta property="og:title" content="Remix PDV &amp; ERP Pro" />
     <meta property="og:description" content="Sistema completo de PDV e ERP mobile-first com Firestore, controle de estoque, frente de caixa, relatórios e gestão de vendas." />
     <meta property="og:type" content="website" />
-    <meta name="theme-color" content="#f97316" />
+    <meta name="theme-color" content="#2563eb" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+      // Global safety error trap to prevent silent blank screens
+      window.addEventListener('error', function(event) {
+        console.error('[Global Startup Error]:', event.error || event.message);
+        var root = document.getElementById('root');
+        if (root && (!root.hasChildNodes() || root.innerText.indexOf('Carregando') !== -1)) {
+          root.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;padding:24px;font-family:sans-serif;"><div style="background:#fff;padding:28px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.08);max-width:420px;width:100%;border:1px solid #e2e8f0;text-align:center;"><div style="width:52px;height:52px;border-radius:50%;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;font-weight:bold;">!</div><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin:0 0 8px;">Falha ao Carregar o Sistema</h2><p style="font-size:13px;color:#64748b;margin:0 0 16px;line-height:1.5;">Ocorreu uma falha ao inicializar os módulos do PDV. Clique abaixo para atualizar o ambiente com segurança.</p><button onclick="window.location.reload()" style="background:#2563eb;color:#fff;border:none;padding:12px 24px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:14px;width:100%;box-shadow:0 4px 12px rgba(37,99,235,0.25);">Recarregar Aplicativo</button></div></div>';
+        }
+      });
+    </script>
   </head>
-  <body class="bg-slate-100 text-slate-900 antialiased selection:bg-orange-500 selection:text-white">
-    <div id="root"></div>
+  <body class="bg-slate-100 text-slate-900 antialiased selection:bg-blue-600 selection:text-white">
+    <div id="root">
+      <!-- Clean pre-mount placeholder so the screen is never blank before React loads -->
+      <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background-color:#f1f5f9;color:#334155;font-family:system-ui,-apple-system,sans-serif;">
+        <div style="width:40px;height:40px;border:3px solid #cbd5e1;border-top-color:#2563eb;border-radius:50%;animation:pdv-spin 0.7s linear infinite;margin-bottom:16px;"></div>
+        <style>@keyframes pdv-spin { to { transform: rotate(360deg); } }</style>
+        <p style="font-size:14px;font-weight:700;color:#1e293b;margin:0 0 4px;">Carregando Remix PDV &amp; ERP Pro...</p>
+        <p style="font-size:12px;color:#64748b;margin:0;">Iniciando frente de caixa e estoque em tempo real</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

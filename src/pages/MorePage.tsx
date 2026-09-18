@@ -25,6 +25,7 @@ import {
 import { Customer, Category, UserProfile, StoreSettings } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { formatCurrency, formatDate } from '../utils/formatters';
+import { safeStorage } from '../utils/storage';
 import { CustomerFormModal } from '../components/CustomerFormModal';
 import { CategoryFormModal } from '../components/CategoryFormModal';
 import { UserFormModal } from '../components/UserFormModal';
@@ -79,12 +80,12 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
 
   // Company settings state (persisted to localStorage & Firestore)
   const [initialSettings, setInitialSettings] = useState<StoreSettings | null>(null);
-  const [companyName, setCompanyName] = useState(() => localStorage.getItem('pdv_company_name') || 'Meu Estabelecimento');
-  const [companyCnpj, setCompanyCnpj] = useState(() => localStorage.getItem('pdv_company_cnpj') || '');
-  const [companyPhone, setCompanyPhone] = useState(() => localStorage.getItem('pdv_company_phone') || '');
-  const [companyAddress, setCompanyAddress] = useState(() => localStorage.getItem('pdv_company_address') || '');
-  const [companyPixKey, setCompanyPixKey] = useState(() => localStorage.getItem('pdv_company_pix') || '');
-  const [companyReceiptMsg, setCompanyReceiptMsg] = useState(() => localStorage.getItem('pdv_company_msg') || 'Obrigado pela preferência! Volte sempre.');
+  const [companyName, setCompanyName] = useState(() => safeStorage.getItem('pdv_company_name') || 'Meu Estabelecimento');
+  const [companyCnpj, setCompanyCnpj] = useState(() => safeStorage.getItem('pdv_company_cnpj') || '');
+  const [companyPhone, setCompanyPhone] = useState(() => safeStorage.getItem('pdv_company_phone') || '');
+  const [companyAddress, setCompanyAddress] = useState(() => safeStorage.getItem('pdv_company_address') || '');
+  const [companyPixKey, setCompanyPixKey] = useState(() => safeStorage.getItem('pdv_company_pix') || '');
+  const [companyReceiptMsg, setCompanyReceiptMsg] = useState(() => safeStorage.getItem('pdv_company_msg') || 'Obrigado pela preferência! Volte sempre.');
   const [isSavingCompany, setIsSavingCompany] = useState(false);
   const [isSavedCompany, setIsSavedCompany] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -163,12 +164,12 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
       setCompanyPixKey(initialSettings.pixKey || '');
       setCompanyReceiptMsg(initialSettings.receiptFooter || '');
     } else {
-      setCompanyName(localStorage.getItem('pdv_company_name') || 'Meu Estabelecimento');
-      setCompanyCnpj(localStorage.getItem('pdv_company_cnpj') || '');
-      setCompanyPhone(localStorage.getItem('pdv_company_phone') || '');
-      setCompanyAddress(localStorage.getItem('pdv_company_address') || '');
-      setCompanyPixKey(localStorage.getItem('pdv_company_pix') || '');
-      setCompanyReceiptMsg(localStorage.getItem('pdv_company_msg') || 'Obrigado pela preferência! Volte sempre.');
+      setCompanyName(safeStorage.getItem('pdv_company_name') || 'Meu Estabelecimento');
+      setCompanyCnpj(safeStorage.getItem('pdv_company_cnpj') || '');
+      setCompanyPhone(safeStorage.getItem('pdv_company_phone') || '');
+      setCompanyAddress(safeStorage.getItem('pdv_company_address') || '');
+      setCompanyPixKey(safeStorage.getItem('pdv_company_pix') || '');
+      setCompanyReceiptMsg(safeStorage.getItem('pdv_company_msg') || 'Obrigado pela preferência! Volte sempre.');
     }
     showToast('Alterações da loja canceladas/revertidas.');
   };
@@ -177,12 +178,12 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
     e.preventDefault();
     setIsSavingCompany(true);
 
-    localStorage.setItem('pdv_company_name', companyName);
-    localStorage.setItem('pdv_company_cnpj', companyCnpj);
-    localStorage.setItem('pdv_company_phone', companyPhone);
-    localStorage.setItem('pdv_company_address', companyAddress);
-    localStorage.setItem('pdv_company_pix', companyPixKey);
-    localStorage.setItem('pdv_company_msg', companyReceiptMsg);
+    safeStorage.setItem('pdv_company_name', companyName);
+    safeStorage.setItem('pdv_company_cnpj', companyCnpj);
+    safeStorage.setItem('pdv_company_phone', companyPhone);
+    safeStorage.setItem('pdv_company_address', companyAddress);
+    safeStorage.setItem('pdv_company_pix', companyPixKey);
+    safeStorage.setItem('pdv_company_msg', companyReceiptMsg);
 
     try {
       await Promise.race([

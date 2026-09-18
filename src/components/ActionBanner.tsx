@@ -69,10 +69,10 @@ export const ActionBanner: React.FC<ActionBannerProps> = ({ onOpenCart, onOpenCh
               onOpenCart();
             }
           }}
-          className={`w-36 sm:w-44 md:w-48 h-full rounded-xl font-black flex items-center justify-center gap-1.5 sm:gap-2 px-3 transition-colors shrink-0 shadow-md cursor-pointer ${
+          className={`w-36 sm:w-44 md:w-48 h-full rounded-xl font-black flex items-center justify-center gap-1.5 sm:gap-2 px-3 transition-colors shrink-0 shadow-xs active:scale-[0.98] cursor-pointer ${
             hasItems
-              ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
-              : 'bg-emerald-600/85 hover:bg-emerald-600 text-white shadow-slate-200'
+              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              : 'bg-emerald-600/90 hover:bg-emerald-600 text-white'
           }`}
           title={hasItems ? `Cobrar total: ${formatCurrency(total)}` : 'Abrir carrinho para cobrar'}
         >

@@ -34,7 +34,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const saved = safeStorage.getItem('pdv_cart_items');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(item => item && item.product && item.product.id);
+        }
       } catch (e) {
         console.error('Error parsing cart:', e);
       }
@@ -46,7 +49,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const saved = safeStorage.getItem('pdv_cart_customer');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object' && parsed.id) {
+          return parsed;
+        }
       } catch (e) {
         console.error('Error parsing customer:', e);
       }
@@ -155,12 +161,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     safeStorage.removeItem('pdv_cart_last_added_id');
   };
 
-  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-  const itemsDiscount = items.reduce((sum, item) => sum + item.discount, 0);
-  const totalDiscount = itemsDiscount + globalDiscount;
+  const validItems = Array.isArray(items) ? items : [];
+  const subtotal = validItems.reduce((sum, item) => sum + (Number(item?.quantity) || 0) * (Number(item?.unitPrice) || 0), 0);
+  const itemsDiscount = validItems.reduce((sum, item) => sum + (Number(item?.discount) || 0), 0);
+  const totalDiscount = itemsDiscount + (Number(globalDiscount) || 0);
   const total = Math.max(0, subtotal - totalDiscount);
-  const totalCost = items.reduce((sum, item) => sum + item.quantity * (item.product.costPrice || 0), 0);
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalCost = validItems.reduce((sum, item) => sum + (Number(item?.quantity) || 0) * (Number(item?.product?.costPrice) || 0), 0);
+  const itemCount = validItems.reduce((sum, item) => sum + (Number(item?.quantity) || 0), 0);
 
   const lastAddedItem = useMemo(() => {
     if (items.length === 0) return null;

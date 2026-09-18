@@ -9,6 +9,7 @@ import { MorePage } from './pages/MorePage';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { CartProvider } from './hooks/useCart';
 import { ThemeProvider } from './hooks/useTheme';
+import { PrintReceiptView } from './components/PrintReceiptView';
 import {
   subscribeProducts,
   subscribeCategories,
@@ -138,6 +139,32 @@ const MainApp: React.FC = () => {
 };
 
 export function App() {
+  const [printSaleId, setPrintSaleId] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('printSale');
+      } catch {}
+    }
+    return null;
+  });
+
+  if (printSaleId) {
+    return (
+      <PrintReceiptView
+        saleId={printSaleId}
+        onClose={() => {
+          try {
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState(null, '', window.location.pathname);
+            }
+          } catch {}
+          setPrintSaleId(null);
+        }}
+      />
+    );
+  }
+
   return (
     <ThemeProvider>
       <AuthProvider>
