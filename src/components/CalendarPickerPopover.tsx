@@ -121,35 +121,40 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
   }, [isOpen, currentFilter]);
 
   const [xOffset, setXOffset] = useState<number>(0);
-  const currentShiftRef = useRef<number>(0);
 
   // Auto-adjust horizontal position so the popover is never cut off by screen edges
   useEffect(() => {
     if (!isOpen) {
       setXOffset(0);
-      currentShiftRef.current = 0;
       return;
     }
 
     const adjustPosition = () => {
       if (!popoverRef.current) return;
-      const rect = popoverRef.current.getBoundingClientRect();
-      const unshiftedLeft = rect.left - currentShiftRef.current;
-      const unshiftedRight = rect.right - currentShiftRef.current;
+      const el = popoverRef.current;
+      // Temporarily remove transform to measure natural DOM layout bounds
+      const prevTransform = el.style.transform;
+      el.style.transform = 'none';
+      const rect = el.getBoundingClientRect();
+      el.style.transform = prevTransform;
+
       const margin = 10;
       const viewportWidth = window.innerWidth;
 
       let shift = 0;
-      if (unshiftedLeft < margin) {
-        shift = margin - unshiftedLeft;
-      } else if (unshiftedRight > viewportWidth - margin) {
-        shift = (viewportWidth - margin) - unshiftedRight;
+      // If right edge extends past viewport margin, shift leftwards
+      if (rect.right > viewportWidth - margin) {
+        shift = (viewportWidth - margin) - rect.right;
+      }
+      // If that shift pushes past left margin (or if initially past left), clamp to left margin
+      if (rect.left + shift < margin) {
+        shift = margin - rect.left;
       }
 
-      currentShiftRef.current = shift;
-      setXOffset(shift);
+      setXOffset(Math.round(shift));
     };
 
+    // Calculate immediately and on next frame to ensure accurate layout
     adjustPosition();
     const animId = requestAnimationFrame(adjustPosition);
     window.addEventListener('resize', adjustPosition);
@@ -160,16 +165,27 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
     };
   }, [isOpen, align]);
 
-  // Click outside listener
+  // Click outside listener (handles both desktop mouse and mobile touch)
   useEffect(() => {
     if (!isOpen) return;
-    const handleClickOutside = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const targetNode = e.target as Node;
+      if (popoverRef.current && !popoverRef.current.contains(targetNode)) {
+        // If clicking on the trigger button, let the button's own click handler toggle it
+        const trigger = document.getElementById('period-tab-all');
+        if (trigger && trigger.contains(targetNode)) {
+          return;
+        }
         onClose();
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -326,10 +342,10 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
       ref={popoverRef}
       id="calendar-picker-popover"
       className={`absolute z-50 top-full mt-1.5 ${
-        align === 'right' ? 'right-0' : 'left-0'
-      } bg-white rounded-xl shadow-2xl border border-slate-300 w-[290px] sm:w-[310px] max-w-[calc(100vw-20px)] p-3 text-slate-900 select-none animate-in fade-in zoom-in-95 duration-100 font-sans`}
+        align === 'right' ? 'left-0 sm:left-auto sm:right-0' : 'left-0'
+      } bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-[290px] sm:w-[310px] max-w-[calc(100vw-20px)] p-3 text-slate-900 select-none animate-in fade-in duration-100 font-sans`}
       style={{
-        boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.2), 0 4px 10px -2px rgba(0, 0, 0, 0.1)',
+        boxShadow: '0 12px 36px -4px rgba(0, 0, 0, 0.18), 0 4px 12px -2px rgba(0, 0, 0, 0.08)',
         transform: xOffset ? `translateX(${xOffset}px)` : undefined,
       }}
     >

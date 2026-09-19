@@ -114,12 +114,18 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
           className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
             isCustomActive
               ? 'bg-blue-600 text-white shadow-2xs font-black'
+              : isPopoverOpen
+              ? 'bg-white text-blue-700 shadow-2xs font-extrabold ring-1 ring-blue-400/50'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
           }`}
         >
           <CalendarDays className="w-3.5 h-3.5 shrink-0" />
           <span className="whitespace-nowrap">{getTudoButtonLabel()}</span>
-          <ChevronDown className="w-3 h-3 opacity-70 shrink-0" />
+          <ChevronDown
+            className={`w-3 h-3 opacity-70 shrink-0 transition-transform duration-200 ${
+              isPopoverOpen ? 'rotate-180 text-blue-600 opacity-100' : ''
+            }`}
+          />
         </button>
       </div>
 
