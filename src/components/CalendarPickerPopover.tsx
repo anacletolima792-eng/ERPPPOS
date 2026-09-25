@@ -343,22 +343,22 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
       id="calendar-picker-popover"
       className={`absolute z-50 top-full mt-1.5 ${
         align === 'right' ? 'left-0 sm:left-auto sm:right-0' : 'left-0'
-      } bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-[290px] sm:w-[310px] max-w-[calc(100vw-20px)] p-3 text-slate-900 select-none animate-in fade-in duration-100 font-sans`}
+      } bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-700 w-[290px] sm:w-[310px] max-w-[calc(100vw-20px)] p-3 text-slate-900 dark:text-slate-100 select-none animate-in fade-in duration-100 font-sans`}
       style={{
         boxShadow: '0 12px 36px -4px rgba(0, 0, 0, 0.18), 0 4px 12px -2px rgba(0, 0, 0, 0.08)',
         transform: xOffset ? `translateX(${xOffset}px)` : undefined,
       }}
     >
       {/* Optional Mode Toggle Header: Single Day vs Interval */}
-      <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 text-[11px] font-bold">
-        <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg">
+      <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800 text-[11px] font-bold">
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg">
           <button
             type="button"
             onClick={() => setMode('single')}
             className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               mode === 'single'
-                ? 'bg-white text-blue-700 shadow-2xs font-extrabold'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-2xs font-extrabold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
             Dia Único
@@ -368,8 +368,8 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
             onClick={() => setMode('range')}
             className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               mode === 'range'
-                ? 'bg-white text-blue-700 shadow-2xs font-extrabold'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-2xs font-extrabold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
             Intervalo (Período)
@@ -377,7 +377,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
         </div>
 
         {mode === 'range' && (
-          <span className="text-[10px] text-blue-600 font-semibold truncate">
+          <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold truncate">
             {rangeStart && rangeEnd
               ? `${formatDateOnly(rangeStart)} - ${formatDateOnly(rangeEnd)}`
               : rangeStart
@@ -389,9 +389,9 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
 
       {/* If Range mode is active, show the input boxes for Data de Início e Data Final */}
       {mode === 'range' && (
-        <div className="grid grid-cols-2 gap-2 mb-2.5 pb-2.5 border-b border-slate-100 text-[11px]">
+        <div className="grid grid-cols-2 gap-2 mb-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800 text-[11px]">
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-tight mb-0.5">
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight mb-0.5">
               Data Início
             </label>
             <input
@@ -399,11 +399,11 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
               id="input-popover-range-start"
               value={rangeStart}
               onChange={(e) => setRangeStart(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-md px-1.5 py-1 text-xs font-semibold text-slate-900 focus:outline-none focus:border-blue-500 cursor-pointer"
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-1.5 py-1 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-tight mb-0.5">
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight mb-0.5">
               Data Final
             </label>
             <input
@@ -411,7 +411,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
               id="input-popover-range-end"
               value={rangeEnd}
               onChange={(e) => setRangeEnd(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-md px-1.5 py-1 text-xs font-semibold text-slate-900 focus:outline-none focus:border-blue-500 cursor-pointer"
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-1.5 py-1 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
             />
           </div>
         </div>
@@ -425,7 +425,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
             type="button"
             id="btn-calendar-month-toggle"
             onClick={() => setIsMonthSelectOpen(!isMonthSelectOpen)}
-            className="flex items-center gap-1 text-sm font-black text-slate-900 hover:text-blue-600 transition-colors cursor-pointer py-0.5 rounded"
+            className="flex items-center gap-1 text-sm font-black text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer py-0.5 rounded"
           >
             <span>
               {MONTH_NAMES_PT[viewMonth]} de {viewYear}
@@ -435,7 +435,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
 
           {/* Quick Month / Year Dropdown */}
           {isMonthSelectOpen && (
-            <div className="absolute top-full left-0 mt-1 z-60 bg-white border border-slate-200 rounded-xl shadow-xl p-2 w-48 text-xs animate-in fade-in">
+            <div className="absolute top-full left-0 mt-1 z-60 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-2 w-48 text-xs animate-in fade-in">
               <div className="mb-2">
                 <span className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
                   Ano
@@ -443,7 +443,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
                 <select
                   value={viewYear}
                   onChange={(e) => setViewYear(Number(e.target.value))}
-                  className="w-full border border-slate-200 rounded-lg p-1 bg-slate-50 font-bold"
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-1 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-bold"
                 >
                   {yearOptions.map((y) => (
                     <option key={y} value={y}>
@@ -469,7 +469,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
                       className={`text-left px-2 py-1 rounded text-[11px] font-bold capitalize transition-colors ${
                         viewMonth === idx
                           ? 'bg-blue-600 text-white'
-                          : 'text-slate-700 hover:bg-slate-100'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                       }`}
                     >
                       {mName}
@@ -488,7 +488,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
             id="btn-calendar-prev-month"
             onClick={handlePrevMonth}
             title="Mês anterior"
-            className="w-7 h-7 rounded-md hover:bg-slate-100 text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
           >
             <ArrowUp className="w-4 h-4 stroke-[2.5]" />
           </button>
@@ -497,7 +497,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
             id="btn-calendar-next-month"
             onClick={handleNextMonth}
             title="Próximo mês"
-            className="w-7 h-7 rounded-md hover:bg-slate-100 text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
           >
             <ArrowDown className="w-4 h-4 stroke-[2.5]" />
           </button>
@@ -509,7 +509,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
         {WEEK_DAYS.map((wd, i) => (
           <div
             key={`${wd}-${i}`}
-            className="text-xs font-semibold text-slate-800 py-1"
+            className="text-xs font-semibold text-slate-800 dark:text-slate-400 py-1"
           >
             {wd}
           </div>
@@ -530,12 +530,12 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
               onClick={() => handleDayClick(cell.dateStr)}
               className={`h-8 w-full rounded text-xs transition-all flex items-center justify-center cursor-pointer relative ${
                 isSelected || isEndpoint
-                  ? 'bg-blue-600 text-white font-black border-2 border-black rounded-md shadow-xs z-10 scale-105'
+                  ? 'bg-blue-600 text-white font-black border-2 border-black dark:border-white rounded-md shadow-xs z-10 scale-105'
                   : inRange
-                  ? 'bg-blue-100 text-blue-900 font-bold rounded-none'
+                  ? 'bg-blue-100 dark:bg-blue-950/70 text-blue-900 dark:text-blue-300 font-bold rounded-none'
                   : cell.isCurrentMonth
-                  ? 'text-slate-900 font-semibold hover:bg-slate-100'
-                  : 'text-slate-400 font-normal hover:bg-slate-50'
+                  ? 'text-slate-900 dark:text-slate-100 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800'
+                  : 'text-slate-400 dark:text-slate-600 font-normal hover:bg-slate-50 dark:hover:bg-slate-800/50'
               }`}
             >
               {cell.dayNumber}
@@ -546,7 +546,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
 
       {/* If Range mode is active and dates are chosen, show Apply button */}
       {mode === 'range' && (
-        <div className="mt-2.5 pt-2 border-t border-slate-100">
+        <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
           <button
             type="button"
             id="btn-apply-range-filter"
@@ -555,7 +555,7 @@ export const CalendarPickerPopover: React.FC<CalendarPickerPopoverProps> = ({
             className={`w-full py-1.5 px-3 rounded-lg text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               rangeStart
                 ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-2xs'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
             }`}
           >
             <Check className="w-3.5 h-3.5" />

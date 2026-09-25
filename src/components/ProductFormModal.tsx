@@ -279,27 +279,27 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-3 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-3 sm:p-4">
       <div
-        className="w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-200"
+        className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold">
               <Package className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-extrabold text-slate-900 text-base">
+              <h2 className="font-extrabold text-slate-900 dark:text-slate-100 text-base">
                 {productToEdit ? 'Editar Produto' : 'Novo Produto'}
               </h2>
-              <p className="text-xs text-slate-500 font-medium">Controle de estoque e precificação</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Controle de estoque e precificação</p>
             </div>
           </div>
           <button
             id="btn-close-product-form"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -307,7 +307,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+            <div className="p-3 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-xs rounded-xl flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -316,10 +316,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           {/* FOTO DO PRODUTO (COMPACTO E PRODUTIVO) */}
           <div
             id="section-product-photo-top"
-            className="p-2.5 sm:p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-2.5"
+            className="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 rounded-2xl flex items-center gap-2.5"
           >
             {/* Miniatura compacta da foto */}
-            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 flex items-center justify-center shrink-0 group shadow-2xs">
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0 group shadow-2xs">
               {imageUrl ? (
                 <>
                   <img
@@ -342,7 +342,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   </button>
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center text-slate-400">
+                <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
                   <Camera className="w-5 h-5 stroke-[1.5]" />
                 </div>
               )}
@@ -364,10 +364,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               {/* Botão Galeria / Arquivo (apenas ícone) */}
               <label
                 htmlFor="input-upload-product-photo"
-                className="w-9 h-9 sm:w-10 sm:h-10 bg-white hover:bg-slate-100 active:scale-95 text-slate-700 border border-slate-300 rounded-xl flex items-center justify-center shrink-0 shadow-2xs transition-all cursor-pointer"
+                className="w-9 h-9 sm:w-10 sm:h-10 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-xl flex items-center justify-center shrink-0 shadow-2xs transition-all cursor-pointer"
                 title="Escolher foto da galeria"
               >
-                <Upload className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-600" />
+                <Upload className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-600 dark:text-slate-300" />
                 <input
                   type="file"
                   id="input-upload-product-photo"
@@ -389,7 +389,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                       ? 'Foto capturada'
                       : 'Link da imagem (URL https://...)'
                   }
-                  className="w-full h-9 sm:h-10 px-3 text-xs bg-white border border-slate-300 rounded-xl focus:outline-hidden focus:ring-1 focus:ring-orange-500 text-slate-700 placeholder:text-slate-400 font-medium"
+                  className="w-full h-9 sm:h-10 px-3 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-hidden focus:ring-1 focus:ring-orange-500 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-medium"
                 />
               </div>
 
@@ -398,7 +398,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setImageUrl('')}
-                  className="w-9 h-9 sm:w-10 sm:h-10 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+                  className="w-9 h-9 sm:w-10 sm:h-10 bg-red-50 dark:bg-red-950/60 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl flex items-center justify-center shrink-0 transition-colors cursor-pointer"
                   title="Remover foto"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -409,7 +409,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Código do Item *</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Código do Item *</label>
               <input
                 type="text"
                 required
@@ -417,17 +417,17 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="#00018"
-                className="w-full px-3 py-2 text-xs font-mono font-bold bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 text-xs font-mono font-bold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 dark:text-slate-100"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Unidade (UN, KG, CX...)</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Unidade (UN, KG, CX...)</label>
               <select
                 id="select-prod-unit"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-bold bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none"
+                className="w-full px-3 py-2 text-xs font-bold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none text-slate-900 dark:text-slate-100"
               >
                 <option value="UN">UN (Unidade)</option>
                 <option value="KG">KG (Quilo)</option>
@@ -442,7 +442,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Nome do Produto *</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Nome do Produto *</label>
             <input
               type="text"
               required
@@ -450,29 +450,29 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: LÁPIS PED IRWIN, CIMENTO CP-II..."
-              className="w-full px-3.5 py-2.5 text-xs font-semibold uppercase bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3.5 py-2.5 text-xs font-semibold uppercase bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 dark:text-slate-100"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Preço de Venda *</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Preço de Venda *</label>
               <CurrencyInput
                 id="input-prod-price"
                 value={price}
                 onChange={(val) => setPrice(val)}
                 required
-                className="w-full py-2 text-sm font-black text-blue-950 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-orange-500 shadow-2xs"
+                className="w-full py-2 text-sm font-black text-blue-950 dark:text-blue-200 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-hidden focus:ring-2 focus:ring-orange-500 shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Preço de Custo</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Preço de Custo</label>
               <CurrencyInput
                 id="input-prod-cost"
                 value={costPrice}
                 onChange={(val) => setCostPrice(val)}
-                className="w-full py-2 text-sm font-bold text-slate-700 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-slate-400"
+                className="w-full py-2 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-hidden focus:ring-2 focus:ring-slate-400"
               />
             </div>
           </div>
@@ -498,24 +498,24 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 id="box-product-margin-preview"
                 className={`p-2.5 rounded-xl border transition-all ${
                   diff > 0
-                    ? 'bg-emerald-50/90 border-emerald-200 text-emerald-950'
+                    ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200'
                     : diff < 0
-                    ? 'bg-rose-50 border-rose-200 text-rose-950'
-                    : 'bg-slate-50 border-slate-200 text-slate-800'
+                    ? 'bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800 text-rose-950 dark:text-rose-200'
+                    : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200'
                 }`}
               >
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="bg-white/80 p-2 rounded-lg border border-black/5">
-                    <span className="text-[10px] font-bold text-slate-500 block uppercase">
+                  <div className="bg-white/80 dark:bg-slate-900/80 p-2 rounded-lg border border-black/5 dark:border-white/5">
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block uppercase">
                       Diferença (Lucro)
                     </span>
                     <strong
                       className={`text-xs sm:text-sm font-black block mt-0.5 ${
                         diff > 0
-                          ? 'text-emerald-700'
+                          ? 'text-emerald-700 dark:text-emerald-400'
                           : diff < 0
-                          ? 'text-rose-700'
-                          : 'text-slate-700'
+                          ? 'text-rose-700 dark:text-rose-400'
+                          : 'text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       {diff >= 0 ? '+' : ''}
@@ -523,28 +523,28 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     </strong>
                   </div>
 
-                  <div className="bg-white/80 p-2 rounded-lg border border-black/5">
-                    <span className="text-[10px] font-bold text-slate-500 block uppercase">
+                  <div className="bg-white/80 dark:bg-slate-900/80 p-2 rounded-lg border border-black/5 dark:border-white/5">
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block uppercase">
                       Margem s/ Venda
                     </span>
                     <strong
                       className={`text-xs sm:text-sm font-black block mt-0.5 ${
                         margin > 0
-                          ? 'text-emerald-700'
+                          ? 'text-emerald-700 dark:text-emerald-400'
                           : margin < 0
-                          ? 'text-rose-700'
-                          : 'text-slate-700'
+                          ? 'text-rose-700 dark:text-rose-400'
+                          : 'text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       {margin.toFixed(1)}%
                     </strong>
                   </div>
 
-                  <div className="bg-white/80 p-2 rounded-lg border border-black/5">
-                    <span className="text-[10px] font-bold text-slate-500 block uppercase">
+                  <div className="bg-white/80 dark:bg-slate-900/80 p-2 rounded-lg border border-black/5 dark:border-white/5">
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block uppercase">
                       Markup s/ Custo
                     </span>
-                    <strong className="text-xs sm:text-sm font-black text-slate-800 block mt-0.5">
+                    <strong className="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200 block mt-0.5">
                       {costNum > 0 ? `${markup.toFixed(1)}%` : '—'}
                     </strong>
                   </div>
@@ -555,7 +555,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Estoque Atual *</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Estoque Atual *</label>
               <QuantityStepper
                 id="input-prod-stock"
                 value={parseInt(stock.toString(), 10) || 0}
@@ -568,7 +568,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Estoque Mínimo</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Estoque Mínimo</label>
               <QuantityStepper
                 id="input-prod-min-stock"
                 value={parseInt(minStock.toString(), 10) || 0}
@@ -584,7 +584,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-bold text-slate-700 block">Categoria</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Categoria</label>
                 <button
                   type="button"
                   id="btn-toggle-quick-category"
@@ -592,7 +592,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     setIsQuickAddCategory(!isQuickAddCategory);
                     setQuickCategoryError(null);
                   }}
-                  className="text-[11px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer transition-colors"
+                  className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 cursor-pointer transition-colors"
                   title="Criar nova categoria"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -605,7 +605,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   id="select-prod-category"
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="flex-1 px-3 py-2 text-xs font-medium bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none"
+                  className="flex-1 px-3 py-2 text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none text-slate-900 dark:text-slate-100"
                 >
                   <option value="">Sem categoria</option>
                   {localCategories.map((c) => (
@@ -626,7 +626,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   className={`h-[38px] w-[38px] rounded-xl flex items-center justify-center shrink-0 border transition-all cursor-pointer ${
                     isQuickAddCategory
                       ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
-                      : 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:border-blue-300 active:scale-95'
+                      : 'bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 active:scale-95'
                   }`}
                 >
                   <Plus className={`w-4 h-4 transition-transform ${isQuickAddCategory ? 'rotate-45' : ''}`} />
@@ -635,16 +635,16 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
               {/* Box expansível para cadastrar nova categoria */}
               {isQuickAddCategory && (
-                <div className="mt-2 p-2.5 bg-blue-50/90 border border-blue-200 rounded-xl space-y-2 animate-in fade-in slide-in-from-top-1">
+                <div className="mt-2 p-2.5 bg-blue-50/90 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/60 rounded-xl space-y-2 animate-in fade-in slide-in-from-top-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-blue-900 flex items-center gap-1">
-                      <Tag className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-[11px] font-bold text-blue-900 dark:text-blue-200 flex items-center gap-1">
+                      <Tag className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       Criar Categoria Rápida
                     </span>
                     <button
                       type="button"
                       onClick={() => setIsQuickAddCategory(false)}
-                      className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full cursor-pointer"
+                      className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-full cursor-pointer"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -664,7 +664,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                         }
                       }}
                       autoFocus
-                      className="flex-1 px-2.5 py-1.5 text-xs bg-white border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800"
+                      className="flex-1 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800 dark:text-slate-100"
                     />
                     <button
                       type="button"
@@ -684,7 +684,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
                   {/* Cores rápidas */}
                   <div className="flex items-center gap-1.5 pt-0.5">
-                    <span className="text-[10px] font-semibold text-slate-500">Cor:</span>
+                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">Cor:</span>
                     <div className="flex items-center gap-1">
                       {CATEGORY_COLORS.map((c) => (
                         <button
@@ -701,7 +701,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   </div>
 
                   {quickCategoryError && (
-                    <p className="text-[11px] text-red-600 font-medium">{quickCategoryError}</p>
+                    <p className="text-[11px] text-red-600 dark:text-red-400 font-medium">{quickCategoryError}</p>
                   )}
                 </div>
               )}
@@ -709,11 +709,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-bold text-slate-700 block">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                   Código de Barras (EAN)
                 </label>
                 {scanSuccessFeedback && (
-                  <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1 animate-in fade-in">
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 animate-in fade-in">
                     <Check className="w-3 h-3" />
                     Lido da Câmera!
                   </span>
@@ -727,10 +727,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   value={barcode}
                   onChange={(e) => setBarcode(e.target.value)}
                   placeholder="7891234560020"
-                  className={`w-full pl-3 pr-20 py-2 text-xs font-mono font-semibold bg-slate-50 border rounded-xl focus:bg-white focus:outline-hidden transition-all ${
+                  className={`w-full pl-3 pr-20 py-2 text-xs font-mono font-semibold bg-slate-50 dark:bg-slate-800 border rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-hidden transition-all text-slate-900 dark:text-slate-100 ${
                     scanSuccessFeedback
                       ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/30'
-                      : 'border-slate-300 focus:ring-2 focus:ring-orange-500'
+                      : 'border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-orange-500'
                   }`}
                 />
 
@@ -741,7 +741,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                       type="button"
                       onClick={() => setBarcode('')}
                       title="Limpar código de barras"
-                      className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 rounded-lg transition-colors cursor-pointer"
+                      className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -758,20 +758,20 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   </button>
                 </div>
               </div>
-              <p className="text-[10px] text-slate-400 mt-1">
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
                 Toque no botão para ler o código direto da embalagem
               </p>
             </div>
           </div>
 
-          <div className="pt-2 flex items-center justify-between gap-3 border-t border-slate-200">
+          <div className="pt-2 flex items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-800">
             {productToEdit ? (
               <button
                 type="button"
                 id="btn-delete-product"
                 onClick={handleDelete}
                 disabled={isSaving}
-                className="px-4 py-2.5 text-red-600 hover:bg-red-50 border border-red-200 rounded-xl font-bold text-xs flex items-center gap-1"
+                className="px-4 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/60 rounded-xl font-bold text-xs flex items-center gap-1 cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
                 <span>Excluir</span>
@@ -784,7 +784,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 id="btn-cancel-product-form"
                 onClick={onClose}
                 disabled={isSaving}
-                className="px-4 py-2.5 border border-slate-300 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-100"
+                className="px-4 py-2.5 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 Cancelar
               </button>

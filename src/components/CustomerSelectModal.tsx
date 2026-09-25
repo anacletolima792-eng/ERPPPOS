@@ -77,25 +77,25 @@ export const CustomerSelectModal: React.FC<CustomerSelectModalProps> = ({ isOpen
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-3 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-3 sm:p-4">
       <div
-        className="w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+        className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold">
               <Users className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-extrabold text-slate-900 text-base">Identificar Cliente</h2>
-              <p className="text-xs text-slate-500 font-medium">Vincule a venda a um cliente</p>
+              <h2 className="font-extrabold text-slate-900 dark:text-slate-100 text-base">Identificar Cliente</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Vincule a venda a um cliente</p>
             </div>
           </div>
           <button
             id="btn-close-customer-modal"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -103,20 +103,20 @@ export const CustomerSelectModal: React.FC<CustomerSelectModalProps> = ({ isOpen
 
         <div className="p-4 flex-1 overflow-y-auto space-y-3">
           {showNewCustomerForm ? (
-            <form onSubmit={handleCreateCustomer} className="space-y-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+            <form onSubmit={handleCreateCustomer} className="space-y-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase text-slate-700">Novo Cliente Rápido</h3>
+                <h3 className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">Novo Cliente Rápido</h3>
                 <button
                   type="button"
                   onClick={() => setShowNewCustomerForm(false)}
-                  className="text-xs text-slate-500 hover:text-slate-800 font-bold"
+                  className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-bold cursor-pointer"
                 >
                   Cancelar
                 </button>
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-600 block mb-1">Nome Completo *</label>
+                <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 block mb-1">Nome Completo *</label>
                 <input
                   type="text"
                   required
@@ -124,44 +124,44 @@ export const CustomerSelectModal: React.FC<CustomerSelectModalProps> = ({ isOpen
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Nome do cliente ou empresa"
-                  className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-orange-500"
+                  className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:border-orange-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-600 block mb-1">CPF / CNPJ</label>
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 block mb-1">CPF / CNPJ</label>
                   <input
                     type="text"
                     id="input-new-cust-doc"
                     value={document}
                     onChange={(e) => setDocument(e.target.value)}
                     placeholder="000.000.000-00"
-                    className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-orange-500"
+                    className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:border-orange-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-slate-600 block mb-1">Telefone / WhatsApp</label>
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 block mb-1">Telefone / WhatsApp</label>
                   <input
                     type="text"
                     id="input-new-cust-phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="(00) 00000-0000"
-                    className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-orange-500"
+                    className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:border-orange-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-600 block mb-1">Endereço</label>
+                <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 block mb-1">Endereço</label>
                 <input
                   type="text"
                   id="input-new-cust-address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="Rua, número, bairro..."
-                  className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-orange-500"
+                  className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:border-orange-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -169,7 +169,7 @@ export const CustomerSelectModal: React.FC<CustomerSelectModalProps> = ({ isOpen
                 type="submit"
                 id="btn-save-new-customer"
                 disabled={isSaving}
-                className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xs shadow-xs"
+                className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xs shadow-xs cursor-pointer disabled:opacity-50"
               >
                 {isSaving ? 'Salvando...' : 'Salvar e Selecionar Cliente'}
               </button>
@@ -185,15 +185,15 @@ export const CustomerSelectModal: React.FC<CustomerSelectModalProps> = ({ isOpen
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Buscar por nome, CPF/CNPJ ou tel..."
-                    className="w-full pl-9 pr-3 py-2 text-xs bg-slate-100 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-orange-500"
+                    className="w-full pl-9 pr-3 py-2 text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-orange-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                  <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5" />
                 </div>
                 <button
                   type="button"
                   id="btn-show-new-customer-form"
                   onClick={() => setShowNewCustomerForm(true)}
-                  className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold flex items-center gap-1 shrink-0"
+                  className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Novo</span>
@@ -215,23 +215,23 @@ export const CustomerSelectModal: React.FC<CustomerSelectModalProps> = ({ isOpen
                   }
                   className={`w-full p-3 rounded-2xl border flex items-center justify-between transition-all text-left ${
                     activeCustomer?.id === 'cust-balcao'
-                      ? 'border-orange-500 bg-orange-50/70 ring-2 ring-orange-400/40'
-                      : 'border-slate-200 hover:bg-slate-50'
+                      ? 'border-orange-500 bg-orange-50/70 dark:bg-orange-950/50 ring-2 ring-orange-400/40'
+                      : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 bg-white dark:bg-slate-900'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs">
+                    <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold text-xs">
                       CF
                     </div>
                     <div>
-                      <span className="font-bold text-sm text-slate-900 block">
+                      <span className="font-bold text-sm text-slate-900 dark:text-slate-100 block">
                         Consumidor Final (Balcão)
                       </span>
-                      <span className="text-[11px] text-slate-500">Sem cadastro / Venda rápida</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Sem cadastro / Venda rápida</span>
                     </div>
                   </div>
                   {activeCustomer?.id === 'cust-balcao' && (
-                    <Check className="w-4 h-4 text-orange-600 font-bold" />
+                    <Check className="w-4 h-4 text-orange-600 dark:text-orange-400 font-bold" />
                   )}
                 </button>
 
@@ -247,19 +247,19 @@ export const CustomerSelectModal: React.FC<CustomerSelectModalProps> = ({ isOpen
                         onClick={() => handleSelectCustomer(cust)}
                         className={`w-full p-3 rounded-2xl border flex items-center justify-between transition-all text-left ${
                           isSelected
-                            ? 'border-orange-500 bg-orange-50/70 ring-2 ring-orange-400/40'
-                            : 'border-slate-200 hover:bg-slate-50'
+                            ? 'border-orange-500 bg-orange-50/70 dark:bg-orange-950/50 ring-2 ring-orange-400/40'
+                            : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 bg-white dark:bg-slate-900'
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs shrink-0">
+                          <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 flex items-center justify-center font-bold text-xs shrink-0 border border-blue-200 dark:border-blue-900/60">
                             {cust.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <span className="font-bold text-sm text-slate-900 truncate block">
+                            <span className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate block">
                               {cust.name}
                             </span>
-                            <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
+                            <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 flex-wrap">
                               {cust.document && <span>{formatDocument(cust.document)}</span>}
                               {cust.phone && (
                                 <span className="flex items-center gap-0.5">
@@ -270,7 +270,7 @@ export const CustomerSelectModal: React.FC<CustomerSelectModalProps> = ({ isOpen
                             </div>
                           </div>
                         </div>
-                        {isSelected && <Check className="w-4 h-4 text-orange-600 font-bold ml-2" />}
+                        {isSelected && <Check className="w-4 h-4 text-orange-600 dark:text-orange-400 font-bold ml-2" />}
                       </button>
                     );
                   })}

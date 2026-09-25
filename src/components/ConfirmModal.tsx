@@ -30,11 +30,11 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 flex flex-col gap-4 border border-slate-200 animate-in zoom-in-95 duration-200"
+        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 flex flex-col gap-4 border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200 text-slate-900 dark:text-slate-100"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -44,8 +44,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             <div
               className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
                 isDestructive
-                  ? 'bg-red-100 text-red-600 border border-red-200'
-                  : 'bg-amber-100 text-amber-600 border border-amber-200'
+                  ? 'bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/60'
+                  : 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/60'
               }`}
             >
               {isDestructive ? (
@@ -55,10 +55,10 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               )}
             </div>
             <div>
-              <h3 className="font-extrabold text-slate-900 text-base leading-tight">
+              <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-base leading-tight">
                 {title}
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
                 Confirmação necessária
               </p>
             </div>
@@ -68,18 +68,18 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-1">
-          <p className="text-xs text-slate-600 leading-relaxed font-medium">
+        <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 space-y-1">
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
             {message}
           </p>
           {itemName && (
-            <p className="text-xs font-black text-slate-900 break-words bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 mt-2">
+            <p className="text-xs font-black text-slate-900 dark:text-white break-words bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 mt-2">
               {itemName}
             </p>
           )}
@@ -90,7 +90,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+            className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer border border-transparent dark:border-slate-700 disabled:opacity-50"
           >
             {cancelText}
           </button>

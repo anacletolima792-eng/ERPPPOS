@@ -91,7 +91,7 @@ const MainApp: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 select-none">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col font-sans text-slate-900 dark:text-slate-100 select-none transition-colors">
       {/* Current Active View */}
       {isAdmin && (activeTab === 'dashboard' || (activeTab as string) === 'home') && (
         <DashboardPage

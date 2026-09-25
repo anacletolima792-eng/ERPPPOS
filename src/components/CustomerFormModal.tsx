@@ -118,27 +118,27 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-3 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-3 sm:p-4">
       <div
-        className="w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-200"
+        className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold">
               <Users className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-extrabold text-slate-900 text-base">
+              <h2 className="font-extrabold text-slate-900 dark:text-slate-100 text-base">
                 {customerToEdit ? 'Editar Cliente' : 'Novo Cliente'}
               </h2>
-              <p className="text-xs text-slate-500 font-medium">Cadastro para vendas a prazo e histórico</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Cadastro para vendas a prazo e histórico</p>
             </div>
           </div>
           <button
             id="btn-close-customer-form"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -146,14 +146,14 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-5 overflow-y-auto space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+            <div className="p-3 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-xs rounded-xl flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Nome Completo / Razão Social *</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Nome Completo / Razão Social *</label>
             <input
               type="text"
               required
@@ -161,90 +161,90 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Carlos Construtor, Marina Silva..."
-              className="w-full px-3.5 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3.5 py-2.5 text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">CPF ou CNPJ</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">CPF ou CNPJ</label>
               <input
                 type="text"
                 id="input-cust-document-full"
                 value={document}
                 onChange={(e) => setDocument(e.target.value)}
                 placeholder="000.000.000-00"
-                className="w-full px-3 py-2 text-xs font-mono bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none"
+                className="w-full px-3 py-2 text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Telefone / WhatsApp</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Telefone / WhatsApp</label>
               <input
                 type="text"
                 id="input-cust-phone-full"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="(11) 99999-9999"
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none"
+                className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">E-mail</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">E-mail</label>
               <input
                 type="email"
                 id="input-cust-email-full"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="cliente@email.com"
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none"
+                className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Limite de Crédito</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Limite de Crédito</label>
               <CurrencyInput
                 id="input-cust-limit-full"
                 value={creditLimit}
                 onChange={(val) => setCreditLimit(val)}
-                className="w-full py-2 text-xs font-bold text-slate-900 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none"
+                className="w-full py-2 text-xs font-bold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Endereço Completo</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Endereço Completo</label>
             <input
               type="text"
               id="input-cust-addr-full"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Rua, número, complemento, bairro, cidade"
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Observações Internas</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Observações Internas</label>
             <textarea
               rows={2}
               id="input-cust-notes-full"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Ex: Paga sempre no dia 10..."
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
 
-          <div className="pt-3 flex items-center justify-between gap-3 border-t border-slate-200">
+          <div className="pt-3 flex items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-800">
             {customerToEdit && customerToEdit.id !== 'cust-balcao' ? (
               <button
                 type="button"
                 id="btn-delete-customer"
                 onClick={handleDelete}
                 disabled={isSaving}
-                className="px-3 py-2 text-red-600 hover:bg-red-50 border border-red-200 rounded-xl font-bold text-xs flex items-center gap-1"
+                className="px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/60 rounded-xl font-bold text-xs flex items-center gap-1 cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Excluir</span>
@@ -257,7 +257,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 id="btn-cancel-customer"
                 onClick={onClose}
                 disabled={isSaving}
-                className="px-4 py-2 border border-slate-300 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-100"
+                className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 Cancelar
               </button>
@@ -265,7 +265,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 type="submit"
                 id="btn-save-customer-full"
                 disabled={isSaving}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1 disabled:opacity-50 cursor-pointer"
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 active:scale-98 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1 disabled:opacity-50 cursor-pointer"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>{isSaving ? 'Salvando...' : 'Salvar Cliente'}</span>

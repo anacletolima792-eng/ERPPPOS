@@ -94,27 +94,27 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
   const colors = ['#f97316', '#0ea5e9', '#8b5cf6', '#10b981', '#ef4444', '#eab308', '#ec4899', '#64748b'];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-3 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-3 sm:p-4">
       <div
-        className="w-full max-w-md bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold">
               <Tag className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-extrabold text-slate-900 text-base">
+              <h2 className="font-extrabold text-slate-900 dark:text-slate-100 text-base">
                 {categoryToEdit ? 'Editar Categoria' : 'Nova Categoria'}
               </h2>
-              <p className="text-xs text-slate-500 font-medium">Organização de produtos no PDV</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Organização de produtos no PDV</p>
             </div>
           </div>
           <button
             id="btn-close-category-form"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -122,14 +122,14 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+            <div className="p-3 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-xs rounded-xl flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Nome da Categoria *</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Nome da Categoria *</label>
             <input
               type="text"
               required
@@ -137,20 +137,20 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Ferramentas, Elétrica, Tintas..."
-              className="w-full px-3.5 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3.5 py-2.5 text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-2">Cor de Identificação</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-2">Cor de Identificação</label>
             <div className="flex items-center gap-2 flex-wrap">
               {colors.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full transition-transform ${
-                    color === c ? 'scale-110 ring-2 ring-offset-2 ring-slate-900' : 'hover:scale-105'
+                  className={`w-8 h-8 rounded-full transition-transform cursor-pointer ${
+                    color === c ? 'scale-110 ring-2 ring-offset-2 ring-slate-900 dark:ring-offset-slate-900 dark:ring-white' : 'hover:scale-105'
                   }`}
                   style={{ backgroundColor: c }}
                 />
@@ -158,14 +158,14 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
             </div>
           </div>
 
-          <div className="pt-3 flex items-center justify-between gap-3 border-t border-slate-200">
+          <div className="pt-3 flex items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-800">
             {categoryToEdit ? (
               <button
                 type="button"
                 id="btn-delete-category"
                 onClick={handleDelete}
                 disabled={isSaving}
-                className="px-3 py-2 text-red-600 hover:bg-red-50 border border-red-200 rounded-xl font-bold text-xs flex items-center gap-1"
+                className="px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/60 rounded-xl font-bold text-xs flex items-center gap-1 cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Excluir</span>
@@ -178,7 +178,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
                 id="btn-cancel-category"
                 onClick={onClose}
                 disabled={isSaving}
-                className="px-4 py-2 border border-slate-300 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-100"
+                className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 Cancelar
               </button>

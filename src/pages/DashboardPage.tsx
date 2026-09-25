@@ -41,6 +41,7 @@ import {
 import { DateFilterBar } from '../components/DateFilterBar';
 import { CategorySalesModal } from '../components/CategorySalesModal';
 import { AllSoldProductsModal } from '../components/AllSoldProductsModal';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 interface DashboardPageProps {
   sales: Sale[];
@@ -356,13 +357,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     dateFilter.type.startsWith('custom') || dateFilter.type === 'all';
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pb-24">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col pb-24 transition-colors">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 sm:px-6 py-3 shadow-xs">
+      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 shadow-xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-lg font-black text-slate-900 tracking-tight">Dashboard Executivo</h1>
-            <p className="text-xs text-slate-500 font-medium">Relatórios, métricas de vendas e estoque em tempo real</p>
+            <h1 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">Dashboard Executivo</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Relatórios, métricas de vendas e estoque em tempo real</p>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
@@ -372,6 +373,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               onFilterChange={(newFilter) => setDateFilter(newFilter)}
               alignPopover="right"
             />
+            {/* Theme Mode Switcher */}
+            <div className="shrink-0">
+              <ThemeToggle id="dashboard-theme-toggle" />
+            </div>
           </div>
         </div>
       </header>
@@ -379,12 +384,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       <main className="max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 space-y-4">
         {/* Active Filter Notification Bar */}
         {dateFilter.type !== 'today' && (
-          <div className="bg-blue-50/90 border border-blue-200 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-2xs">
-            <div className="flex items-center gap-2 text-xs font-semibold text-blue-900">
-              <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
+          <div className="bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-2xs">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-900 dark:text-blue-200">
+              <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
               <span>
                 Filtro ativo:{' '}
-                <strong className="font-black text-blue-950">
+                <strong className="font-black text-blue-950 dark:text-white">
                   {dateFilter.type === '7days' && 'Últimos 7 Dias'}
                   {dateFilter.type === 'month' &&
                     `Mês Atual (${formatMonthYear(getMonthStr())})`}
@@ -408,7 +413,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <button
                 type="button"
                 onClick={() => setIsCalendarOpen(true)}
-                className="px-2.5 py-1 text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                className="px-2.5 py-1 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 hover:bg-blue-200 dark:hover:bg-blue-900 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
               >
                 <CalendarDays className="w-3.5 h-3.5" />
                 <span>Escolher Outra Data</span>
@@ -422,7 +427,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     customMonth: getMonthStr(),
                   })
                 }
-                className="px-2.5 py-1 text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-blue-100/60 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                className="px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-blue-100/60 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
               >
                 <X className="w-3.5 h-3.5" />
                 <span>Voltar p/ Hoje</span>
@@ -457,18 +462,18 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
 
           {/* Card 2: Custo das Vendas (CMV) */}
-          <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500 mb-1.5 sm:mb-2">
+          <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1.5 sm:mb-2">
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate mr-1">Custo das Vendas</span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/60 flex items-center justify-center shrink-0">
                 <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
             <div>
-              <span className="text-lg sm:text-2xl font-black text-slate-800 tracking-tight block truncate">
+              <span className="text-lg sm:text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight block truncate">
                 {isAdmin ? formatCurrency(totalCost) : 'Restrito (Admin)'}
               </span>
-              <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-0.5 sm:mt-1 truncate">
+              <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium block mt-0.5 sm:mt-1 truncate">
                 {isAdmin && totalRevenue > 0
                   ? `${costPercentage.toFixed(1)}% do faturamento`
                   : 'Custo de mercadorias (CMV)'}
@@ -477,18 +482,18 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
 
           {/* Card 3: Lucro Estimado (Admin) */}
-          <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500 mb-1.5 sm:mb-2">
+          <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1.5 sm:mb-2">
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate mr-1">Lucro Bruto</span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/60 flex items-center justify-center shrink-0">
                 <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
             <div>
-              <span className="text-lg sm:text-2xl font-black text-emerald-700 tracking-tight block truncate">
+              <span className="text-lg sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight block truncate">
                 {isAdmin ? formatCurrency(grossProfit) : 'Restrito (Admin)'}
               </span>
-              <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-0.5 sm:mt-1 truncate">
+              <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium block mt-0.5 sm:mt-1 truncate">
                 {isAdmin && totalRevenue > 0
                   ? `Margem: ${profitMargin.toFixed(1)}%`
                   : 'Faturamento líquido - Custo'}
@@ -497,18 +502,18 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
 
           {/* Card 4: Ticket Médio */}
-          <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500 mb-1.5 sm:mb-2">
+          <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1.5 sm:mb-2">
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate mr-1">Ticket Médio</span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/60 flex items-center justify-center shrink-0">
                 <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
             <div>
-              <span className="text-lg sm:text-2xl font-black text-blue-600 tracking-tight block truncate">
+              <span className="text-lg sm:text-2xl font-black text-blue-600 dark:text-blue-400 tracking-tight block truncate">
                 {formatCurrency(averageTicket)}
               </span>
-              <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-0.5 sm:mt-1 truncate">
+              <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium block mt-0.5 sm:mt-1 truncate">
                 Média por transação concluída
               </span>
             </div>
@@ -519,23 +524,23 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             onClick={onNavigateToInventory}
             className={`p-3.5 sm:p-5 rounded-2xl border shadow-xs flex flex-col justify-between cursor-pointer transition-all ${
               lowStockProducts.length > 0
-                ? 'bg-orange-50/60 border-orange-200 hover:border-orange-300'
-                : 'bg-white border-slate-200'
+                ? 'bg-orange-50/60 dark:bg-orange-950/40 border-orange-200 dark:border-orange-800 hover:border-orange-300'
+                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
             }`}
           >
-            <div className="flex items-center justify-between text-slate-500 mb-1.5 sm:mb-2">
-              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-orange-950 truncate mr-1">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1.5 sm:mb-2">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-orange-950 dark:text-orange-200 truncate mr-1">
                 Estoque Crítico
               </span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-orange-100 dark:bg-orange-900/60 text-orange-700 dark:text-orange-300 flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
             <div>
-              <span className="text-lg sm:text-2xl font-black text-orange-950 tracking-tight block truncate">
+              <span className="text-lg sm:text-2xl font-black text-orange-950 dark:text-orange-100 tracking-tight block truncate">
                 {lowStockProducts.length} {lowStockProducts.length === 1 ? 'item' : 'itens'}
               </span>
-              <span className="text-[10px] sm:text-xs text-orange-800 font-bold flex items-center gap-1 mt-0.5 sm:mt-1 truncate">
+              <span className="text-[10px] sm:text-xs text-orange-800 dark:text-orange-300 font-bold flex items-center gap-1 mt-0.5 sm:mt-1 truncate">
                 <span>Repor estoque</span>
                 <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
               </span>
@@ -546,13 +551,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Chart 1: Revenue Timeline */}
-          <div className="lg:col-span-2 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-extrabold text-slate-900 text-sm">Faturamento no Período</h3>
-                <p className="text-xs text-slate-500">Evolução de receitas ao longo do tempo</p>
+                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">Faturamento no Período</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Evolução de receitas ao longo do tempo</p>
               </div>
-              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
+              <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-200 dark:border-blue-800">
                 {formatCurrency(totalRevenue)}
               </span>
             </div>
@@ -571,7 +576,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                         <stop offset="95%" stopColor="#2563eb" stopOpacity={0.0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
                     <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} />
                     <Tooltip
@@ -603,16 +608,16 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           {/* Payment Methods - Written Information (No Chart) */}
           <div
             id="card-payment-methods-summary"
-            className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between"
+            className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-1">
-                <h3 className="font-extrabold text-slate-900 text-sm">Formas de Pagamento</h3>
-                <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">Formas de Pagamento</h3>
+                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
                   {filteredSales.length} {filteredSales.length === 1 ? 'venda' : 'vendas'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mb-3.5">Distribuição financeira por método</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3.5">Distribuição financeira por método</p>
 
               {/* Written methods list */}
               <div className="space-y-2">
@@ -622,8 +627,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     id={`payment-method-row-${item.id}`}
                     className={`p-2.5 rounded-xl border transition-all flex items-center justify-between ${
                       item.total > 0
-                        ? 'bg-slate-50/90 border-slate-200'
-                        : 'bg-white border-slate-100 opacity-60'
+                        ? 'bg-slate-50/90 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700'
+                        : 'bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 opacity-60'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -632,10 +637,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                         style={{ backgroundColor: item.color }}
                       />
                       <div className="min-w-0">
-                        <span className="font-bold text-xs text-slate-800 block truncate">
+                        <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate">
                           {item.name}
                         </span>
-                        <span className="text-[10px] text-slate-500 block">
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
                           {item.count} {item.count === 1 ? 'venda' : 'vendas'}
                           {item.percentage > 0 ? ` • ${item.percentage.toFixed(0)}%` : ''}
                         </span>
@@ -645,7 +650,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <div className="text-right shrink-0 pl-2">
                       <span
                         className={`text-xs font-black block ${
-                          item.total > 0 ? 'text-slate-900' : 'text-slate-400'
+                          item.total > 0 ? 'text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500'
                         }`}
                       >
                         {formatCurrency(item.total)}
@@ -657,9 +662,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </div>
 
             {/* Total Footer */}
-            <div className="pt-3 mt-4 border-t border-slate-200 flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-600">Total Recebido</span>
-              <span className="text-sm font-black text-slate-900">{formatCurrency(totalRevenue)}</span>
+            <div className="pt-3 mt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Total Recebido</span>
+              <span className="text-sm font-black text-slate-900 dark:text-slate-100">{formatCurrency(totalRevenue)}</span>
             </div>
           </div>
         </div>
@@ -667,24 +672,24 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         {/* Top Products, Category Sales & Critical Stock List */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Widget 1: Top Selling Products */}
-          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3 flex flex-col justify-between">
+          <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <h3 className="font-extrabold text-slate-900 text-sm truncate">Produtos Mais Vendidos</h3>
+                  <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm truncate">Produtos Mais Vendidos</h3>
                   <Package className="w-4 h-4 text-slate-400 shrink-0" />
                 </div>
                 <button
                   type="button"
                   id="btn-view-all-sold-products"
                   onClick={() => setIsAllSoldProductsOpen(true)}
-                  className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer shrink-0 transition-colors"
+                  className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer shrink-0 transition-colors"
                   title="Ver todos os produtos vendidos"
                 >
                   Ver Todos
                 </button>
               </div>
-              <p className="text-xs text-slate-500">Volume, custo, lucro e faturamento</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Volume, custo, lucro e faturamento</p>
             </div>
 
             <div className="space-y-2.5 pt-1 flex-1">
@@ -694,7 +699,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 topProductsData.slice(0, 4).map((prod, idx) => (
                   <div
                     key={idx}
-                    className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-200 transition-colors space-y-2.5"
+                    className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-700 transition-colors space-y-2.5"
                   >
                     {/* Linha 1: Nome do produto e no final a quantidade */}
                     <div className="flex items-center justify-between gap-3">
@@ -708,7 +713,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                         <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-0.5">
                           QTD
                         </span>
-                        <span className="font-black text-blue-600 text-xs sm:text-sm leading-none">
+                        <span className="font-black text-blue-600 dark:text-blue-400 text-xs sm:text-sm leading-none">
                           {prod.quantity} UN
                         </span>
                       </div>
@@ -753,20 +758,20 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
 
           {/* Widget 2: Vendas por Categoria (Venda, Custo, Lucro) */}
-          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3 flex flex-col justify-between">
+          <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-                  <Layers className="w-4 h-4 text-indigo-600" />
+                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-1.5">
+                  <Layers className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   <span>Vendas por Categoria</span>
                 </h3>
-                <p className="text-xs text-slate-500">Venda, custo e lucro por categoria</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Venda, custo e lucro por categoria</p>
               </div>
               <button
                 type="button"
                 id="btn-widget-category-sales"
                 onClick={() => setIsCategorySalesOpen(true)}
-                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer"
+                className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline cursor-pointer"
               >
                 Ver Todas
               </button>
@@ -780,22 +785,22 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   <div
                     key={idx}
                     onClick={() => setIsCategorySalesOpen(true)}
-                    className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all cursor-pointer text-xs"
+                    className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/30 transition-all cursor-pointer text-xs"
                   >
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="font-bold text-slate-900 truncate max-w-[140px]">
+                      <span className="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[140px]">
                         {cat.name}
                       </span>
-                      <span className="font-black text-blue-600">
+                      <span className="font-black text-blue-600 dark:text-blue-400">
                         {formatCurrency(cat.revenue)}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60">
-                      <span className="text-slate-500">
-                        Custo: <strong className="text-slate-700">{isAdmin ? formatCurrency(cat.cost) : '***'}</strong>
+                    <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+                      <span className="text-slate-500 dark:text-slate-400">
+                        Custo: <strong className="text-slate-700 dark:text-slate-300">{isAdmin ? formatCurrency(cat.cost) : '***'}</strong>
                       </span>
-                      <span className="text-emerald-700 font-bold">
+                      <span className="text-emerald-700 dark:text-emerald-400 font-bold">
                         Lucro: {isAdmin ? formatCurrency(cat.profit) : '***'}
                       </span>
                     </div>
@@ -806,16 +811,16 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
 
           {/* Widget 3: Low Stock Alerts */}
-          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3 flex flex-col justify-between">
+          <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-extrabold text-slate-900 text-sm">Alertas de Reposição</h3>
-                <p className="text-xs text-slate-500">Itens com estoque crítico</p>
+                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">Alertas de Reposição</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Itens com estoque crítico</p>
               </div>
               <button
                 type="button"
                 onClick={onNavigateToInventory}
-                className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
               >
                 Estoque
               </button>
@@ -823,24 +828,24 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
             <div className="space-y-2 pt-1 flex-1">
               {lowStockProducts.length === 0 ? (
-                <div className="p-6 text-center text-emerald-700 bg-emerald-50 rounded-xl border border-emerald-200 text-xs font-bold">
+                <div className="p-6 text-center text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800 text-xs font-bold">
                   ✓ Todos os produtos estão com estoque regular!
                 </div>
               ) : (
                 lowStockProducts.slice(0, 4).map((prod) => (
                   <div
                     key={prod.id}
-                    className="p-2.5 bg-orange-50/50 rounded-xl border border-orange-200 flex items-center justify-between text-xs"
+                    className="p-2.5 bg-orange-50/50 dark:bg-orange-950/40 rounded-xl border border-orange-200 dark:border-orange-800 flex items-center justify-between text-xs"
                   >
                     <div className="min-w-0 flex-1">
-                      <span className="font-bold text-slate-900 truncate block uppercase">{prod.name}</span>
-                      <span className="text-[10px] text-slate-500">Cód: {prod.code} • Mín: {prod.minStock} {prod.unit}</span>
+                      <span className="font-bold text-slate-900 dark:text-slate-100 truncate block uppercase">{prod.name}</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400">Cód: {prod.code} • Mín: {prod.minStock} {prod.unit}</span>
                     </div>
                     <div className="text-right shrink-0 pl-2">
-                      <span className={`font-black text-sm block ${prod.stock <= 0 ? 'text-red-600' : 'text-orange-700'}`}>
+                      <span className={`font-black text-sm block ${prod.stock <= 0 ? 'text-red-600 dark:text-red-400' : 'text-orange-700 dark:text-orange-400'}`}>
                         {prod.stock} {prod.unit}
                       </span>
-                      <span className="text-[10px] uppercase font-bold text-red-600">
+                      <span className="text-[10px] uppercase font-bold text-red-600 dark:text-red-400">
                         {prod.stock <= 0 ? 'Esgotado' : 'Crítico'}
                       </span>
                     </div>

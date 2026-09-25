@@ -132,21 +132,21 @@ export const QuantityStepper: React.FC<QuantityStepperProps> = ({
   // Colors: exactly matching user's uploaded pill design
   const isBlue = colorScheme === 'blue';
   const decBtnClass = isBlue
-    ? 'bg-blue-50 hover:bg-blue-100 text-blue-700 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed'
-    : 'bg-orange-50 hover:bg-orange-100 text-orange-700 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed';
+    ? 'bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed'
+    : 'bg-orange-50 dark:bg-orange-950/60 hover:bg-orange-100 dark:hover:bg-orange-900/60 text-orange-700 dark:text-orange-300 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed';
 
   const incBtnClass = isBlue
     ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-2xs active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed'
     : 'bg-orange-500 hover:bg-orange-600 text-white shadow-2xs active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed';
 
   const borderClass = isBlue
-    ? 'border-blue-200/90 hover:border-blue-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200/50'
-    : 'border-orange-200/90 hover:border-orange-300 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-200/50';
+    ? 'border-blue-200/90 dark:border-blue-900/70 hover:border-blue-300 dark:hover:border-blue-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200/50 dark:focus-within:ring-blue-900/40'
+    : 'border-orange-200/90 dark:border-orange-900/70 hover:border-orange-300 dark:hover:border-orange-700 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-200/50 dark:focus-within:ring-orange-900/40';
 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className={`inline-flex items-center justify-between bg-white border rounded-xl sm:rounded-2xl shadow-2xs transition-all ${borderClass} ${currentSize.container} ${className}`}
+      className={`inline-flex items-center justify-between bg-white dark:bg-slate-900 border rounded-xl sm:rounded-2xl shadow-2xs transition-all ${borderClass} ${currentSize.container} ${className}`}
     >
       {/* Minus button */}
       <button
@@ -182,11 +182,11 @@ export const QuantityStepper: React.FC<QuantityStepperProps> = ({
             e.stopPropagation();
             (e.target as HTMLInputElement).select();
           }}
-          className={`bg-transparent text-center font-black text-slate-900 focus:outline-none focus:bg-blue-50/40 rounded transition-colors ${currentSize.input}`}
+          className={`bg-transparent text-center font-black text-slate-900 dark:text-slate-100 focus:outline-none focus:bg-blue-50/40 dark:focus:bg-blue-950/40 rounded transition-colors ${currentSize.input}`}
           aria-label="Quantidade"
         />
         {unit && (
-          <span className="text-[10px] font-bold text-slate-400 select-none mr-1 uppercase">
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 select-none mr-1 uppercase">
             {unit}
           </span>
         )}

@@ -43,25 +43,25 @@ export const OperatorSwitchModal: React.FC<OperatorSwitchModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-3 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-3 sm:p-4">
       <div
-        className="w-full max-w-md bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
               <Lock className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-extrabold text-slate-900 text-base">Trocar Operador / Caixa</h2>
-              <p className="text-xs text-slate-500 font-medium">Selecione o usuário autenticado</p>
+              <h2 className="font-extrabold text-slate-900 dark:text-slate-100 text-base">Trocar Operador / Caixa</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Selecione o usuário autenticado</p>
             </div>
           </div>
           <button
             id="btn-close-operator-modal"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -70,7 +70,7 @@ export const OperatorSwitchModal: React.FC<OperatorSwitchModalProps> = ({
         <div className="p-5 space-y-4">
           {/* User selector list */}
           <div>
-            <label className="text-xs font-bold uppercase text-slate-500 tracking-wider block mb-2">
+            <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider block mb-2">
               Selecione o Operador
             </label>
             <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -86,8 +86,8 @@ export const OperatorSwitchModal: React.FC<OperatorSwitchModalProps> = ({
                     onClick={() => handleSelectUser(user)}
                     className={`w-full p-3 rounded-2xl border flex items-center justify-between transition-all text-left ${
                       isSelected
-                        ? 'border-blue-500 bg-blue-50/80 ring-2 ring-blue-400/40'
-                        : 'border-slate-200 hover:bg-slate-50'
+                        ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-950/60 ring-2 ring-blue-400/40'
+                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 bg-white dark:bg-slate-900'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -96,20 +96,20 @@ export const OperatorSwitchModal: React.FC<OperatorSwitchModalProps> = ({
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-sm text-slate-900">{user.name}</span>
+                          <span className="font-bold text-sm text-slate-900 dark:text-slate-100">{user.name}</span>
                           {isCurrent && (
-                            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-bold">
+                            <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-1.5 py-0.2 rounded font-bold">
                               Atual
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-slate-500 font-medium capitalize">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium capitalize">
                           Papel: {user.role} {user.role === 'admin' ? '🛡️' : '💼'}
                         </span>
                       </div>
                     </div>
 
-                    {isSelected && <UserCheck className="w-5 h-5 text-blue-600" />}
+                    {isSelected && <UserCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
                   </button>
                 );
               })}
@@ -120,10 +120,10 @@ export const OperatorSwitchModal: React.FC<OperatorSwitchModalProps> = ({
           <form onSubmit={handleSwitch} className="space-y-3 pt-2">
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-bold text-slate-700">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   PIN de Acesso para {targetUser.name}
                 </label>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-slate-400 dark:text-slate-500">
                   (Dica: Carlos: 1234, Ana: 0000)
                 </span>
               </div>
@@ -135,15 +135,15 @@ export const OperatorSwitchModal: React.FC<OperatorSwitchModalProps> = ({
                   value={pin}
                   onChange={(e) => setPin(e.target.value)}
                   placeholder="Digite o PIN de 4 dígitos"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-center text-lg tracking-widest font-mono font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-center text-lg tracking-widest font-mono font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   autoFocus
                 />
-                <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <KeyRound className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-3.5" />
               </div>
             </div>
 
             {error && (
-              <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-semibold flex items-center gap-2">
+              <div className="p-2.5 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900/60 rounded-xl text-xs text-red-600 dark:text-red-400 font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>

@@ -127,7 +127,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   return (
     <div className="relative flex items-center w-full">
       {prefix && (
-        <span className="absolute left-3 text-xs font-bold text-slate-400 select-none pointer-events-none z-10">
+        <span className="absolute left-3 text-xs font-bold text-slate-400 dark:text-slate-500 select-none pointer-events-none z-10">
           {prefix}
         </span>
       )}
@@ -147,7 +147,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
         required={required}
         disabled={disabled}
         autoFocus={autoFocus}
-        className={`${prefix ? 'pl-9 pr-3.5' : 'px-3'} ${className} text-right font-mono tracking-tight`}
+        className={`${prefix ? 'pl-9 pr-3.5' : 'px-3'} ${className} text-right font-mono tracking-tight text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500`}
       />
     </div>
   );

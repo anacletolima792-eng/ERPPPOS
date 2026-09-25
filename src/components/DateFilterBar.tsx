@@ -62,7 +62,7 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
 
   return (
     <div className={`relative inline-flex ${className}`}>
-      <div className={`flex bg-slate-100 p-1 rounded-xl border border-slate-200 ${compact ? 'text-[11px]' : 'text-xs'} font-bold items-center`}>
+      <div className={`flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 ${compact ? 'text-[11px]' : 'text-xs'} font-bold items-center`}>
         {/* Tab 1: Hoje */}
         <button
           type="button"
@@ -78,7 +78,7 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
           className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
             currentFilter.type === 'today'
               ? 'bg-blue-600 text-white shadow-2xs font-black'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
           }`}
         >
           Hoje
@@ -99,7 +99,7 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
           className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
             currentFilter.type === 'month'
               ? 'bg-blue-600 text-white shadow-2xs font-black'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
           }`}
         >
           Mês
@@ -115,8 +115,8 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
             isCustomActive
               ? 'bg-blue-600 text-white shadow-2xs font-black'
               : isPopoverOpen
-              ? 'bg-white text-blue-700 shadow-2xs font-extrabold ring-1 ring-blue-400/50'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+              ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-2xs font-extrabold ring-1 ring-blue-400/50'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
           }`}
         >
           <CalendarDays className="w-3.5 h-3.5 shrink-0" />
