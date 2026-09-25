@@ -702,28 +702,6 @@ export const QuoteModal: React.FC<QuoteModalProps> = ({
                         className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-xs font-bold focus:outline-none focus:border-indigo-500"
                       />
                     </div>
-
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-500 block mb-0.5">CPF / CNPJ (Opcional)</label>
-                      <input
-                        type="text"
-                        value={customerDocument}
-                        onChange={(e) => setCustomerDocument(e.target.value)}
-                        placeholder="000.000.000-00"
-                        className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-xs font-bold focus:outline-none focus:border-indigo-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-500 block mb-0.5">E-mail (Opcional)</label>
-                      <input
-                        type="email"
-                        value={customerEmail}
-                        onChange={(e) => setCustomerEmail(e.target.value)}
-                        placeholder="cliente@email.com"
-                        className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-xs font-bold focus:outline-none focus:border-indigo-500"
-                      />
-                    </div>
                   </div>
                 </div>
 

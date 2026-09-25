@@ -235,22 +235,41 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     return [...standard, ...extras];
   }, [filteredSales]);
 
-  // Chart 3: Top Selling Products
+  // Chart 3: Top Selling Products (Name, Quantity, Revenue, Cost, Profit)
   const topProductsData = useMemo(() => {
-    const map = new Map<string, { name: string; quantity: number; revenue: number }>();
+    const productCostMap = new Map<string, number>();
+    products.forEach((p) => {
+      productCostMap.set(p.id, p.costPrice || 0);
+    });
+
+    const map = new Map<
+      string,
+      { name: string; quantity: number; revenue: number; cost: number; profit: number }
+    >();
 
     filteredSales.forEach((sale) => {
-      sale.items.forEach((item) => {
+      (sale.items || []).forEach((item) => {
         const key = item.productId || item.productName;
         const current = map.get(key) || {
           name: item.productName,
           quantity: 0,
           revenue: 0,
+          cost: 0,
+          profit: 0,
         };
+        const unitCost =
+          item.costPrice !== undefined && item.costPrice > 0
+            ? item.costPrice
+            : productCostMap.get(item.productId) || 0;
+        const lineCost = unitCost * item.quantity;
+        const lineRev = item.total;
+
         map.set(key, {
           name: item.productName,
           quantity: current.quantity + item.quantity,
-          revenue: current.revenue + item.total,
+          revenue: current.revenue + lineRev,
+          cost: current.cost + lineCost,
+          profit: current.profit + (lineRev - lineCost),
         });
       });
     });
@@ -258,7 +277,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     return Array.from(map.values())
       .sort((a, b) => b.quantity - a.quantity)
       .slice(0, 5);
-  }, [filteredSales]);
+  }, [filteredSales, products]);
 
   // Category Sales Preview for Dashboard
   const categorySalesPreview = useMemo(() => {
@@ -556,8 +575,23 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} />
                     <Tooltip
-                      formatter={(val: any) => [formatCurrency(Number(val)), 'Faturamento']}
-                      contentStyle={{ backgroundColor: '#0f172a', borderRadius: '10px', border: 'none', color: '#fff', fontSize: '12px' }}
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          const val = Number(payload[0].value ?? 0);
+                          return (
+                            <div className="bg-[#0f172a] border border-slate-700/80 text-white px-3 py-2 rounded-xl shadow-xl text-xs">
+                              <div className="font-bold text-white text-[11px] mb-1">
+                                {label}
+                              </div>
+                              <div className="text-[#05df72] font-semibold flex items-center gap-1.5">
+                                <span>Faturamento :</span>
+                                <span className="font-bold">{formatCurrency(val)}</span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
                     />
                     <Area type="monotone" dataKey="total" stroke="#2563eb" strokeWidth={2.5} fillOpacity={1} fill="url(#colorTotal)" />
                   </AreaChart>
@@ -650,28 +684,67 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   Ver Todos
                 </button>
               </div>
-              <p className="text-xs text-slate-500">Ranking por volume de unidades</p>
+              <p className="text-xs text-slate-500">Volume, custo, lucro e faturamento</p>
             </div>
 
-            <div className="space-y-2 pt-1 flex-1">
+            <div className="space-y-2.5 pt-1 flex-1">
               {topProductsData.length === 0 ? (
                 <p className="text-xs text-slate-400 py-6 text-center">Nenhum produto vendido no período</p>
               ) : (
                 topProductsData.slice(0, 4).map((prod, idx) => (
-                  <div key={idx} className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs hover:border-blue-200 transition-colors">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <span className={`w-6 h-6 rounded-lg font-bold flex items-center justify-center text-xs shrink-0 ${
-                        idx === 0
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-slate-200 text-slate-700'
-                      }`}>
-                        {idx + 1}
+                  <div
+                    key={idx}
+                    className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-200 transition-colors space-y-2.5"
+                  >
+                    {/* Linha 1: Nome do produto e no final a quantidade */}
+                    <div className="flex items-center justify-between gap-3">
+                      <span
+                        className="font-black text-slate-900 dark:text-white uppercase tracking-tight text-xs sm:text-sm truncate min-w-0 flex-1"
+                        title={prod.name}
+                      >
+                        {prod.name}
                       </span>
-                      <span className="font-bold text-slate-900 truncate">{prod.name}</span>
+                      <div className="text-right shrink-0">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-0.5">
+                          QTD
+                        </span>
+                        <span className="font-black text-blue-600 text-xs sm:text-sm leading-none">
+                          {prod.quantity} UN
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-right shrink-0 pl-2">
-                      <span className="font-black text-blue-600 block">{prod.quantity} un</span>
-                      <span className="text-[10px] text-slate-500">{formatCurrency(prod.revenue)}</span>
+
+                    {/* Linha 2: Custo, Lucro e Valor */}
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/80 dark:border-slate-700/70">
+                      {/* Custo */}
+                      <div className="min-w-0">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-1">
+                          CUSTO
+                        </span>
+                        <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs truncate block leading-tight">
+                          {isAdmin ? formatCurrency(prod.cost) : '***'}
+                        </span>
+                      </div>
+
+                      {/* Lucro */}
+                      <div className="min-w-0 border-l border-slate-200 dark:border-slate-700/60 pl-2">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-1">
+                          LUCRO
+                        </span>
+                        <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs truncate block leading-tight">
+                          {isAdmin ? formatCurrency(prod.profit) : '***'}
+                        </span>
+                      </div>
+
+                      {/* Valor */}
+                      <div className="min-w-0 border-l border-slate-200 dark:border-slate-700/60 pl-2 text-right">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-1">
+                          VALOR
+                        </span>
+                        <span className="font-black text-emerald-700 dark:text-emerald-300 text-xs truncate block leading-tight">
+                          {formatCurrency(prod.revenue)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))
