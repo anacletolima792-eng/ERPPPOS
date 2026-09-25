@@ -72,6 +72,32 @@ export interface SaleItem {
 
 export type SaleStatus = 'completed' | 'canceled' | 'returned';
 
+export type QuoteStatus = 'pending' | 'approved' | 'rejected' | 'converted' | 'expired';
+
+export interface Quote {
+  id: string;
+  quoteNumber: string;
+  operatorId: string;
+  operatorName: string;
+  customerId?: string;
+  customerName?: string;
+  customerPhone?: string;
+  customerDocument?: string;
+  customerEmail?: string;
+  items: SaleItem[];
+  subtotal: number;
+  discount: number;
+  total: number;
+  paymentMethod?: PaymentMethod | string;
+  validUntil: string;
+  notes?: string;
+  status: QuoteStatus;
+  convertedSaleId?: string;
+  convertedAt?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface Sale {
   id: string;
   saleNumber: string;

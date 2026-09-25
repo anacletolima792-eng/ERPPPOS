@@ -36,6 +36,7 @@ import {
 import { DateFilterBar } from '../components/DateFilterBar';
 import { OperatorSwitchModal } from '../components/OperatorSwitchModal';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { QuoteModal } from '../components/QuoteModal';
 import { useAuth } from '../hooks/useAuth';
 
 interface SalesHistoryPageProps {
@@ -74,6 +75,7 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [receiptSale, setReceiptSale] = useState<Sale | null>(null);
   const [isOperatorModalOpen, setIsOperatorModalOpen] = useState(false);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
   // Filter sales
   const filteredSales = useMemo(() => {
@@ -282,6 +284,18 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
               }`}>
                 {isAdmin ? 'Admin' : 'Vendedor'}
               </span>
+            </button>
+
+            {/* Quotes Access Button */}
+            <button
+              type="button"
+              id="btn-sales-view-quotes"
+              onClick={() => setIsQuoteModalOpen(true)}
+              className="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-2.5 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 text-xs font-bold text-indigo-700 dark:text-indigo-300 transition-colors shrink-0 shadow-2xs cursor-pointer"
+              title="Consultar e gerenciar orçamentos salvos"
+            >
+              <FileText className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span>Orçamentos</span>
             </button>
 
             {/* Standardized Period selector tabs matching Dashboard */}
@@ -501,6 +515,12 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
       <OperatorSwitchModal
         isOpen={isOperatorModalOpen}
         onClose={() => setIsOperatorModalOpen(false)}
+      />
+
+      {/* Quote Modal */}
+      <QuoteModal
+        isOpen={isQuoteModalOpen}
+        onClose={() => setIsQuoteModalOpen(false)}
       />
     </div>
   );

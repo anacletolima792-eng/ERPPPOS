@@ -226,6 +226,7 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
         }}
         onOpenCustomerSelect={() => setIsCustomerModalOpen(true)}
         onReturnCompleted={handleSaleCompleted}
+        products={products}
       />
 
       <CheckoutModal

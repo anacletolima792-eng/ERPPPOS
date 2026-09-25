@@ -15,7 +15,7 @@ import {
   increment,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Product, Category, Customer, Sale, UserProfile, StoreSettings, CartItem, PaymentMethod } from '../types';
+import { Product, Category, Customer, Sale, Quote, QuoteStatus, UserProfile, StoreSettings, CartItem, PaymentMethod } from '../types';
 import { safeStorage } from '../utils/storage';
 
 // ==================== STORAGE KEYS & EVENT SYSTEM ====================
@@ -24,6 +24,7 @@ export const STORAGE_KEYS = {
   CATEGORIES: 'erp_pdv_persisted_categories',
   CUSTOMERS: 'erp_pdv_persisted_customers',
   SALES: 'erp_pdv_persisted_sales',
+  QUOTES: 'erp_pdv_persisted_quotes',
   USERS: 'erp_pdv_persisted_users',
   SETTINGS: 'erp_pdv_persisted_settings',
 };
@@ -124,6 +125,7 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
 };
 
 export const DEFAULT_SALES: Sale[] = [];
+export const DEFAULT_QUOTES: Quote[] = [];
 
 // Read initial stored values synchronously
 export const normalizeProduct = (p: any, fallbackIndex = 0): Product => ({
@@ -157,6 +159,10 @@ export const getStoredCustomers = (): Customer[] => {
 };
 export const getStoredSales = (): Sale[] => {
   const list = getStoredData(STORAGE_KEYS.SALES, DEFAULT_SALES);
+  return Array.isArray(list) ? list : [];
+};
+export const getStoredQuotes = (): Quote[] => {
+  const list = getStoredData(STORAGE_KEYS.QUOTES, DEFAULT_QUOTES);
   return Array.isArray(list) ? list : [];
 };
 export const getStoredUsers = (): UserProfile[] => {
@@ -524,6 +530,139 @@ export const subscribeSales = (callback: (sales: Sale[]) => void) => {
     unsubFirestore();
     window.removeEventListener('pdv_local_sync_event', localHandler);
   };
+};
+
+export const subscribeQuotes = (callback: (quotes: Quote[]) => void) => {
+  callback(getStoredQuotes());
+
+  const colRef = collection(db, 'quotes');
+  const q = query(colRef, orderBy('createdAt', 'desc'));
+
+  const unsubFirestore = onSnapshot(
+    q,
+    (snapshot) => {
+      try {
+        const list: Quote[] = [];
+        snapshot.forEach((docSnap) => {
+          list.push({ id: docSnap.id, ...docSnap.data() } as Quote);
+        });
+
+        const local = getStoredQuotes();
+        const mergedMap = new Map<string, Quote>();
+        local.forEach((item) => mergedMap.set(item.id, item));
+        list.forEach((item) => mergedMap.set(item.id, item));
+
+        const merged = Array.from(mergedMap.values()).sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        setStoredData(STORAGE_KEYS.QUOTES, merged);
+        callback(merged);
+      } catch (err) {
+        console.warn('Erro ao processar snapshot de orçamentos:', err);
+      }
+    },
+    (error) => {
+      console.warn('Aviso ao escutar orçamentos:', error);
+      callback(getStoredQuotes());
+    }
+  );
+
+  const localHandler = (e: any) => {
+    if (e.detail?.key === STORAGE_KEYS.QUOTES) {
+      callback(e.detail.data);
+    }
+  };
+  window.addEventListener('pdv_local_sync_event', localHandler);
+
+  return () => {
+    unsubFirestore();
+    window.removeEventListener('pdv_local_sync_event', localHandler);
+  };
+};
+
+export const saveQuoteTransaction = async (
+  quoteData: Omit<Quote, 'id' | 'quoteNumber' | 'createdAt'>
+): Promise<Quote> => {
+  const quoteId = `quote-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+  const quoteNumber = `ORC-${Date.now().toString().slice(-6)}`;
+  const createdAt = new Date().toISOString();
+
+  const fullQuote: Quote = cleanFirestoreData({
+    id: quoteId,
+    quoteNumber,
+    ...quoteData,
+    createdAt,
+  });
+
+  // 1. Add to local quotes immediately
+  const currentQuotes = getStoredQuotes();
+  setStoredData(STORAGE_KEYS.QUOTES, [fullQuote, ...currentQuotes]);
+
+  // 2. Sync to Firestore in non-blocking race
+  const syncToCloud = async () => {
+    try {
+      const qRef = doc(db, 'quotes', quoteId);
+      await setDoc(qRef, fullQuote, { merge: true });
+    } catch (err) {
+      console.warn('Aviso ao registrar orçamento no Firestore:', err);
+    }
+  };
+
+  await Promise.race([
+    syncToCloud(),
+    new Promise((resolve) => setTimeout(resolve, 500)),
+  ]);
+
+  return fullQuote;
+};
+
+export const updateQuoteStatus = async (
+  quoteId: string,
+  status: QuoteStatus,
+  convertedSaleId?: string
+): Promise<void> => {
+  const currentQuotes = getStoredQuotes();
+  const updatedAt = new Date().toISOString();
+  const updatedQuotes = currentQuotes.map((q) => {
+    if (q.id === quoteId) {
+      return {
+        ...q,
+        status,
+        convertedSaleId: convertedSaleId || q.convertedSaleId,
+        convertedAt: status === 'converted' ? updatedAt : q.convertedAt,
+        updatedAt,
+      };
+    }
+    return q;
+  });
+
+  setStoredData(STORAGE_KEYS.QUOTES, updatedQuotes);
+
+  try {
+    const qRef = doc(db, 'quotes', quoteId);
+    const updateData: any = { status, updatedAt };
+    if (convertedSaleId) updateData.convertedSaleId = convertedSaleId;
+    if (status === 'converted') updateData.convertedAt = updatedAt;
+    await updateDoc(qRef, updateData);
+  } catch (err) {
+    console.warn('Aviso ao atualizar status de orçamento no Firestore:', err);
+  }
+};
+
+export const deleteQuote = async (quoteId: string): Promise<void> => {
+  const currentQuotes = getStoredQuotes();
+  setStoredData(
+    STORAGE_KEYS.QUOTES,
+    currentQuotes.filter((q) => q.id !== quoteId)
+  );
+
+  try {
+    const qRef = doc(db, 'quotes', quoteId);
+    await deleteDoc(qRef);
+  } catch (err) {
+    console.warn('Aviso ao excluir orçamento do Firestore:', err);
+  }
 };
 
 export const processSaleTransaction = async (saleData: Omit<Sale, 'id' | 'saleNumber' | 'createdAt'>): Promise<Sale> => {
@@ -905,6 +1044,7 @@ export const clearAllDatabaseData = async (options?: {
   if (includeSales) {
     deletedCounts.sales = getStoredSales().length;
     setStoredData(STORAGE_KEYS.SALES, []);
+    setStoredData(STORAGE_KEYS.QUOTES, []);
   }
   if (includeCustomers) {
     deletedCounts.customers = getStoredCustomers().length;
@@ -930,7 +1070,10 @@ export const clearAllDatabaseData = async (options?: {
   };
 
   if (includeProducts) await clearCollection('products');
-  if (includeSales) await clearCollection('sales');
+  if (includeSales) {
+    await clearCollection('sales');
+    await clearCollection('quotes');
+  }
   if (includeCustomers) await clearCollection('customers');
   if (includeCategories) await clearCollection('categories');
 

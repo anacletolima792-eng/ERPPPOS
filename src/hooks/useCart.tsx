@@ -13,6 +13,7 @@ interface CartContextType {
   globalDiscount: number;
   setGlobalDiscount: (discount: number) => void;
   clearCart: () => void;
+  loadCart: (items: CartItem[], customer?: Customer | null, discount?: number) => void;
   subtotal: number;
   totalDiscount: number;
   total: number;
@@ -161,6 +162,18 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     safeStorage.removeItem('pdv_cart_last_added_id');
   };
 
+  const loadCart = (newItems: CartItem[], newCustomer?: Customer | null, discount = 0) => {
+    const valid = Array.isArray(newItems) ? newItems.filter((i) => i && i.product && i.product.id) : [];
+    setItems(valid);
+    if (newCustomer) {
+      setCustomer(newCustomer);
+    }
+    setGlobalDiscount(discount || 0);
+    if (valid.length > 0) {
+      setLastAddedProductId(valid[valid.length - 1].product.id);
+    }
+  };
+
   const validItems = Array.isArray(items) ? items : [];
   const subtotal = validItems.reduce((sum, item) => sum + (Number(item?.quantity) || 0) * (Number(item?.unitPrice) || 0), 0);
   const itemsDiscount = validItems.reduce((sum, item) => sum + (Number(item?.discount) || 0), 0);
@@ -191,6 +204,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         globalDiscount,
         setGlobalDiscount,
         clearCart,
+        loadCart,
         subtotal,
         totalDiscount,
         total,

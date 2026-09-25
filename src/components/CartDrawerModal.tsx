@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { X, Trash2, Plus, Minus, Tag, UserPlus, ShoppingBag, ArrowRight, Percent, RotateCcw } from 'lucide-react';
+import { X, Trash2, Plus, Minus, Tag, UserPlus, ShoppingBag, ArrowRight, Percent, RotateCcw, FileText } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { formatCurrency } from '../utils/formatters';
 import { ReturnModal } from './ReturnModal';
 import { CurrencyInput } from './CurrencyInput';
 import { QuantityStepper } from './QuantityStepper';
-import { Sale } from '../types';
+import { QuoteModal } from './QuoteModal';
+import { Product, Sale } from '../types';
 
 interface CartDrawerModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface CartDrawerModalProps {
   onOpenCheckout: () => void;
   onOpenCustomerSelect: () => void;
   onReturnCompleted?: (returnedSale: Sale) => void;
+  products?: Product[];
 }
 
 export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
@@ -21,6 +23,7 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
   onOpenCheckout,
   onOpenCustomerSelect,
   onReturnCompleted,
+  products = [],
 }) => {
   const {
     items,
@@ -39,6 +42,7 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
   const [discountInput, setDiscountInput] = useState<number>(globalDiscount > 0 ? globalDiscount : 0);
   const [showDiscountInput, setShowDiscountInput] = useState(false);
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -69,7 +73,20 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            {items.length > 0 && (
+              <button
+                id="btn-header-quote"
+                type="button"
+                onClick={() => setIsQuoteModalOpen(true)}
+                className="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
+                title="Transformar este pedido em Orçamento comercial"
+              >
+                <FileText className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                <span className="font-extrabold">Orçamento</span>
+              </button>
+            )}
+
             {items.length > 0 && (
               <button
                 id="btn-clear-cart"
@@ -91,21 +108,46 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
           </div>
         </div>
 
-        {/* Customer Badge in Cart */}
-        <div className="px-5 py-2.5 bg-blue-50/70 border-b border-blue-100 flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-xs text-blue-950 font-medium">Cliente:</span>
-            <span className="text-xs font-bold text-blue-900 truncate">
+        {/* Customer Badge & Quote Action in Cart */}
+        <div className="px-4 sm:px-5 py-2.5 bg-blue-50/80 dark:bg-blue-950/40 border-b border-blue-100 dark:border-blue-900/50 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+            <span className="text-xs text-blue-950 dark:text-blue-300 font-medium shrink-0">Cliente:</span>
+            <span className="text-xs font-bold text-blue-900 dark:text-blue-200 truncate" title={customer?.name || 'Consumidor Final (Balcão)'}>
               {customer?.name || 'Consumidor Final (Balcão)'}
             </span>
+            <button
+              id="btn-cart-change-customer"
+              type="button"
+              onClick={onOpenCustomerSelect}
+              className="text-[11px] font-bold text-blue-700 dark:text-blue-300 hover:text-blue-900 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-700 shadow-2xs shrink-0 cursor-pointer"
+            >
+              Alterar
+            </button>
           </div>
-          <button
-            id="btn-cart-change-customer"
-            onClick={onOpenCustomerSelect}
-            className="text-xs font-bold text-blue-700 hover:text-blue-900 bg-white px-2.5 py-1 rounded-lg border border-blue-200 shadow-xs"
-          >
-            Alterar
-          </button>
+
+          {items.length > 0 ? (
+            <button
+              id="btn-cart-transform-quote-badge"
+              type="button"
+              onClick={() => setIsQuoteModalOpen(true)}
+              className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-lg font-black text-xs flex items-center gap-1.5 shadow-xs shrink-0 transition-all cursor-pointer"
+              title="Transformar este pedido em Orçamento formal com impressão e envio"
+            >
+              <FileText className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Orçamento</span>
+            </button>
+          ) : (
+            <button
+              id="btn-cart-view-quotes-badge"
+              type="button"
+              onClick={() => setIsQuoteModalOpen(true)}
+              className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 hover:underline flex items-center gap-1 cursor-pointer"
+              title="Ver orçamentos salvos"
+            >
+              <FileText className="w-3 h-3 text-indigo-600" />
+              <span>Ver Orçamentos</span>
+            </button>
+          )}
         </div>
 
         {/* Cart Items List */}
@@ -204,38 +246,49 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
               </div>
             )}
 
-            {/* Total Row & Actions */}
-            <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <span className="text-xs text-slate-500 uppercase font-bold tracking-wider block truncate">Total dos Itens</span>
-                <span className="text-xl font-black text-slate-950">{formatCurrency(total)}</span>
+            {/* Total Display */}
+            <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
+              <div>
+                <span className="text-xs text-slate-500 uppercase font-black tracking-wider block">
+                  Total dos Itens
+                </span>
+                <span className="text-[11px] text-slate-400 font-medium">
+                  {items.reduce((sum, item) => sum + item.quantity, 0)}{' '}
+                  {items.reduce((sum, item) => sum + item.quantity, 0) === 1 ? 'item' : 'itens'} no carrinho
+                </span>
               </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  id="btn-drawer-return"
-                  type="button"
-                  onClick={() => setIsReturnModalOpen(true)}
-                  className="px-3 sm:px-4 py-3.5 bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-900 border border-amber-300 rounded-2xl font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
-                  title="Devolução de produtos ao estoque e estorno"
-                >
-                  <RotateCcw className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>DEVOLUÇÃO</span>
-                </button>
-
-                <button
-                  id="btn-drawer-proceed-checkout"
-                  type="button"
-                  onClick={() => {
-                    onClose();
-                    onOpenCheckout();
-                  }}
-                  className="px-4 sm:px-6 py-3.5 bg-orange-500 hover:bg-orange-600 active:scale-98 text-white rounded-2xl font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-lg shadow-orange-500/25 cursor-pointer"
-                >
-                  <span>PAGAMENTO</span>
-                  <ArrowRight className="w-4 h-4 shrink-0" />
-                </button>
+              <div className="text-right">
+                <span className="text-2xl sm:text-3xl font-black text-slate-950 font-mono tracking-tight">
+                  {formatCurrency(total)}
+                </span>
               </div>
+            </div>
+
+            {/* Action Buttons: DEVOLUÇÃO & COBRAR */}
+            <div className="grid grid-cols-5 gap-2 sm:gap-2.5 pt-1">
+              <button
+                id="btn-drawer-return"
+                type="button"
+                onClick={() => setIsReturnModalOpen(true)}
+                className="col-span-2 h-12 sm:h-13 bg-amber-50 hover:bg-amber-100/90 active:scale-98 text-amber-900 border border-amber-300 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+                title="Devolução de produtos ao estoque e estorno"
+              >
+                <RotateCcw className="w-4 h-4 text-amber-600 shrink-0 stroke-[2.2]" />
+                <span className="tracking-wide">DEVOLUÇÃO</span>
+              </button>
+
+              <button
+                id="btn-drawer-proceed-checkout"
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenCheckout();
+                }}
+                className="col-span-3 h-12 sm:h-13 bg-orange-500 hover:bg-orange-600 active:scale-98 text-white border border-transparent rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all cursor-pointer"
+              >
+                <span className="tracking-wider">COBRAR</span>
+                <ArrowRight className="w-4 h-4 shrink-0 stroke-[2.5]" />
+              </button>
             </div>
           </div>
         )}
@@ -249,6 +302,18 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
             onClose();
             onReturnCompleted?.(returnedSale);
           }}
+        />
+
+        {/* Modal de Orçamento */}
+        <QuoteModal
+          isOpen={isQuoteModalOpen}
+          onClose={() => setIsQuoteModalOpen(false)}
+          onOpenCheckout={() => {
+            setIsQuoteModalOpen(false);
+            onClose();
+            onOpenCheckout();
+          }}
+          products={products}
         />
       </div>
     </div>

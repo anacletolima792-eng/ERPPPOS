@@ -411,40 +411,45 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </div>
           </div>
         )}
-        {/* KPI Cards Grid with High Density Dark Contrast Hero */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
-          {/* Card 1: Contrast Summary Hero Widget matching Design HTML */}
-          <div className="bg-blue-950 text-white p-5 rounded-2xl border border-blue-900/80 shadow-xl flex flex-col justify-between">
-            <div className="flex items-center justify-between text-blue-200/80 mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-widest">Faturamento Total</span>
-              <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center">
-                <DollarSign className="w-4 h-4" />
+        {/* KPI Cards Grid with High Density Dark Contrast Hero - 2 per line on mobile */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2.5 sm:gap-4">
+          {/* Card 1: Faturamento Total - matching user visual attachment */}
+          <div className="col-span-2 lg:col-span-1 bg-[#15225b] text-white p-5 sm:p-6 rounded-[22px] border border-[#23357d]/50 shadow-xl flex flex-col justify-between min-h-[145px]">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#9db0d8]">
+                FATURAMENTO TOTAL
+              </span>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#1d5bf6] flex items-center justify-center shrink-0 shadow-xs">
+                <DollarSign className="w-5 h-5 text-white stroke-[2.5]" />
               </div>
             </div>
-            <div>
-              <span className="text-2xl sm:text-3xl font-black text-white tracking-tight block">
+
+            <div className="mt-1">
+              <span className="text-3xl sm:text-4xl font-black text-white tracking-tight block leading-none">
                 {formatCurrency(totalRevenue)}
               </span>
-              <span className="text-xs text-emerald-400 font-bold flex items-center gap-1 mt-1">
-                <TrendingUp className="w-3.5 h-3.5" />
-                {salesCount} {salesCount === 1 ? 'venda registrada' : 'vendas registradas'}
-              </span>
+              <div className="text-xs sm:text-[13px] text-[#05df72] font-semibold flex items-center gap-1.5 mt-2.5">
+                <TrendingUp className="w-4 h-4 shrink-0 stroke-[2.5]" />
+                <span>
+                  {salesCount} {salesCount === 1 ? 'venda registrada no período' : 'vendas registradas no período'}
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Card 2: Custo das Vendas (CMV) */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider">Custo das Vendas</span>
-              <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center">
-                <Coins className="w-4 h-4" />
+          <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 mb-1.5 sm:mb-2">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate mr-1">Custo das Vendas</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
+                <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
             <div>
-              <span className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight block">
+              <span className="text-lg sm:text-2xl font-black text-slate-800 tracking-tight block truncate">
                 {isAdmin ? formatCurrency(totalCost) : 'Restrito (Admin)'}
               </span>
-              <span className="text-xs text-slate-500 font-medium block mt-1">
+              <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-0.5 sm:mt-1 truncate">
                 {isAdmin && totalRevenue > 0
                   ? `${costPercentage.toFixed(1)}% do faturamento`
                   : 'Custo de mercadorias (CMV)'}
@@ -453,38 +458,38 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
 
           {/* Card 3: Lucro Estimado (Admin) */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider">Lucro Bruto</span>
-              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4" />
+          <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 mb-1.5 sm:mb-2">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate mr-1">Lucro Bruto</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
+                <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
             <div>
-              <span className="text-xl sm:text-2xl font-black text-emerald-700 tracking-tight block">
+              <span className="text-lg sm:text-2xl font-black text-emerald-700 tracking-tight block truncate">
                 {isAdmin ? formatCurrency(grossProfit) : 'Restrito (Admin)'}
               </span>
-              <span className="text-xs text-slate-500 font-medium block mt-1">
+              <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-0.5 sm:mt-1 truncate">
                 {isAdmin && totalRevenue > 0
-                  ? `Margem de lucro: ${profitMargin.toFixed(1)}%`
+                  ? `Margem: ${profitMargin.toFixed(1)}%`
                   : 'Faturamento líquido - Custo'}
               </span>
             </div>
           </div>
 
           {/* Card 4: Ticket Médio */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider">Ticket Médio</span>
-              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
-                <Receipt className="w-4 h-4" />
+          <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 mb-1.5 sm:mb-2">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate mr-1">Ticket Médio</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
+                <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
             <div>
-              <span className="text-xl sm:text-2xl font-black text-blue-600 tracking-tight block">
+              <span className="text-lg sm:text-2xl font-black text-blue-600 tracking-tight block truncate">
                 {formatCurrency(averageTicket)}
               </span>
-              <span className="text-xs text-slate-500 font-medium block mt-1">
+              <span className="text-[10px] sm:text-xs text-slate-500 font-medium block mt-0.5 sm:mt-1 truncate">
                 Média por transação concluída
               </span>
             </div>
@@ -493,27 +498,27 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           {/* Card 5: Alerta Estoque Baixo */}
           <div
             onClick={onNavigateToInventory}
-            className={`p-5 rounded-2xl border shadow-xs flex flex-col justify-between cursor-pointer transition-all ${
+            className={`p-3.5 sm:p-5 rounded-2xl border shadow-xs flex flex-col justify-between cursor-pointer transition-all ${
               lowStockProducts.length > 0
                 ? 'bg-orange-50/60 border-orange-200 hover:border-orange-300'
                 : 'bg-white border-slate-200'
             }`}
           >
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-orange-950">
+            <div className="flex items-center justify-between text-slate-500 mb-1.5 sm:mb-2">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-orange-950 truncate mr-1">
                 Estoque Crítico
               </span>
-              <div className="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
             <div>
-              <span className="text-xl sm:text-2xl font-black text-orange-950 tracking-tight block">
+              <span className="text-lg sm:text-2xl font-black text-orange-950 tracking-tight block truncate">
                 {lowStockProducts.length} {lowStockProducts.length === 1 ? 'item' : 'itens'}
               </span>
-              <span className="text-xs text-orange-800 font-bold flex items-center gap-1 mt-1">
+              <span className="text-[10px] sm:text-xs text-orange-800 font-bold flex items-center gap-1 mt-0.5 sm:mt-1 truncate">
                 <span>Repor estoque</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
+                <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
               </span>
             </div>
           </div>

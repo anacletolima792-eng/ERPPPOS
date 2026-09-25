@@ -90,6 +90,35 @@
         "createdAt": { "type": "string" }
       },
       "required": ["saleNumber", "items", "total", "paymentMethod", "status", "createdAt"]
+    },
+    "Quote": {
+      "title": "Quote",
+      "description": "Orçamentos e propostas comerciais emitidos pelo PDV",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "quoteNumber": { "type": "string" },
+        "operatorId": { "type": "string" },
+        "operatorName": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "customerDocument": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "discount": { "type": "number" },
+        "total": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "validUntil": { "type": "string" },
+        "notes": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected", "converted", "expired"] },
+        "convertedSaleId": { "type": "string" },
+        "convertedAt": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["quoteNumber", "items", "total", "validUntil", "status", "createdAt"]
     }
   },
   "firestore": {
@@ -97,6 +126,7 @@
     "products": { "schema": "Product", "description": "Produtos cadastrados" },
     "categories": { "schema": "Category", "description": "Categorias de produtos" },
     "customers": { "schema": "Customer", "description": "Clientes cadastrados" },
-    "sales": { "schema": "Sale", "description": "Vendas realizadas" }
+    "sales": { "schema": "Sale", "description": "Vendas realizadas" },
+    "quotes": { "schema": "Quote", "description": "Orçamentos emitidos" }
   }
 }
