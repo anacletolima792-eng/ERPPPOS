@@ -1,5 +1,4 @@
 import React from 'react';
-import { DollarSign } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { formatCurrency } from '../utils/formatters';
 
@@ -58,10 +57,10 @@ export const ActionBanner: React.FC<ActionBannerProps> = ({ onOpenCart, onOpenCh
           </div>
         </button>
 
-        {/* Fixed Position and Fixed Width Cobrar Button */}
+        {/* Fixed Position and Fixed Width Vender Button */}
         <button
           type="button"
-          id="btn-cobrar-action"
+          id="btn-vender-action"
           onClick={() => {
             if (hasItems) {
               onOpenCheckout();
@@ -69,22 +68,19 @@ export const ActionBanner: React.FC<ActionBannerProps> = ({ onOpenCart, onOpenCh
               onOpenCart();
             }
           }}
-          className={`w-36 sm:w-44 md:w-48 h-full rounded-xl font-black flex items-center justify-center gap-1.5 sm:gap-2 px-3 transition-colors shrink-0 shadow-xs active:scale-[0.98] cursor-pointer ${
+          className={`w-36 sm:w-44 md:w-48 h-full rounded-xl flex flex-col items-center justify-center px-3 py-1 transition-colors shrink-0 shadow-xs active:scale-[0.98] cursor-pointer ${
             hasItems
               ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
               : 'bg-emerald-600/90 hover:bg-emerald-600 text-white'
           }`}
-          title={hasItems ? `Cobrar total: ${formatCurrency(total)}` : 'Abrir carrinho para cobrar'}
+          title={hasItems ? `Vender total: ${formatCurrency(total)}` : 'Abrir carrinho para vender'}
         >
-          <DollarSign className="w-5 h-5 shrink-0 stroke-[2.5]" />
-          <div className="flex flex-col justify-center text-left min-w-0 leading-tight">
-            <span className="text-xs sm:text-sm tracking-wider uppercase font-black truncate">
-              COBRAR
-            </span>
-            <span className="text-[11px] sm:text-xs font-bold opacity-90 truncate font-mono">
-              ({formatCurrency(total)})
-            </span>
-          </div>
+          <span className="text-xs sm:text-sm font-black tracking-wider uppercase leading-none">
+            VENDER
+          </span>
+          <span className="text-[11px] sm:text-xs font-bold text-emerald-100 tracking-tight leading-tight mt-0.5">
+            {formatCurrency(total)}
+          </span>
         </button>
       </div>
     </div>

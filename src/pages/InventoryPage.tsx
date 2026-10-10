@@ -141,7 +141,6 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">Controle de Estoque</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Catálogo completo de produtos, precificação e reposição</p>
           </div>
 
           <div className="flex items-center gap-2">

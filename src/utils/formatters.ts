@@ -2,10 +2,20 @@ export const formatCurrency = (value: number | undefined | null): string => {
   if (value === undefined || value === null || isNaN(value)) {
     return 'R$ 0,00';
   }
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
+  const isNegative = value < 0;
+  const absValue = Math.abs(value);
+  try {
+    const formatted = new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(absValue);
+    return isNegative ? `-R$ ${formatted}` : `R$ ${formatted}`;
+  } catch {
+    const fixed = absValue.toFixed(2).replace('.', ',');
+    const parts = fixed.split(',');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return isNegative ? `-R$ ${parts.join(',')}` : `R$ ${parts.join(',')}`;
+  }
 };
 
 export const formatDate = (dateString?: string): string => {

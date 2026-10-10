@@ -191,7 +191,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {/* Total Hero Display */}
           <div className="bg-gradient-to-br from-slate-900 to-blue-950 text-white p-5 rounded-2xl shadow-md text-center">
-            <span className="text-xs uppercase tracking-widest text-slate-300 font-semibold">Valor Total a Cobrar</span>
+            <span className="text-xs uppercase tracking-widest text-slate-300 font-semibold">Valor Total da Venda</span>
             <div className="text-3xl sm:text-4xl font-black mt-1 text-white tracking-tight">
               {formatCurrency(total)}
             </div>

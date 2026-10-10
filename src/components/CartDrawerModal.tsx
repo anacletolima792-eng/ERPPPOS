@@ -264,7 +264,7 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
               </div>
             </div>
 
-            {/* Action Buttons: DEVOLUÇÃO & COBRAR */}
+            {/* Action Buttons: DEVOLUÇÃO & VENDER */}
             <div className="grid grid-cols-5 gap-2 sm:gap-2.5 pt-1">
               <button
                 id="btn-drawer-return"
@@ -286,7 +286,7 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
                 }}
                 className="col-span-3 h-12 sm:h-13 bg-orange-500 hover:bg-orange-600 active:scale-98 text-white border border-transparent rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all cursor-pointer"
               >
-                <span className="tracking-wider">COBRAR</span>
+                <span className="tracking-wider">VENDER</span>
                 <ArrowRight className="w-4 h-4 shrink-0 stroke-[2.5]" />
               </button>
             </div>

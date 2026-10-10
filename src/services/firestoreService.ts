@@ -69,18 +69,19 @@ export const setStoredData = <T>(key: string, data: T): void => {
   }
 };
 
-// Auto-clean any old demo seed from browser local storage once
+// Auto-clean any old test/demo data from browser local storage
 if (typeof window !== 'undefined') {
   try {
-    const WIPE_KEY = 'erp_pdv_demo_wiped_v2';
+    const WIPE_KEY = 'erp_pdv_reset_clean_v3';
     if (!safeStorage.getItem(WIPE_KEY)) {
       safeStorage.removeItem(STORAGE_KEYS.PRODUCTS);
       safeStorage.removeItem(STORAGE_KEYS.CATEGORIES);
       safeStorage.removeItem(STORAGE_KEYS.CUSTOMERS);
       safeStorage.removeItem(STORAGE_KEYS.SALES);
-      safeStorage.removeItem(STORAGE_KEYS.USERS);
+      safeStorage.removeItem(STORAGE_KEYS.QUOTES);
       safeStorage.removeItem('pdv_cart_items');
-      safeStorage.removeItem('pdv_current_user');
+      safeStorage.removeItem('pdv_current_discount');
+      safeStorage.removeItem('pdv_applied_customer_id');
       safeStorage.setItem(WIPE_KEY, 'true');
     }
   } catch {}

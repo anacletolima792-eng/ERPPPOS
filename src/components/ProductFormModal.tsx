@@ -21,7 +21,7 @@ import { ConfirmModal } from './ConfirmModal';
 import { CurrencyInput } from './CurrencyInput';
 import { QuantityStepper } from './QuantityStepper';
 import { ProductImageZoomModal } from './ProductImageZoomModal';
-import { parseCurrencyToNumber } from '../utils/formatters';
+import { parseCurrencyToNumber, formatCurrency } from '../utils/formatters';
 import {
   Camera,
   Upload,
@@ -485,12 +485,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             const margin = saleNum > 0 ? (diff / saleNum) * 100 : 0;
             const markup = costNum > 0 ? (diff / costNum) * 100 : 0;
 
-            const formatBRL = (val: number) =>
-              new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-              }).format(val);
-
             if (saleNum === 0 && costNum === 0) return null;
 
             return (
@@ -518,8 +512,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                           : 'text-slate-700 dark:text-slate-300'
                       }`}
                     >
-                      {diff >= 0 ? '+' : ''}
-                      {formatBRL(diff)}
+                      {diff > 0 ? '+' : ''}
+                      {formatCurrency(diff)}
                     </strong>
                   </div>
 

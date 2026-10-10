@@ -15,7 +15,6 @@ import {
   ShoppingBag,
   Check,
   RotateCcw,
-  DollarSign,
   AlertCircle,
   Eye,
   Phone,
@@ -742,7 +741,7 @@ export const QuoteModal: React.FC<QuoteModalProps> = ({
                   {/* Payment Condition */}
                   <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
                     <label className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5 mb-2">
-                      <DollarSign className="w-4 h-4 text-indigo-600" />
+                      <span className="text-xs font-black text-indigo-600">R$</span>
                       Condição de Pagamento Prevista
                     </label>
 

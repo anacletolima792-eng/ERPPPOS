@@ -4,7 +4,6 @@ import {
   Search,
   Filter,
   Calendar,
-  DollarSign,
   Printer,
   ChevronRight,
   Download,
@@ -274,15 +273,8 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
               <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-black shrink-0">
                 {currentUser.name.charAt(0).toUpperCase()}
               </div>
-              <span className="hidden md:inline max-w-[100px] truncate text-xs font-bold text-slate-800 dark:text-slate-100">
+              <span className="max-w-[120px] truncate text-xs font-bold text-slate-800 dark:text-slate-100">
                 {currentUser.name}
-              </span>
-              <span className={`text-[10px] uppercase px-1.5 py-0.2 rounded font-extrabold border ${
-                isAdmin
-                  ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
-                  : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
-              }`}>
-                {isAdmin ? 'Admin' : 'Vendedor'}
               </span>
             </button>
 

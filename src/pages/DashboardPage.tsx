@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
   TrendingUp,
-  DollarSign,
   ShoppingCart,
   Receipt,
   AlertTriangle,
@@ -276,8 +275,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     });
 
     return Array.from(map.values())
-      .sort((a, b) => b.quantity - a.quantity)
-      .slice(0, 5);
+      .sort((a, b) => b.quantity - a.quantity);
   }, [filteredSales, products]);
 
   // Category Sales Preview for Dashboard
@@ -444,7 +442,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 FATURAMENTO TOTAL
               </span>
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#1d5bf6] flex items-center justify-center shrink-0 shadow-xs">
-                <DollarSign className="w-5 h-5 text-white stroke-[2.5]" />
+                <span className="text-sm font-black text-white tracking-tight leading-none">R$</span>
               </div>
             </div>
 
@@ -692,67 +690,76 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <p className="text-xs text-slate-500 dark:text-slate-400">Volume, custo, lucro e faturamento</p>
             </div>
 
-            <div className="space-y-2.5 pt-1 flex-1">
+            <div className="space-y-2 pt-1 flex-1">
               {topProductsData.length === 0 ? (
                 <p className="text-xs text-slate-400 py-6 text-center">Nenhum produto vendido no período</p>
               ) : (
-                topProductsData.slice(0, 4).map((prod, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-700 transition-colors space-y-2.5"
-                  >
-                    {/* Linha 1: Nome do produto e no final a quantidade */}
-                    <div className="flex items-center justify-between gap-3">
-                      <span
-                        className="font-black text-slate-900 dark:text-white uppercase tracking-tight text-xs sm:text-sm truncate min-w-0 flex-1"
-                        title={prod.name}
-                      >
-                        {prod.name}
-                      </span>
-                      <div className="text-right shrink-0">
-                        <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-0.5">
-                          QTD
+                <>
+                  {topProductsData.slice(0, 10).map((prod, idx) => (
+                    <div
+                      key={idx}
+                      className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-700 transition-colors space-y-1.5"
+                    >
+                      {/* Linha 1: Nome do produto e no final a quantidade (sem o rótulo QTD) */}
+                      <div className="flex items-center justify-between gap-3">
+                        <span
+                          className="font-black text-slate-900 dark:text-white uppercase tracking-tight text-xs sm:text-sm truncate min-w-0 flex-1"
+                          title={prod.name}
+                        >
+                          {prod.name}
                         </span>
-                        <span className="font-black text-blue-600 dark:text-blue-400 text-xs sm:text-sm leading-none">
-                          {prod.quantity} UN
-                        </span>
+                        <div className="text-right shrink-0">
+                          <span className="font-black text-blue-600 dark:text-blue-400 text-xs sm:text-sm leading-none">
+                            {prod.quantity} UN
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Linha 2: Custo, Lucro e Valor compactos */}
+                      <div className="grid grid-cols-3 gap-2 pt-1.5 border-t border-slate-200/80 dark:border-slate-700/70">
+                        {/* Custo */}
+                        <div className="min-w-0">
+                          <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-0.5">
+                            CUSTO
+                          </span>
+                          <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs truncate block leading-tight">
+                            {isAdmin ? formatCurrency(prod.cost) : '***'}
+                          </span>
+                        </div>
+
+                        {/* Lucro */}
+                        <div className="min-w-0 border-l border-slate-200 dark:border-slate-700/60 pl-2">
+                          <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-0.5">
+                            LUCRO
+                          </span>
+                          <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs truncate block leading-tight">
+                            {isAdmin ? formatCurrency(prod.profit) : '***'}
+                          </span>
+                        </div>
+
+                        {/* Valor */}
+                        <div className="min-w-0 border-l border-slate-200 dark:border-slate-700/60 pl-2 text-right">
+                          <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-0.5">
+                            VALOR
+                          </span>
+                          <span className="font-black text-emerald-700 dark:text-emerald-300 text-xs truncate block leading-tight">
+                            {formatCurrency(prod.revenue)}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                  ))}
 
-                    {/* Linha 2: Custo, Lucro e Valor */}
-                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/80 dark:border-slate-700/70">
-                      {/* Custo */}
-                      <div className="min-w-0">
-                        <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-1">
-                          CUSTO
-                        </span>
-                        <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs truncate block leading-tight">
-                          {isAdmin ? formatCurrency(prod.cost) : '***'}
-                        </span>
-                      </div>
-
-                      {/* Lucro */}
-                      <div className="min-w-0 border-l border-slate-200 dark:border-slate-700/60 pl-2">
-                        <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-1">
-                          LUCRO
-                        </span>
-                        <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs truncate block leading-tight">
-                          {isAdmin ? formatCurrency(prod.profit) : '***'}
-                        </span>
-                      </div>
-
-                      {/* Valor */}
-                      <div className="min-w-0 border-l border-slate-200 dark:border-slate-700/60 pl-2 text-right">
-                        <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider leading-none mb-1">
-                          VALOR
-                        </span>
-                        <span className="font-black text-emerald-700 dark:text-emerald-300 text-xs truncate block leading-tight">
-                          {formatCurrency(prod.revenue)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
+                  {topProductsData.length > 10 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsAllSoldProductsOpen(true)}
+                      className="w-full py-2 text-center text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/30 hover:bg-blue-100/70 dark:hover:bg-blue-900/50 rounded-xl transition-colors border border-blue-100 dark:border-blue-900/40 cursor-pointer"
+                    >
+                      Ver todos (+{topProductsData.length - 10} produtos)
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -781,31 +788,43 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               {categorySalesPreview.length === 0 ? (
                 <p className="text-xs text-slate-400 py-6 text-center">Nenhuma venda por categoria no período</p>
               ) : (
-                categorySalesPreview.slice(0, 4).map((cat, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => setIsCategorySalesOpen(true)}
-                    className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/30 transition-all cursor-pointer text-xs"
-                  >
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[140px]">
-                        {cat.name}
-                      </span>
-                      <span className="font-black text-blue-600 dark:text-blue-400">
-                        {formatCurrency(cat.revenue)}
-                      </span>
-                    </div>
+                <>
+                  {categorySalesPreview.slice(0, 10).map((cat, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => setIsCategorySalesOpen(true)}
+                      className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/30 transition-all cursor-pointer text-xs"
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[140px]">
+                          {cat.name}
+                        </span>
+                        <span className="font-black text-blue-600 dark:text-blue-400">
+                          {formatCurrency(cat.revenue)}
+                        </span>
+                      </div>
 
-                    <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
-                      <span className="text-slate-500 dark:text-slate-400">
-                        Custo: <strong className="text-slate-700 dark:text-slate-300">{isAdmin ? formatCurrency(cat.cost) : '***'}</strong>
-                      </span>
-                      <span className="text-emerald-700 dark:text-emerald-400 font-bold">
-                        Lucro: {isAdmin ? formatCurrency(cat.profit) : '***'}
-                      </span>
+                      <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+                        <span className="text-slate-500 dark:text-slate-400">
+                          Custo: <strong className="text-slate-700 dark:text-slate-300">{isAdmin ? formatCurrency(cat.cost) : '***'}</strong>
+                        </span>
+                        <span className="text-emerald-700 dark:text-emerald-400 font-bold">
+                          Lucro: {isAdmin ? formatCurrency(cat.profit) : '***'}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+
+                  {categorySalesPreview.length > 10 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsCategorySalesOpen(true)}
+                      className="w-full py-2 text-center text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/30 hover:bg-indigo-100/70 dark:hover:bg-indigo-900/50 rounded-xl transition-colors border border-indigo-100 dark:border-indigo-900/40 cursor-pointer"
+                    >
+                      Ver todas (+{categorySalesPreview.length - 10} categorias)
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>

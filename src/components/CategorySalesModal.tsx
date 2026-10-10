@@ -3,7 +3,6 @@ import {
   X,
   Layers,
   TrendingUp,
-  DollarSign,
   Coins,
   Search,
   ArrowUpDown,
@@ -369,7 +368,7 @@ export const CategorySalesModal: React.FC<CategorySalesModalProps> = ({
                 {formatCurrency(grandTotals.totalRev)}
               </div>
             </div>
-            <DollarSign className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <span className="text-[10px] font-black text-blue-600 shrink-0">R$</span>
           </div>
 
           {/* Card 2: Valor de Custo */}

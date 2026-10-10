@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, ChevronDown, ShieldCheck } from 'lucide-react';
+import { Users, ChevronDown } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
 import { ThemeToggle } from './ThemeToggle';
@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenOperatorModal,
   onOpenCustomerModal,
 }) => {
-  const { currentUser, isAdmin } = useAuth();
+  const { currentUser } = useAuth();
   const { customer } = useCart();
 
   return (
@@ -39,19 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-              {isAdmin ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                  <ShieldCheck className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                  <span className="hidden sm:inline">Admin</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                  <span>Vendedor</span>
-                </span>
-              )}
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
-            </div>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300 shrink-0" />
           </button>
         </div>
 
