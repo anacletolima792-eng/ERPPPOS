@@ -31,6 +31,7 @@ export const CameraBarcodeScannerModal: React.FC<
 }) => {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [processingBarcode, setProcessingBarcode] = useState<boolean>(false);
   const [manualCode, setManualCode] = useState('');
   const [showManualInput, setShowManualInput] = useState(false);
   const [scannedCode, setScannedCode] = useState<string | null>(null);
@@ -66,24 +67,28 @@ export const CameraBarcodeScannerModal: React.FC<
     const cleanText = decodedText.trim();
     if (!cleanText) return;
 
-    if (isProcessingRef.current) return;
+    // 1. Mude imediatamente esse estado para bloquear novas leituras
+    if (isProcessingRef.current || processingBarcode) return;
     isProcessingRef.current = true;
+    setProcessingBarcode(true);
 
     playBeep();
     setScannedCode(cleanText);
 
-    // Stop scanning safely
-    stopCamera();
+    // 2. Processe o código lido
+    onScan(cleanText);
+  };
 
-    // Small delay to show visual confirmation before closing
-    setTimeout(() => {
-      onScan(cleanText);
-      handleSafeClose();
-    }, 600);
+  // 3. Resetar Leitor / Escanear Novamente mediante clique do usuário
+  const handleResetScanner = () => {
+    setScannedCode(null);
+    isProcessingRef.current = false;
+    setProcessingBarcode(false);
   };
 
   const handleSafeClose = () => {
     isProcessingRef.current = false;
+    setProcessingBarcode(false);
     setScannedCode(null);
     onClose();
     stopCamera().catch(() => {});
@@ -316,20 +321,42 @@ export const CameraBarcodeScannerModal: React.FC<
             </div>
           )}
 
-          {/* Success Scanned Floating Card (Camera remains visible, NO green screen!) */}
-          {scannedCode && (
-            <div className="absolute bottom-4 inset-x-4 pointer-events-none z-20 flex justify-center animate-in slide-in-from-bottom-2 duration-200">
-              <div className="w-full max-w-xs bg-slate-900/95 backdrop-blur-md border-2 border-emerald-500/80 rounded-2xl p-3 shadow-2xl flex items-center gap-3 text-white">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md">
-                  <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
+          {/* Success Scanned Result Panel with Escanear Novamente & Concluir */}
+          {processingBarcode && scannedCode && (
+            <div className="absolute bottom-4 inset-x-4 z-20 flex justify-center animate-in slide-in-from-bottom-2 duration-150">
+              <div className="w-full max-w-sm bg-slate-900/95 backdrop-blur-md border-2 border-emerald-500/80 rounded-2xl p-4 shadow-2xl space-y-3 text-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md">
+                    <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
+                  </div>
+                  <div className="flex-1 min-w-0 text-left">
+                    <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 mb-0.5">
+                      Código Lido com Sucesso
+                    </span>
+                    <p className="text-base font-mono font-black text-white truncate">
+                      {scannedCode}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 mb-0.5">
-                    Código Lido com Sucesso
-                  </span>
-                  <p className="text-base font-mono font-black text-white truncate">
-                    {scannedCode}
-                  </p>
+
+                {/* Botões: Escanear Novamente e Concluir */}
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={handleResetScanner}
+                    className="w-full py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm active:scale-98"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Escanear Novamente</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSafeClose}
+                    className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm active:scale-98"
+                  >
+                    <span>Concluir</span>
+                  </button>
                 </div>
               </div>
             </div>
