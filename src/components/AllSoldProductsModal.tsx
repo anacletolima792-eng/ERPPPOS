@@ -449,7 +449,7 @@ export const AllSoldProductsModal: React.FC<AllSoldProductsModalProps> = ({
                 >
                   {/* 1. Nome do Produto */}
                   <div className="min-w-0 flex-1">
-                    <span className="font-extrabold text-xs sm:text-sm text-slate-900 block truncate uppercase">
+                    <span className="font-extrabold text-xs sm:text-sm text-slate-900 block truncate">
                       {item.name}
                     </span>
                   </div>

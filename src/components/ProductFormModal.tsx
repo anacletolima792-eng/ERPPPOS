@@ -21,7 +21,7 @@ import { ConfirmModal } from './ConfirmModal';
 import { CurrencyInput } from './CurrencyInput';
 import { QuantityStepper } from './QuantityStepper';
 import { ProductImageZoomModal } from './ProductImageZoomModal';
-import { parseCurrencyToNumber, formatCurrency } from '../utils/formatters';
+import { parseCurrencyToNumber, formatCurrency, formatTitleCase } from '../utils/formatters';
 import {
   Camera,
   Upload,
@@ -48,8 +48,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [categoryId, setCategoryId] = useState('');
   const [price, setPrice] = useState<number | string>(0);
   const [costPrice, setCostPrice] = useState<number | string>(0);
-  const [stock, setStock] = useState('');
-  const [minStock, setMinStock] = useState('5');
+  const [stock, setStock] = useState('1');
+  const [minStock, setMinStock] = useState('0');
   const [unit, setUnit] = useState('UN');
   const [imageUrl, setImageUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -167,14 +167,14 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
   useEffect(() => {
     if (productToEdit) {
-      setName(productToEdit.name);
+      setName(formatTitleCase(productToEdit.name));
       setCode(productToEdit.code);
       setBarcode(productToEdit.barcode || '');
       setCategoryId(productToEdit.categoryId || '');
       setPrice(productToEdit.price);
       setCostPrice(productToEdit.costPrice || 0);
-      setStock(productToEdit.stock.toString());
-      setMinStock(productToEdit.minStock?.toString() || '5');
+      setStock(productToEdit.stock !== undefined && productToEdit.stock !== null ? productToEdit.stock.toString() : '1');
+      setMinStock(productToEdit.minStock !== undefined && productToEdit.minStock !== null ? productToEdit.minStock.toString() : '0');
       setUnit(productToEdit.unit || 'UN');
       setImageUrl(productToEdit.imageUrl || '');
     } else {
@@ -184,8 +184,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setCategoryId(categories[0]?.id || '');
       setPrice(0);
       setCostPrice(0);
-      setStock('10');
-      setMinStock('5');
+      setStock('1');
+      setMinStock('0');
       setUnit('UN');
       setImageUrl('');
     }
@@ -210,10 +210,14 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     const costNum = typeof costPrice === 'number' ? costPrice : parseCurrencyToNumber(costPrice);
 
     const cleanStockStr = stock.toString().replace(',', '.').trim();
-    const stockNum = cleanStockStr ? parseFloat(cleanStockStr) || 0 : 0;
+    const stockNum = cleanStockStr !== '' && !isNaN(parseFloat(cleanStockStr))
+      ? Math.max(0, parseFloat(cleanStockStr))
+      : 1;
 
     const cleanMinStockStr = minStock.toString().replace(',', '.').trim();
-    const minStockNum = cleanMinStockStr ? parseFloat(cleanMinStockStr) || 5 : 5;
+    const minStockNum = cleanMinStockStr !== '' && !isNaN(parseFloat(cleanMinStockStr))
+      ? Math.max(0, parseFloat(cleanMinStockStr))
+      : 0;
 
     const selectedCategory = categories.find((c) => c.id === categoryId);
 
@@ -222,7 +226,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setError(null);
 
       const productPayload = {
-        name: name.trim().toUpperCase(),
+        name: formatTitleCase(name.trim()),
         code: code.trim() || `#${Math.floor(10000 + Math.random() * 90000)}`,
         barcode: barcode.trim() || '',
         categoryId: categoryId || '',
@@ -417,7 +421,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="#00018"
-                className="w-full px-3 py-2 text-xs font-mono font-bold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 text-xs font-mono font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
 
@@ -427,7 +431,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 id="select-prod-unit"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-bold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 dark:text-slate-100"
               >
                 <option value="UN">UN (Unidade)</option>
                 <option value="KG">KG (Quilo)</option>
@@ -448,9 +452,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               required
               id="input-prod-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: LÁPIS PED IRWIN, CIMENTO CP-II..."
-              className="w-full px-3.5 py-2.5 text-xs font-semibold uppercase bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 dark:text-slate-100"
+              onChange={(e) => setName(formatTitleCase(e.target.value))}
+              placeholder="Ex: Lápis de Pedreiro, Cimento Cola, Broca 10mm..."
+              className="w-full px-3.5 py-2.5 text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
 
@@ -462,7 +466,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 value={price}
                 onChange={(val) => setPrice(val)}
                 required
-                className="w-full py-2 text-sm font-black text-blue-950 dark:text-blue-200 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-hidden focus:ring-2 focus:ring-orange-500 shadow-2xs"
+                className="w-full py-2 text-sm font-black text-blue-950 dark:text-blue-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-orange-500 shadow-2xs"
               />
             </div>
 
@@ -472,7 +476,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 id="input-prod-cost"
                 value={costPrice}
                 onChange={(val) => setCostPrice(val)}
-                className="w-full py-2 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-hidden focus:ring-2 focus:ring-slate-400"
+                className="w-full py-2 text-sm font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-slate-400 shadow-2xs"
               />
             </div>
           </div>
@@ -552,7 +556,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Estoque Atual *</label>
               <QuantityStepper
                 id="input-prod-stock"
-                value={parseInt(stock.toString(), 10) || 0}
+                value={isNaN(parseInt(stock.toString(), 10)) ? 1 : parseInt(stock.toString(), 10)}
                 onChange={(val) => setStock(val.toString())}
                 min={0}
                 size="md"
@@ -565,7 +569,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Estoque Mínimo</label>
               <QuantityStepper
                 id="input-prod-min-stock"
-                value={parseInt(minStock.toString(), 10) || 0}
+                value={isNaN(parseInt(minStock.toString(), 10)) ? 0 : parseInt(minStock.toString(), 10)}
                 onChange={(val) => setMinStock(val.toString())}
                 min={0}
                 size="md"
@@ -599,7 +603,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   id="select-prod-category"
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="flex-1 px-3 py-2 text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-none text-slate-900 dark:text-slate-100"
+                  className="flex-1 px-3 py-2 text-xs font-medium bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100"
                 >
                   <option value="">Sem categoria</option>
                   {localCategories.map((c) => (
@@ -721,9 +725,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   value={barcode}
                   onChange={(e) => setBarcode(e.target.value)}
                   placeholder="7891234560020"
-                  className={`w-full pl-3 pr-20 py-2 text-xs font-mono font-semibold bg-slate-50 dark:bg-slate-800 border rounded-xl focus:bg-white dark:focus:bg-slate-750 focus:outline-hidden transition-all text-slate-900 dark:text-slate-100 ${
+                  className={`w-full pl-3 pr-20 py-2 text-xs font-mono font-semibold bg-white dark:bg-slate-800 border rounded-xl focus:outline-hidden transition-all text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 ${
                     scanSuccessFeedback
-                      ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/30'
+                      ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/30 dark:bg-emerald-950/30'
                       : 'border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-orange-500'
                   }`}
                 />

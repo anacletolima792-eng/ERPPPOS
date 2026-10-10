@@ -703,7 +703,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                       {/* Linha 1: Nome do produto e no final a quantidade (sem o rótulo QTD) */}
                       <div className="flex items-center justify-between gap-3">
                         <span
-                          className="font-black text-slate-900 dark:text-white uppercase tracking-tight text-xs sm:text-sm truncate min-w-0 flex-1"
+                          className="font-black text-slate-900 dark:text-white tracking-tight text-xs sm:text-sm truncate min-w-0 flex-1"
                           title={prod.name}
                         >
                           {prod.name}
@@ -857,7 +857,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     className="p-2.5 bg-orange-50/50 dark:bg-orange-950/40 rounded-xl border border-orange-200 dark:border-orange-800 flex items-center justify-between text-xs"
                   >
                     <div className="min-w-0 flex-1">
-                      <span className="font-bold text-slate-900 dark:text-slate-100 truncate block uppercase">{prod.name}</span>
+                      <span className="font-bold text-slate-900 dark:text-slate-100 truncate block">{prod.name}</span>
                       <span className="text-[10px] text-slate-500 dark:text-slate-400">Cód: {prod.code} • Mín: {prod.minStock} {prod.unit}</span>
                     </div>
                     <div className="text-right shrink-0 pl-2">

@@ -19,14 +19,51 @@ import { Product, Category, Customer, Sale, Quote, QuoteStatus, UserProfile, Sto
 import { safeStorage } from '../utils/storage';
 
 // ==================== STORAGE KEYS & EVENT SYSTEM ====================
+let currentTenantId: string = typeof window !== 'undefined' ? (safeStorage.getItem('pdv_current_tenant_id') || '') : '';
+
+export const setTenantId = (tenantId: string) => {
+  currentTenantId = tenantId;
+  if (typeof window !== 'undefined') {
+    if (tenantId) {
+      safeStorage.setItem('pdv_current_tenant_id', tenantId);
+    } else {
+      safeStorage.removeItem('pdv_current_tenant_id');
+    }
+    notifyLocalDataChange('tenant_changed', tenantId);
+  }
+};
+
+export const getTenantId = (): string => currentTenantId;
+
+export const getScopedKey = (baseKey: string): string => {
+  if (currentTenantId) {
+    return `erp_pdv_${currentTenantId}_${baseKey}`;
+  }
+  return `erp_pdv_${baseKey}`;
+};
+
+export const getTenantCollection = (subcol: string) => {
+  if (currentTenantId) {
+    return collection(db, 'companies', currentTenantId, subcol);
+  }
+  return collection(db, subcol);
+};
+
+export const getTenantDoc = (subcol: string, docId: string) => {
+  if (currentTenantId) {
+    return doc(db, 'companies', currentTenantId, subcol, docId);
+  }
+  return doc(db, subcol, docId);
+};
+
 export const STORAGE_KEYS = {
-  PRODUCTS: 'erp_pdv_persisted_products',
-  CATEGORIES: 'erp_pdv_persisted_categories',
-  CUSTOMERS: 'erp_pdv_persisted_customers',
-  SALES: 'erp_pdv_persisted_sales',
-  QUOTES: 'erp_pdv_persisted_quotes',
-  USERS: 'erp_pdv_persisted_users',
-  SETTINGS: 'erp_pdv_persisted_settings',
+  PRODUCTS: 'products',
+  CATEGORIES: 'categories',
+  CUSTOMERS: 'customers',
+  SALES: 'sales',
+  QUOTES: 'quotes',
+  USERS: 'users',
+  SETTINGS: 'settings',
 };
 
 const notifyLocalDataChange = (key: string, data: any) => {
@@ -138,8 +175,8 @@ export const normalizeProduct = (p: any, fallbackIndex = 0): Product => ({
   categoryName: p.categoryName || '',
   price: typeof p.price === 'number' ? p.price : Number(p.price) || 0,
   costPrice: typeof p.costPrice === 'number' ? p.costPrice : Number(p.costPrice) || 0,
-  stock: typeof p.stock === 'number' ? p.stock : Number(p.stock) || 0,
-  minStock: typeof p.minStock === 'number' ? p.minStock : Number(p.minStock) || 5,
+  stock: typeof p.stock === 'number' ? p.stock : (p.stock !== undefined && p.stock !== null && !isNaN(Number(p.stock)) && p.stock !== '' ? Number(p.stock) : 0),
+  minStock: typeof p.minStock === 'number' ? p.minStock : (p.minStock !== undefined && p.minStock !== null && !isNaN(Number(p.minStock)) && p.minStock !== '' ? Number(p.minStock) : 0),
   unit: p.unit || 'UN',
   imageUrl: p.imageUrl || '',
   createdAt: p.createdAt || new Date().toISOString(),
@@ -147,30 +184,30 @@ export const normalizeProduct = (p: any, fallbackIndex = 0): Product => ({
 });
 
 export const getStoredProducts = (): Product[] => {
-  const list = getStoredData(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
+  const list = getStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), DEFAULT_PRODUCTS);
   return (Array.isArray(list) ? list : []).map((p, idx) => normalizeProduct(p, idx));
 };
 export const getStoredCategories = (): Category[] => {
-  const list = getStoredData(STORAGE_KEYS.CATEGORIES, DEFAULT_CATEGORIES);
+  const list = getStoredData(getScopedKey(STORAGE_KEYS.CATEGORIES), DEFAULT_CATEGORIES);
   return Array.isArray(list) ? list : [];
 };
 export const getStoredCustomers = (): Customer[] => {
-  const list = getStoredData(STORAGE_KEYS.CUSTOMERS, DEFAULT_CUSTOMERS);
+  const list = getStoredData(getScopedKey(STORAGE_KEYS.CUSTOMERS), DEFAULT_CUSTOMERS);
   return Array.isArray(list) ? list : DEFAULT_CUSTOMERS;
 };
 export const getStoredSales = (): Sale[] => {
-  const list = getStoredData(STORAGE_KEYS.SALES, DEFAULT_SALES);
+  const list = getStoredData(getScopedKey(STORAGE_KEYS.SALES), DEFAULT_SALES);
   return Array.isArray(list) ? list : [];
 };
 export const getStoredQuotes = (): Quote[] => {
-  const list = getStoredData(STORAGE_KEYS.QUOTES, DEFAULT_QUOTES);
+  const list = getStoredData(getScopedKey(STORAGE_KEYS.QUOTES), DEFAULT_QUOTES);
   return Array.isArray(list) ? list : [];
 };
 export const getStoredUsers = (): UserProfile[] => {
-  const list = getStoredData(STORAGE_KEYS.USERS, DEFAULT_USERS);
+  const list = getStoredData(getScopedKey(STORAGE_KEYS.USERS), DEFAULT_USERS);
   return Array.isArray(list) ? list : DEFAULT_USERS;
 };
-export const getStoredSettings = (): StoreSettings => getStoredData(STORAGE_KEYS.SETTINGS, DEFAULT_STORE_SETTINGS);
+export const getStoredSettings = (): StoreSettings => getStoredData(getScopedKey(STORAGE_KEYS.SETTINGS), DEFAULT_STORE_SETTINGS);
 
 // Helper to clean objects for Firestore
 export const cleanFirestoreData = (obj: any): any => {
@@ -197,7 +234,7 @@ export const subscribeProducts = (callback: (products: Product[]) => void) => {
   const initial = getStoredProducts();
   callback(initial);
 
-  const productsRef = collection(db, 'products');
+  const productsRef = getTenantCollection('products');
   const q = query(productsRef, orderBy('name', 'asc'));
 
   const unsubFirestore = onSnapshot(
@@ -209,11 +246,12 @@ export const subscribeProducts = (callback: (products: Product[]) => void) => {
         snapshot.forEach((docSnap) => {
           firestoreProducts.push(normalizeProduct({ id: docSnap.id, ...docSnap.data() }, idx++));
         });
-        setStoredData(STORAGE_KEYS.PRODUCTS, firestoreProducts);
+        setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), firestoreProducts);
         callback(firestoreProducts);
       } else {
-        const local = getStoredProducts();
-        callback(local);
+        // Empty tenant or reset - start with 0 products
+        setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), []);
+        callback([]);
       }
     },
     (error) => {
@@ -223,7 +261,7 @@ export const subscribeProducts = (callback: (products: Product[]) => void) => {
   );
 
   const localHandler = (e: any) => {
-    if (e.detail?.key === STORAGE_KEYS.PRODUCTS) {
+    if (e.detail?.key === getScopedKey(STORAGE_KEYS.PRODUCTS)) {
       callback(e.detail.data);
     }
   };
@@ -247,11 +285,11 @@ export const createProduct = async (productData: Omit<Product, 'id'>): Promise<s
   // 1. Update local storage immediately
   const current = getStoredProducts();
   const updated = [cleanData, ...current.filter((p) => p.id !== newId)];
-  setStoredData(STORAGE_KEYS.PRODUCTS, updated);
+  setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), updated);
 
   // 2. Persist to Firestore
   try {
-    const docRef = doc(db, 'products', newId);
+    const docRef = getTenantDoc('products', newId);
     await setDoc(docRef, cleanData, { merge: true });
   } catch (err) {
     console.warn('Aviso ao salvar produto no Firestore:', err);
@@ -271,10 +309,10 @@ export const updateProduct = async (id: string, productData: Partial<Product>): 
   };
 
   const updatedList = current.map((p) => (p.id === id ? updatedItem : p));
-  setStoredData(STORAGE_KEYS.PRODUCTS, updatedList);
+  setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), updatedList);
 
   try {
-    const docRef = doc(db, 'products', id);
+    const docRef = getTenantDoc('products', id);
     await setDoc(docRef, cleanFirestoreData(updatedItem), { merge: true });
   } catch (err) {
     console.warn('Aviso ao atualizar produto no Firestore:', err);
@@ -284,10 +322,10 @@ export const updateProduct = async (id: string, productData: Partial<Product>): 
 export const deleteProduct = async (id: string): Promise<void> => {
   const current = getStoredProducts();
   const updated = current.filter((p) => p.id !== id);
-  setStoredData(STORAGE_KEYS.PRODUCTS, updated);
+  setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), updated);
 
   try {
-    const docRef = doc(db, 'products', id);
+    const docRef = getTenantDoc('products', id);
     await deleteDoc(docRef);
   } catch (err) {
     console.warn('Aviso ao deletar produto no Firestore:', err);
@@ -302,10 +340,10 @@ export const adjustProductStock = async (id: string, delta: number): Promise<voi
     }
     return p;
   });
-  setStoredData(STORAGE_KEYS.PRODUCTS, updated);
+  setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), updated);
 
   try {
-    const docRef = doc(db, 'products', id);
+    const docRef = getTenantDoc('products', id);
     const productDoc = await getDoc(docRef);
     if (productDoc.exists()) {
       const cur = productDoc.data().stock || 0;
@@ -320,7 +358,7 @@ export const adjustProductStock = async (id: string, delta: number): Promise<voi
 export const subscribeCategories = (callback: (categories: Category[]) => void) => {
   callback(getStoredCategories());
 
-  const categoriesRef = collection(db, 'categories');
+  const categoriesRef = getTenantCollection('categories');
   const q = query(categoriesRef, orderBy('name', 'asc'));
 
   const unsubFirestore = onSnapshot(
@@ -331,11 +369,11 @@ export const subscribeCategories = (callback: (categories: Category[]) => void) 
         snapshot.forEach((docSnap) => {
           list.push({ id: docSnap.id, ...docSnap.data() } as Category);
         });
-        setStoredData(STORAGE_KEYS.CATEGORIES, list);
+        setStoredData(getScopedKey(STORAGE_KEYS.CATEGORIES), list);
         callback(list);
       } else {
-        const local = getStoredCategories();
-        callback(local);
+        setStoredData(getScopedKey(STORAGE_KEYS.CATEGORIES), []);
+        callback([]);
       }
     },
     (error) => {
@@ -345,7 +383,7 @@ export const subscribeCategories = (callback: (categories: Category[]) => void) 
   );
 
   const localHandler = (e: any) => {
-    if (e.detail?.key === STORAGE_KEYS.CATEGORIES) {
+    if (e.detail?.key === getScopedKey(STORAGE_KEYS.CATEGORIES)) {
       callback(e.detail.data);
     }
   };
@@ -366,10 +404,10 @@ export const createCategory = async (categoryData: Omit<Category, 'id'>): Promis
   });
 
   const current = getStoredCategories();
-  setStoredData(STORAGE_KEYS.CATEGORIES, [...current, cleanData]);
+  setStoredData(getScopedKey(STORAGE_KEYS.CATEGORIES), [...current, cleanData]);
 
   try {
-    const docRef = doc(db, 'categories', newId);
+    const docRef = getTenantDoc('categories', newId);
     await setDoc(docRef, cleanData, { merge: true });
   } catch (err) {
     console.warn('Aviso ao salvar categoria:', err);
@@ -381,10 +419,10 @@ export const createCategory = async (categoryData: Omit<Category, 'id'>): Promis
 export const updateCategory = async (id: string, categoryData: Partial<Category>): Promise<void> => {
   const current = getStoredCategories();
   const updated = current.map((c) => (c.id === id ? { ...c, ...categoryData, id } : c));
-  setStoredData(STORAGE_KEYS.CATEGORIES, updated);
+  setStoredData(getScopedKey(STORAGE_KEYS.CATEGORIES), updated);
 
   try {
-    const docRef = doc(db, 'categories', id);
+    const docRef = getTenantDoc('categories', id);
     await setDoc(docRef, cleanFirestoreData(categoryData), { merge: true });
   } catch (err) {
     console.warn('Aviso ao atualizar categoria:', err);
@@ -393,10 +431,10 @@ export const updateCategory = async (id: string, categoryData: Partial<Category>
 
 export const deleteCategory = async (id: string): Promise<void> => {
   const current = getStoredCategories();
-  setStoredData(STORAGE_KEYS.CATEGORIES, current.filter((c) => c.id !== id));
+  setStoredData(getScopedKey(STORAGE_KEYS.CATEGORIES), current.filter((c) => c.id !== id));
 
   try {
-    const docRef = doc(db, 'categories', id);
+    const docRef = getTenantDoc('categories', id);
     await deleteDoc(docRef);
   } catch (err) {
     console.warn('Aviso ao deletar categoria:', err);
@@ -407,7 +445,7 @@ export const deleteCategory = async (id: string): Promise<void> => {
 export const subscribeCustomers = (callback: (customers: Customer[]) => void) => {
   callback(getStoredCustomers());
 
-  const customersRef = collection(db, 'customers');
+  const customersRef = getTenantCollection('customers');
   const q = query(customersRef, orderBy('name', 'asc'));
 
   const unsubFirestore = onSnapshot(
@@ -418,7 +456,7 @@ export const subscribeCustomers = (callback: (customers: Customer[]) => void) =>
         snapshot.forEach((docSnap) => {
           list.push({ id: docSnap.id, ...docSnap.data() } as Customer);
         });
-        setStoredData(STORAGE_KEYS.CUSTOMERS, list);
+        setStoredData(getScopedKey(STORAGE_KEYS.CUSTOMERS), list);
         callback(list);
       } else {
         const local = getStoredCustomers();
@@ -432,7 +470,7 @@ export const subscribeCustomers = (callback: (customers: Customer[]) => void) =>
   );
 
   const localHandler = (e: any) => {
-    if (e.detail?.key === STORAGE_KEYS.CUSTOMERS) {
+    if (e.detail?.key === getScopedKey(STORAGE_KEYS.CUSTOMERS)) {
       callback(e.detail.data);
     }
   };
@@ -453,10 +491,10 @@ export const createCustomer = async (customerData: Omit<Customer, 'id'>): Promis
   });
 
   const current = getStoredCustomers();
-  setStoredData(STORAGE_KEYS.CUSTOMERS, [cleanData, ...current]);
+  setStoredData(getScopedKey(STORAGE_KEYS.CUSTOMERS), [cleanData, ...current]);
 
   try {
-    const docRef = doc(db, 'customers', newId);
+    const docRef = getTenantDoc('customers', newId);
     await setDoc(docRef, cleanData, { merge: true });
   } catch (err) {
     console.warn('Aviso ao salvar cliente:', err);
@@ -468,10 +506,10 @@ export const createCustomer = async (customerData: Omit<Customer, 'id'>): Promis
 export const updateCustomer = async (id: string, customerData: Partial<Customer>): Promise<void> => {
   const current = getStoredCustomers();
   const updated = current.map((c) => (c.id === id ? { ...c, ...customerData, id } : c));
-  setStoredData(STORAGE_KEYS.CUSTOMERS, updated);
+  setStoredData(getScopedKey(STORAGE_KEYS.CUSTOMERS), updated);
 
   try {
-    const docRef = doc(db, 'customers', id);
+    const docRef = getTenantDoc('customers', id);
     await setDoc(docRef, cleanFirestoreData(customerData), { merge: true });
   } catch (err) {
     console.warn('Aviso ao atualizar cliente:', err);
@@ -480,10 +518,10 @@ export const updateCustomer = async (id: string, customerData: Partial<Customer>
 
 export const deleteCustomer = async (id: string): Promise<void> => {
   const current = getStoredCustomers();
-  setStoredData(STORAGE_KEYS.CUSTOMERS, current.filter((c) => c.id !== id));
+  setStoredData(getScopedKey(STORAGE_KEYS.CUSTOMERS), current.filter((c) => c.id !== id));
 
   try {
-    const docRef = doc(db, 'customers', id);
+    const docRef = getTenantDoc('customers', id);
     await deleteDoc(docRef);
   } catch (err) {
     console.warn('Aviso ao excluir cliente:', err);
@@ -494,7 +532,7 @@ export const deleteCustomer = async (id: string): Promise<void> => {
 export const subscribeSales = (callback: (sales: Sale[]) => void) => {
   callback(getStoredSales());
 
-  const salesRef = collection(db, 'sales');
+  const salesRef = getTenantCollection('sales');
   const q = query(salesRef, orderBy('createdAt', 'desc'));
 
   const unsubFirestore = onSnapshot(
@@ -505,13 +543,11 @@ export const subscribeSales = (callback: (sales: Sale[]) => void) => {
         snapshot.forEach((docSnap) => {
           list.push({ id: docSnap.id, ...docSnap.data() } as Sale);
         });
-        setStoredData(STORAGE_KEYS.SALES, list);
+        setStoredData(getScopedKey(STORAGE_KEYS.SALES), list);
         callback(list);
       } else {
-        const local = getStoredSales();
-        if (local.length > 0) {
-          callback(local);
-        }
+        setStoredData(getScopedKey(STORAGE_KEYS.SALES), []);
+        callback([]);
       }
     },
     (error) => {
@@ -521,7 +557,7 @@ export const subscribeSales = (callback: (sales: Sale[]) => void) => {
   );
 
   const localHandler = (e: any) => {
-    if (e.detail?.key === STORAGE_KEYS.SALES) {
+    if (e.detail?.key === getScopedKey(STORAGE_KEYS.SALES)) {
       callback(e.detail.data);
     }
   };
@@ -536,29 +572,34 @@ export const subscribeSales = (callback: (sales: Sale[]) => void) => {
 export const subscribeQuotes = (callback: (quotes: Quote[]) => void) => {
   callback(getStoredQuotes());
 
-  const colRef = collection(db, 'quotes');
+  const colRef = getTenantCollection('quotes');
   const q = query(colRef, orderBy('createdAt', 'desc'));
 
   const unsubFirestore = onSnapshot(
     q,
     (snapshot) => {
       try {
-        const list: Quote[] = [];
-        snapshot.forEach((docSnap) => {
-          list.push({ id: docSnap.id, ...docSnap.data() } as Quote);
-        });
+        if (!snapshot.empty) {
+          const list: Quote[] = [];
+          snapshot.forEach((docSnap) => {
+            list.push({ id: docSnap.id, ...docSnap.data() } as Quote);
+          });
 
-        const local = getStoredQuotes();
-        const mergedMap = new Map<string, Quote>();
-        local.forEach((item) => mergedMap.set(item.id, item));
-        list.forEach((item) => mergedMap.set(item.id, item));
+          const local = getStoredQuotes();
+          const mergedMap = new Map<string, Quote>();
+          local.forEach((item) => mergedMap.set(item.id, item));
+          list.forEach((item) => mergedMap.set(item.id, item));
 
-        const merged = Array.from(mergedMap.values()).sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+          const merged = Array.from(mergedMap.values()).sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
 
-        setStoredData(STORAGE_KEYS.QUOTES, merged);
-        callback(merged);
+          setStoredData(getScopedKey(STORAGE_KEYS.QUOTES), merged);
+          callback(merged);
+        } else {
+          setStoredData(getScopedKey(STORAGE_KEYS.QUOTES), []);
+          callback([]);
+        }
       } catch (err) {
         console.warn('Erro ao processar snapshot de orçamentos:', err);
       }
@@ -570,7 +611,7 @@ export const subscribeQuotes = (callback: (quotes: Quote[]) => void) => {
   );
 
   const localHandler = (e: any) => {
-    if (e.detail?.key === STORAGE_KEYS.QUOTES) {
+    if (e.detail?.key === getScopedKey(STORAGE_KEYS.QUOTES)) {
       callback(e.detail.data);
     }
   };
@@ -598,12 +639,12 @@ export const saveQuoteTransaction = async (
 
   // 1. Add to local quotes immediately
   const currentQuotes = getStoredQuotes();
-  setStoredData(STORAGE_KEYS.QUOTES, [fullQuote, ...currentQuotes]);
+  setStoredData(getScopedKey(STORAGE_KEYS.QUOTES), [fullQuote, ...currentQuotes]);
 
   // 2. Sync to Firestore in non-blocking race
   const syncToCloud = async () => {
     try {
-      const qRef = doc(db, 'quotes', quoteId);
+      const qRef = getTenantDoc('quotes', quoteId);
       await setDoc(qRef, fullQuote, { merge: true });
     } catch (err) {
       console.warn('Aviso ao registrar orçamento no Firestore:', err);
@@ -638,10 +679,10 @@ export const updateQuoteStatus = async (
     return q;
   });
 
-  setStoredData(STORAGE_KEYS.QUOTES, updatedQuotes);
+  setStoredData(getScopedKey(STORAGE_KEYS.QUOTES), updatedQuotes);
 
   try {
-    const qRef = doc(db, 'quotes', quoteId);
+    const qRef = getTenantDoc('quotes', quoteId);
     const updateData: any = { status, updatedAt };
     if (convertedSaleId) updateData.convertedSaleId = convertedSaleId;
     if (status === 'converted') updateData.convertedAt = updatedAt;
@@ -654,12 +695,12 @@ export const updateQuoteStatus = async (
 export const deleteQuote = async (quoteId: string): Promise<void> => {
   const currentQuotes = getStoredQuotes();
   setStoredData(
-    STORAGE_KEYS.QUOTES,
+    getScopedKey(STORAGE_KEYS.QUOTES),
     currentQuotes.filter((q) => q.id !== quoteId)
   );
 
   try {
-    const qRef = doc(db, 'quotes', quoteId);
+    const qRef = getTenantDoc('quotes', quoteId);
     await deleteDoc(qRef);
   } catch (err) {
     console.warn('Aviso ao excluir orçamento do Firestore:', err);
@@ -680,7 +721,7 @@ export const processSaleTransaction = async (saleData: Omit<Sale, 'id' | 'saleNu
 
   // 1. Add to local sales immediately
   const currentSales = getStoredSales();
-  setStoredData(STORAGE_KEYS.SALES, [fullSale, ...currentSales]);
+  setStoredData(getScopedKey(STORAGE_KEYS.SALES), [fullSale, ...currentSales]);
 
   // 2. Decrement local product stock immediately
   const currentProducts = getStoredProducts();
@@ -695,17 +736,17 @@ export const processSaleTransaction = async (saleData: Omit<Sale, 'id' | 'saleNu
     }
     return p;
   });
-  setStoredData(STORAGE_KEYS.PRODUCTS, updatedProducts);
+  setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), updatedProducts);
 
   // 3. Sync to Firestore in background/fast race (never block POS transaction)
   const syncToCloud = async () => {
     try {
-      const saleRef = doc(db, 'sales', saleId);
+      const saleRef = getTenantDoc('sales', saleId);
       await setDoc(saleRef, fullSale, { merge: true });
 
       for (const item of saleData.items) {
         if (!item.productId) continue;
-        const pRef = doc(db, 'products', item.productId);
+        const pRef = getTenantDoc('products', item.productId);
         updateDoc(pRef, {
           stock: increment(-item.quantity),
           updatedAt: createdAt,
@@ -744,7 +785,7 @@ export const cancelSale = async (sale: Sale, canceledBy: string, reason?: string
     }
     return s;
   });
-  setStoredData(STORAGE_KEYS.SALES, updatedSales);
+  setStoredData(getScopedKey(STORAGE_KEYS.SALES), updatedSales);
 
   // 2. Restore stock locally
   const currentProducts = getStoredProducts();
@@ -759,12 +800,12 @@ export const cancelSale = async (sale: Sale, canceledBy: string, reason?: string
     }
     return p;
   });
-  setStoredData(STORAGE_KEYS.PRODUCTS, updatedProducts);
+  setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), updatedProducts);
 
   // 3. Firestore batch update (fast/non-blocking)
   const syncCancelToCloud = async () => {
     try {
-      const saleRef = doc(db, 'sales', sale.id);
+      const saleRef = getTenantDoc('sales', sale.id);
       await setDoc(
         saleRef,
         {
@@ -778,7 +819,7 @@ export const cancelSale = async (sale: Sale, canceledBy: string, reason?: string
 
       for (const item of sale.items) {
         if (!item.productId) continue;
-        const pRef = doc(db, 'products', item.productId);
+        const pRef = getTenantDoc('products', item.productId);
         updateDoc(pRef, {
           stock: increment(item.quantity),
           updatedAt,
@@ -846,7 +887,7 @@ export const processReturnTransaction = async (returnData: {
 
   // 1. Add to local sales immediately
   const currentSales = getStoredSales();
-  setStoredData(STORAGE_KEYS.SALES, [fullReturn, ...currentSales]);
+  setStoredData(getScopedKey(STORAGE_KEYS.SALES), [fullReturn, ...currentSales]);
 
   // 2. INCREMENT product stock locally immediately
   const currentProducts = getStoredProducts();
@@ -861,17 +902,17 @@ export const processReturnTransaction = async (returnData: {
     }
     return p;
   });
-  setStoredData(STORAGE_KEYS.PRODUCTS, updatedProducts);
+  setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), updatedProducts);
 
   // 3. Sync to Firestore in background / fast race
   const syncReturnToCloud = async () => {
     try {
-      const saleRef = doc(db, 'sales', saleId);
+      const saleRef = getTenantDoc('sales', saleId);
       await setDoc(saleRef, fullReturn, { merge: true });
 
       for (const item of returnData.items) {
         if (!item.product.id) continue;
-        const pRef = doc(db, 'products', item.product.id);
+        const pRef = getTenantDoc('products', item.product.id);
         updateDoc(pRef, {
           stock: increment(item.quantity),
           updatedAt: createdAt,
@@ -894,7 +935,7 @@ export const processReturnTransaction = async (returnData: {
 export const subscribeUsers = (callback: (users: UserProfile[]) => void) => {
   callback(getStoredUsers());
 
-  const usersRef = collection(db, 'users');
+  const usersRef = getTenantCollection('users');
   const q = query(usersRef, orderBy('name', 'asc'));
 
   const unsubFirestore = onSnapshot(
@@ -905,7 +946,7 @@ export const subscribeUsers = (callback: (users: UserProfile[]) => void) => {
         snapshot.forEach((docSnap) => {
           list.push({ id: docSnap.id, ...docSnap.data() } as UserProfile);
         });
-        setStoredData(STORAGE_KEYS.USERS, list);
+        setStoredData(getScopedKey(STORAGE_KEYS.USERS), list);
         callback(list);
       } else {
         const local = getStoredUsers();
@@ -919,7 +960,7 @@ export const subscribeUsers = (callback: (users: UserProfile[]) => void) => {
   );
 
   const localHandler = (e: any) => {
-    if (e.detail?.key === STORAGE_KEYS.USERS) {
+    if (e.detail?.key === getScopedKey(STORAGE_KEYS.USERS)) {
       callback(e.detail.data);
     }
   };
@@ -935,10 +976,10 @@ export const saveUserProfile = async (user: UserProfile): Promise<void> => {
   const current = getStoredUsers();
   const exists = current.some((u) => u.id === user.id);
   const updated = exists ? current.map((u) => (u.id === user.id ? user : u)) : [...current, user];
-  setStoredData(STORAGE_KEYS.USERS, updated);
+  setStoredData(getScopedKey(STORAGE_KEYS.USERS), updated);
 
   try {
-    const userRef = doc(db, 'users', user.id);
+    const userRef = getTenantDoc('users', user.id);
     await setDoc(userRef, cleanFirestoreData(user), { merge: true });
   } catch (err) {
     console.warn('Aviso ao salvar usuário:', err);
@@ -948,10 +989,10 @@ export const saveUserProfile = async (user: UserProfile): Promise<void> => {
 export const updateUserProfile = async (id: string, updates: Partial<UserProfile>): Promise<void> => {
   const current = getStoredUsers();
   const updated = current.map((u) => (u.id === id ? { ...u, ...updates, id } : u));
-  setStoredData(STORAGE_KEYS.USERS, updated);
+  setStoredData(getScopedKey(STORAGE_KEYS.USERS), updated);
 
   try {
-    const userRef = doc(db, 'users', id);
+    const userRef = getTenantDoc('users', id);
     await setDoc(userRef, cleanFirestoreData(updates), { merge: true });
   } catch (err) {
     console.warn('Aviso ao atualizar usuário:', err);
@@ -960,10 +1001,10 @@ export const updateUserProfile = async (id: string, updates: Partial<UserProfile
 
 export const deleteUserProfile = async (id: string): Promise<void> => {
   const current = getStoredUsers();
-  setStoredData(STORAGE_KEYS.USERS, current.filter((u) => u.id !== id));
+  setStoredData(getScopedKey(STORAGE_KEYS.USERS), current.filter((u) => u.id !== id));
 
   try {
-    const userRef = doc(db, 'users', id);
+    const userRef = getTenantDoc('users', id);
     await deleteDoc(userRef);
   } catch (err) {
     console.warn('Aviso ao excluir usuário:', err);
@@ -974,13 +1015,13 @@ export const deleteUserProfile = async (id: string): Promise<void> => {
 export const subscribeStoreSettings = (callback: (settings: StoreSettings) => void) => {
   callback(getStoredSettings());
 
-  const settingsRef = doc(db, 'settings', 'store');
+  const settingsRef = getTenantDoc('settings', 'store');
   const unsubFirestore = onSnapshot(
     settingsRef,
     (snap) => {
       if (snap.exists()) {
         const merged = { ...DEFAULT_STORE_SETTINGS, ...(snap.data() as StoreSettings) };
-        setStoredData(STORAGE_KEYS.SETTINGS, merged);
+        setStoredData(getScopedKey(STORAGE_KEYS.SETTINGS), merged);
         callback(merged);
       } else {
         const local = getStoredSettings();
@@ -994,7 +1035,7 @@ export const subscribeStoreSettings = (callback: (settings: StoreSettings) => vo
   );
 
   const localHandler = (e: any) => {
-    if (e.detail?.key === STORAGE_KEYS.SETTINGS) {
+    if (e.detail?.key === getScopedKey(STORAGE_KEYS.SETTINGS)) {
       callback(e.detail.data);
     }
   };
@@ -1012,10 +1053,10 @@ export const getStoreSettings = async (): Promise<StoreSettings> => {
 
 export const saveStoreSettings = async (settings: StoreSettings): Promise<void> => {
   const merged = { ...getStoredSettings(), ...settings };
-  setStoredData(STORAGE_KEYS.SETTINGS, merged);
+  setStoredData(getScopedKey(STORAGE_KEYS.SETTINGS), merged);
 
   try {
-    const settingsRef = doc(db, 'settings', 'store');
+    const settingsRef = getTenantDoc('settings', 'store');
     await setDoc(settingsRef, cleanFirestoreData(settings), { merge: true });
   } catch (err) {
     console.warn('Aviso ao salvar configurações:', err);
@@ -1040,26 +1081,26 @@ export const clearAllDatabaseData = async (options?: {
 
   if (includeProducts) {
     deletedCounts.products = getStoredProducts().length;
-    setStoredData(STORAGE_KEYS.PRODUCTS, []);
+    setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), []);
   }
   if (includeSales) {
     deletedCounts.sales = getStoredSales().length;
-    setStoredData(STORAGE_KEYS.SALES, []);
-    setStoredData(STORAGE_KEYS.QUOTES, []);
+    setStoredData(getScopedKey(STORAGE_KEYS.SALES), []);
+    setStoredData(getScopedKey(STORAGE_KEYS.QUOTES), []);
   }
   if (includeCustomers) {
     deletedCounts.customers = getStoredCustomers().length;
-    setStoredData(STORAGE_KEYS.CUSTOMERS, []);
+    setStoredData(getScopedKey(STORAGE_KEYS.CUSTOMERS), []);
   }
   if (includeCategories) {
     deletedCounts.categories = getStoredCategories().length;
-    setStoredData(STORAGE_KEYS.CATEGORIES, []);
+    setStoredData(getScopedKey(STORAGE_KEYS.CATEGORIES), []);
   }
 
   // Clear Firestore collections
   const clearCollection = async (name: string) => {
     try {
-      const snap = await getDocs(collection(db, name));
+      const snap = await getDocs(getTenantCollection(name));
       if (!snap.empty) {
         const batch = writeBatch(db);
         snap.docs.forEach((d) => batch.delete(d.ref));
@@ -1093,30 +1134,30 @@ export const seedInitialDemoData = async (): Promise<{
   categoriesCount: number;
   customersCount: number;
 }> => {
-  setStoredData(STORAGE_KEYS.CATEGORIES, DEFAULT_CATEGORIES);
-  setStoredData(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
-  setStoredData(STORAGE_KEYS.CUSTOMERS, DEFAULT_CUSTOMERS);
-  setStoredData(STORAGE_KEYS.USERS, DEFAULT_USERS);
-  setStoredData(STORAGE_KEYS.SALES, DEFAULT_SALES);
-  setStoredData(STORAGE_KEYS.SETTINGS, DEFAULT_STORE_SETTINGS);
+  setStoredData(getScopedKey(STORAGE_KEYS.CATEGORIES), DEFAULT_CATEGORIES);
+  setStoredData(getScopedKey(STORAGE_KEYS.PRODUCTS), DEFAULT_PRODUCTS);
+  setStoredData(getScopedKey(STORAGE_KEYS.CUSTOMERS), DEFAULT_CUSTOMERS);
+  setStoredData(getScopedKey(STORAGE_KEYS.USERS), DEFAULT_USERS);
+  setStoredData(getScopedKey(STORAGE_KEYS.SALES), DEFAULT_SALES);
+  setStoredData(getScopedKey(STORAGE_KEYS.SETTINGS), DEFAULT_STORE_SETTINGS);
 
   try {
     const batch = writeBatch(db);
 
     for (const cat of DEFAULT_CATEGORIES) {
-      batch.set(doc(db, 'categories', cat.id), cleanFirestoreData(cat), { merge: true });
+      batch.set(getTenantDoc('categories', cat.id), cleanFirestoreData(cat), { merge: true });
     }
     for (const prod of DEFAULT_PRODUCTS) {
-      batch.set(doc(db, 'products', prod.id), cleanFirestoreData(prod), { merge: true });
+      batch.set(getTenantDoc('products', prod.id), cleanFirestoreData(prod), { merge: true });
     }
     for (const cust of DEFAULT_CUSTOMERS) {
-      batch.set(doc(db, 'customers', cust.id), cleanFirestoreData(cust), { merge: true });
+      batch.set(getTenantDoc('customers', cust.id), cleanFirestoreData(cust), { merge: true });
     }
     for (const user of DEFAULT_USERS) {
-      batch.set(doc(db, 'users', user.id), cleanFirestoreData(user), { merge: true });
+      batch.set(getTenantDoc('users', user.id), cleanFirestoreData(user), { merge: true });
     }
     for (const sale of DEFAULT_SALES) {
-      batch.set(doc(db, 'sales', sale.id), cleanFirestoreData(sale), { merge: true });
+      batch.set(getTenantDoc('sales', sale.id), cleanFirestoreData(sale), { merge: true });
     }
 
     await batch.commit();

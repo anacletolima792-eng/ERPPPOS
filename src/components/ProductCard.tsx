@@ -193,7 +193,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelectProdu
                 </span>
               )}
             </div>
-            <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 uppercase tracking-tight truncate leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mt-0.5">
+            <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 tracking-tight truncate leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mt-0.5">
               {product.name}
             </h3>
 

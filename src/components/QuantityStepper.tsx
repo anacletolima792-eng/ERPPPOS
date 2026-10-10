@@ -117,7 +117,7 @@ export const QuantityStepper: React.FC<QuantityStepperProps> = ({
       container: 'h-8 sm:h-9 p-0.5',
       btn: 'w-7 h-7 sm:w-8 sm:h-8 rounded-lg',
       icon: 'w-3.5 h-3.5',
-      input: 'w-8 sm:w-10 text-xs sm:text-sm',
+      input: 'w-10 sm:w-14 text-xs sm:text-sm',
     },
     lg: {
       container: 'h-10 p-1',

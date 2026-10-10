@@ -146,3 +146,24 @@ export const parseCurrencyToNumber = (val: string | number | undefined | null): 
   return parseCurrencyToCents(val) / 100;
 };
 
+/**
+ * Converte o texto para Capitalização onde somente a primeira letra de cada palavra
+ * fica em maiúscula e as demais letras da palavra em minúscula.
+ * Ex: "cimento cola" -> "Cimento Cola", "LÁPIS PED IRWIN" -> "Lápis Ped Irwin"
+ */
+export const formatTitleCase = (text: string): string => {
+  if (!text) return '';
+  return text
+    .split(/(\s+)/)
+    .map((segment) => {
+      if (/^\s+$/.test(segment)) return segment;
+      return segment.replace(
+        /(^|[-/.,(])([a-zA-ZÀ-ÿ\u00C0-\u017F])([a-zA-ZÀ-ÿ\u00C0-\u017F]*)/g,
+        (_, prefix, firstLetter, restOfWord) => {
+          return prefix + firstLetter.toUpperCase() + restOfWord.toLowerCase();
+        }
+      );
+    })
+    .join('');
+};
+

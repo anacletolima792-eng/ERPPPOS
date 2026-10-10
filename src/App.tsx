@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from './hooks/useAuth';
 import { CartProvider } from './hooks/useCart';
 import { ThemeProvider } from './hooks/useTheme';
 import { PrintReceiptView } from './components/PrintReceiptView';
+import { AuthScreen } from './components/AuthScreen';
 import {
   subscribeProducts,
   subscribeCategories,
@@ -21,11 +22,10 @@ import {
   getStoredCustomers,
   getStoredSales,
   getStoredUsers,
-  seedInitialDemoData,
 } from './services/firestoreService';
 
 const MainApp: React.FC = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, companyId } = useAuth();
   const [activeTab, setActiveTab] = useState<NavTab>('pdv');
   const [products, setProducts] = useState<Product[]>(() => getStoredProducts());
   const [categories, setCategories] = useState<Category[]>(() => getStoredCategories());
@@ -41,8 +41,17 @@ const MainApp: React.FC = () => {
     }
   }, [isAdmin, activeTab]);
 
-  // Set up real-time listeners for all Firestore collections
+  // Set up real-time listeners for all Firestore collections whenever companyId changes
   useEffect(() => {
+    if (!companyId) return;
+
+    // Refresh state synchronously with newly scoped store
+    setProducts(getStoredProducts());
+    setCategories(getStoredCategories());
+    setCustomers(getStoredCustomers());
+    setSales(getStoredSales());
+    setUsers(getStoredUsers());
+
     let unsubscribeProducts = () => {};
     let unsubscribeCategories = () => {};
     let unsubscribeCustomers = () => {};
@@ -88,7 +97,7 @@ const MainApp: React.FC = () => {
       unsubscribeSales();
       unsubscribeUsers();
     };
-  }, []);
+  }, [companyId]);
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col font-sans text-slate-900 dark:text-slate-100 select-none transition-colors">
@@ -138,6 +147,25 @@ const MainApp: React.FC = () => {
   );
 };
 
+const AppContent: React.FC = () => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col items-center justify-center gap-4 text-slate-800 dark:text-slate-200">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <span className="text-sm font-bold tracking-wide animate-pulse">Carregando ambiente seguro da empresa...</span>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthScreen />;
+  }
+
+  return <MainApp />;
+};
+
 export function App() {
   const [printSaleId, setPrintSaleId] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
@@ -169,7 +197,7 @@ export function App() {
     <ThemeProvider>
       <AuthProvider>
         <CartProvider>
-          <MainApp />
+          <AppContent />
         </CartProvider>
       </AuthProvider>
     </ThemeProvider>

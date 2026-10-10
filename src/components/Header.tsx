@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenOperatorModal,
   onOpenCustomerModal,
 }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, companyName } = useAuth();
   const { customer } = useCart();
 
   return (
@@ -33,9 +33,14 @@ export const Header: React.FC<HeaderProps> = ({
                 {currentUser.name.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
-                <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
                   {currentUser.name}
                 </span>
+                {companyName && (
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate block leading-tight">
+                    {companyName}
+                  </span>
+                )}
               </div>
             </div>
 

@@ -134,7 +134,7 @@ export const ReturnModal: React.FC<ReturnModalProps> = ({ isOpen, onClose, onSuc
               {items.map((item) => (
                 <div key={item.product.id} className="p-3 flex items-center justify-between gap-2 text-xs">
                   <div className="min-w-0 flex-1">
-                    <p className="font-bold text-slate-900 truncate uppercase">{item.product.name}</p>
+                    <p className="font-bold text-slate-900 truncate">{item.product.name}</p>
                     <div className="flex items-center gap-2 text-slate-500 text-[11px] mt-0.5">
                       <span>Cód: {item.product.code}</span>
                       <span>•</span>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Lock, ShieldCheck, UserCheck, KeyRound, AlertCircle, Plus } from 'lucide-react';
+import { X, Lock, ShieldCheck, UserCheck, KeyRound, AlertCircle, Plus, LogOut, Building2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { UserProfile } from '../types';
 
@@ -14,7 +14,7 @@ export const OperatorSwitchModal: React.FC<OperatorSwitchModalProps> = ({
   onClose,
   onOpenUserManagement,
 }) => {
-  const { currentUser, availableUsers, switchUser, isAdmin } = useAuth();
+  const { currentUser, availableUsers, switchUser, isAdmin, companyName, logout } = useAuth();
   const [selectedUserId, setSelectedUserId] = useState<string>(currentUser.id);
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -157,6 +157,32 @@ export const OperatorSwitchModal: React.FC<OperatorSwitchModalProps> = ({
               Confirmar e Acessar Caixa
             </button>
           </form>
+
+          {/* SaaS Company & Logout option */}
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+            <div className="min-w-0 flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center shrink-0">
+                <Building2 className="w-3.5 h-3.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold block uppercase tracking-wider">Empresa</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate block">{companyName}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              id="btn-modal-logout-saas"
+              onClick={() => {
+                onClose();
+                logout();
+              }}
+              className="px-3 py-1.5 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/60 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sair da Conta</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

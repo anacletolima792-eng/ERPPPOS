@@ -305,7 +305,7 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
 
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm uppercase truncate">
+                          <span className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm truncate">
                             {p.name}
                           </span>
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">

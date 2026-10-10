@@ -167,7 +167,7 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
                 className="p-3 bg-slate-50/80 rounded-2xl border border-slate-200 flex items-center justify-between gap-3"
               >
                 <div className="min-w-0 flex-1">
-                  <h4 className="font-extrabold text-slate-900 text-sm truncate uppercase">
+                  <h4 className="font-extrabold text-slate-900 text-sm truncate">
                     {item.product.name}
                   </h4>
                   <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
