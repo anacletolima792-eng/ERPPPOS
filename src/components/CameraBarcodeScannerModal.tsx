@@ -39,6 +39,7 @@ export const CameraBarcodeScannerModal: React.FC<
 
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const isStartingRef = useRef<boolean>(false);
+  const isProcessingRef = useRef<boolean>(false);
   const scannerContainerId = 'interactive-camera-barcode-scanner';
 
   // Play audio beep on scan
@@ -65,17 +66,27 @@ export const CameraBarcodeScannerModal: React.FC<
     const cleanText = decodedText.trim();
     if (!cleanText) return;
 
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
+
     playBeep();
     setScannedCode(cleanText);
 
-    // Stop scanning
+    // Stop scanning safely
     stopCamera();
 
-    // Small delay to show visual checkmark before closing
+    // Small delay to show visual confirmation before closing
     setTimeout(() => {
       onScan(cleanText);
-      onClose();
-    }, 450);
+      handleSafeClose();
+    }, 600);
+  };
+
+  const handleSafeClose = () => {
+    isProcessingRef.current = false;
+    setScannedCode(null);
+    onClose();
+    stopCamera().catch(() => {});
   };
 
   const startCamera = async () => {
@@ -155,19 +166,25 @@ export const CameraBarcodeScannerModal: React.FC<
   };
 
   const stopCamera = async () => {
-    if (html5QrCodeRef.current) {
+    const instance = html5QrCodeRef.current;
+    html5QrCodeRef.current = null;
+    isStartingRef.current = false;
+    setIsScanning(false);
+    setIsTorchOn(false);
+    setHasTorch(false);
+
+    if (instance) {
       try {
-        if (html5QrCodeRef.current.isScanning) {
-          await html5QrCodeRef.current.stop();
+        if (instance.isScanning) {
+          await instance.stop();
         }
-        await html5QrCodeRef.current.clear();
       } catch (err) {
-        console.warn('Camera stop error:', err);
-      } finally {
-        html5QrCodeRef.current = null;
-        setIsScanning(false);
-        setIsTorchOn(false);
-        setHasTorch(false);
+        // html5-qrcode can throw if already stopped
+      }
+      try {
+        await instance.clear();
+      } catch {
+        // ignore clear error
       }
     }
   };
@@ -212,7 +229,7 @@ export const CameraBarcodeScannerModal: React.FC<
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150"
-      onClick={onClose}
+      onClick={handleSafeClose}
     >
       <div
         className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]"
@@ -237,7 +254,7 @@ export const CameraBarcodeScannerModal: React.FC<
           <button
             type="button"
             id="btn-close-camera-scanner"
-            onClick={onClose}
+            onClick={handleSafeClose}
             className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -253,36 +270,68 @@ export const CameraBarcodeScannerModal: React.FC<
           />
 
           {/* Overlay Visual Laser & Frame Guide (when scanning) */}
-          {isScanning && !scannedCode && (
+          {isScanning && (
             <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-6">
               {/* Aiming Reticle */}
-              <div className="relative w-64 h-36 sm:w-72 sm:h-40 border-2 border-orange-400/80 rounded-2xl shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]">
+              <div
+                className={`relative w-64 h-36 sm:w-72 sm:h-40 border-2 rounded-2xl transition-all duration-200 ${
+                  scannedCode
+                    ? 'border-emerald-400 ring-4 ring-emerald-500/30'
+                    : 'border-orange-400/80 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]'
+                }`}
+              >
                 {/* Corner markers */}
-                <div className="absolute -top-1 -left-1 w-5 h-5 border-t-4 border-l-4 border-orange-500 rounded-tl-lg" />
-                <div className="absolute -top-1 -right-1 w-5 h-5 border-t-4 border-r-4 border-orange-500 rounded-tr-lg" />
-                <div className="absolute -bottom-1 -left-1 w-5 h-5 border-b-4 border-l-4 border-orange-500 rounded-bl-lg" />
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 border-b-4 border-r-4 border-orange-500 rounded-br-lg" />
+                <div
+                  className={`absolute -top-1 -left-1 w-5 h-5 border-t-4 border-l-4 rounded-tl-lg transition-colors ${
+                    scannedCode ? 'border-emerald-400' : 'border-orange-500'
+                  }`}
+                />
+                <div
+                  className={`absolute -top-1 -right-1 w-5 h-5 border-t-4 border-r-4 rounded-tr-lg transition-colors ${
+                    scannedCode ? 'border-emerald-400' : 'border-orange-500'
+                  }`}
+                />
+                <div
+                  className={`absolute -bottom-1 -left-1 w-5 h-5 border-b-4 border-l-4 rounded-bl-lg transition-colors ${
+                    scannedCode ? 'border-emerald-400' : 'border-orange-500'
+                  }`}
+                />
+                <div
+                  className={`absolute -bottom-1 -right-1 w-5 h-5 border-b-4 border-r-4 rounded-br-lg transition-colors ${
+                    scannedCode ? 'border-emerald-400' : 'border-orange-500'
+                  }`}
+                />
 
                 {/* Animated Laser Beam */}
-                <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 h-0.5 bg-red-500 shadow-[0_0_12px_#ef4444] animate-pulse" />
+                {!scannedCode && (
+                  <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 h-0.5 bg-red-500 shadow-[0_0_12px_#ef4444] animate-pulse" />
+                )}
               </div>
 
-              <span className="mt-4 text-xs font-bold text-white bg-slate-900/80 px-3 py-1 rounded-full border border-slate-700 shadow-md">
-                Centralize o código de barras no quadro
-              </span>
+              {!scannedCode && (
+                <span className="mt-4 text-xs font-bold text-white bg-slate-900/80 px-3 py-1 rounded-full border border-slate-700 shadow-md">
+                  Centralize o código de barras no quadro
+                </span>
+              )}
             </div>
           )}
 
-          {/* Success Scanned Banner */}
+          {/* Success Scanned Floating Card (Camera remains visible, NO green screen!) */}
           {scannedCode && (
-            <div className="absolute inset-0 bg-emerald-950/90 flex flex-col items-center justify-center p-6 text-white text-center animate-in zoom-in-95">
-              <CheckCircle2 className="w-14 h-14 text-emerald-400 mb-2 animate-bounce" />
-              <h4 className="text-base font-black text-emerald-200">
-                Código Lido com Sucesso!
-              </h4>
-              <p className="text-xl font-mono font-black text-white mt-1 bg-emerald-900/80 px-4 py-1.5 rounded-xl border border-emerald-500/40">
-                {scannedCode}
-              </p>
+            <div className="absolute bottom-4 inset-x-4 pointer-events-none z-20 flex justify-center animate-in slide-in-from-bottom-2 duration-200">
+              <div className="w-full max-w-xs bg-slate-900/95 backdrop-blur-md border-2 border-emerald-500/80 rounded-2xl p-3 shadow-2xl flex items-center gap-3 text-white">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md">
+                  <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 mb-0.5">
+                    Código Lido com Sucesso
+                  </span>
+                  <p className="text-base font-mono font-black text-white truncate">
+                    {scannedCode}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 

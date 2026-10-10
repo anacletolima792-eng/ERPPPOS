@@ -39,6 +39,9 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
 
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const isStartingRef = useRef<boolean>(false);
+  const isProcessingRef = useRef<boolean>(false);
+  const lastScannedCodeRef = useRef<string>('');
+  const lastScannedTimeRef = useRef<number>(0);
   const scannerContainerId = 'clean-camera-barcode-viewport';
   const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -67,12 +70,23 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
     const clean = rawCode.trim().toLowerCase();
     if (!clean) return;
 
-    playBeep();
-    setScannedCode(rawCode);
+    const now = Date.now();
+    // Prevent duplicate scans while processing or within 2.5s cooldown for identical code
+    if (isProcessingRef.current) {
+      return;
+    }
+    if (clean === lastScannedCodeRef.current && now - lastScannedTimeRef.current < 2500) {
+      return;
+    }
+
+    // Set lock immediately to block incoming rapid video frames
+    isProcessingRef.current = true;
+    lastScannedCodeRef.current = clean;
+    lastScannedTimeRef.current = now;
 
     const found = products.find((p) => {
-      const pBarcode = (p.barcode || '').toLowerCase();
-      const pCode = (p.code || '').toLowerCase();
+      const pBarcode = (p.barcode || '').trim().toLowerCase();
+      const pCode = (p.code || '').trim().toLowerCase();
       return (
         pBarcode === clean ||
         pCode === clean ||
@@ -82,17 +96,25 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
     });
 
     if (found) {
+      playBeep();
+      setScannedCode(rawCode);
+      // Add exactly 1 item to cart
       addItem(found, 1);
       setLastScannedProduct(found);
       setNotFoundCode(null);
-      // Auto close after brief confirmation feedback
+
+      // Auto close after brief confirmation feedback (modal feedback without green screen)
       if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
       autoCloseTimerRef.current = setTimeout(() => {
         handleClose();
-      }, 700);
+      }, 750);
     } else {
       setNotFoundCode(rawCode);
       setLastScannedProduct(null);
+      // Release lock after 1.5 seconds if code not found so user can retry or scan another
+      setTimeout(() => {
+        isProcessingRef.current = false;
+      }, 1500);
     }
   };
 
@@ -173,19 +195,25 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
   };
 
   const stopCamera = async () => {
-    if (html5QrCodeRef.current) {
+    const instance = html5QrCodeRef.current;
+    html5QrCodeRef.current = null;
+    isStartingRef.current = false;
+    setIsScanning(false);
+    setIsTorchOn(false);
+    setHasTorch(false);
+
+    if (instance) {
       try {
-        if (html5QrCodeRef.current.isScanning) {
-          await html5QrCodeRef.current.stop();
+        if (instance.isScanning) {
+          await instance.stop();
         }
-        await html5QrCodeRef.current.clear();
       } catch (err) {
-        console.warn('Camera stop error:', err);
-      } finally {
-        html5QrCodeRef.current = null;
-        setIsScanning(false);
-        setIsTorchOn(false);
-        setHasTorch(false);
+        // html5-qrcode can throw if transition already occurred
+      }
+      try {
+        await instance.clear();
+      } catch {
+        // ignore clear error
       }
     }
   };
@@ -203,10 +231,17 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
     }
   };
 
-  const handleClose = async () => {
-    if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
-    await stopCamera();
+  const handleClose = () => {
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
+    }
+    isProcessingRef.current = false;
+    setLastScannedProduct(null);
+    setScannedCode(null);
+    setNotFoundCode(null);
     onClose();
+    stopCamera().catch(() => {});
   };
 
   useEffect(() => {
@@ -314,33 +349,64 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
           />
 
           {/* Clean Reticle & Laser Beam */}
-          {isScanning && !lastScannedProduct && (
+          {isScanning && (
             <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-4">
-              <div className="relative w-64 h-36 border border-orange-400/80 rounded-2xl shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]">
+              <div
+                className={`relative w-64 h-36 border-2 rounded-2xl transition-all duration-200 ${
+                  lastScannedProduct
+                    ? 'border-emerald-400 ring-4 ring-emerald-500/30'
+                    : 'border-orange-400/80 shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]'
+                }`}
+              >
                 {/* Corner markers */}
-                <div className="absolute -top-1 -left-1 w-4 h-4 border-t-3 border-l-3 border-orange-500 rounded-tl-md" />
-                <div className="absolute -top-1 -right-1 w-4 h-4 border-t-3 border-r-3 border-orange-500 rounded-tr-md" />
-                <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-3 border-l-3 border-orange-500 rounded-bl-md" />
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-3 border-r-3 border-orange-500 rounded-br-md" />
+                <div
+                  className={`absolute -top-1 -left-1 w-4 h-4 border-t-3 border-l-3 rounded-tl-md transition-colors ${
+                    lastScannedProduct ? 'border-emerald-400' : 'border-orange-500'
+                  }`}
+                />
+                <div
+                  className={`absolute -top-1 -right-1 w-4 h-4 border-t-3 border-r-3 rounded-tr-md transition-colors ${
+                    lastScannedProduct ? 'border-emerald-400' : 'border-orange-500'
+                  }`}
+                />
+                <div
+                  className={`absolute -bottom-1 -left-1 w-4 h-4 border-b-3 border-l-3 rounded-bl-md transition-colors ${
+                    lastScannedProduct ? 'border-emerald-400' : 'border-orange-500'
+                  }`}
+                />
+                <div
+                  className={`absolute -bottom-1 -right-1 w-4 h-4 border-b-3 border-r-3 rounded-br-md transition-colors ${
+                    lastScannedProduct ? 'border-emerald-400' : 'border-orange-500'
+                  }`}
+                />
 
-                {/* Animated Laser Beam */}
-                <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 h-0.5 bg-red-500 shadow-[0_0_10px_#ef4444] animate-pulse" />
+                {/* Animated Laser Beam (only when scanning for a code) */}
+                {!lastScannedProduct && (
+                  <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 h-0.5 bg-red-500 shadow-[0_0_10px_#ef4444] animate-pulse" />
+                )}
               </div>
             </div>
           )}
 
-          {/* Success Product Feedback Banner */}
+          {/* Success Product Feedback Floating Card (Camera remains visible, NO green screen!) */}
           {lastScannedProduct && (
-            <div className="absolute inset-0 bg-emerald-950/95 flex flex-col items-center justify-center p-6 text-white text-center animate-in zoom-in-95">
-              <div className="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center mb-2 shadow-lg">
-                <Check className="w-6 h-6 stroke-[3]" />
+            <div className="absolute bottom-4 inset-x-3 pointer-events-none z-20 flex justify-center animate-in slide-in-from-bottom-2 duration-200">
+              <div className="w-full max-w-xs bg-slate-900/95 backdrop-blur-md border-2 border-emerald-500/80 rounded-2xl p-3 shadow-2xl flex items-center gap-3 text-white">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md">
+                  <Check className="w-5 h-5 stroke-[3]" />
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 mb-0.5">
+                    Item Adicionado (+1)
+                  </span>
+                  <h4 className="text-xs font-black text-white truncate leading-tight">
+                    {lastScannedProduct.name}
+                  </h4>
+                  <p className="text-emerald-400 font-extrabold text-xs">
+                    {formatCurrency(lastScannedProduct.price)}
+                  </p>
+                </div>
               </div>
-              <h4 className="text-base font-black text-white uppercase tracking-tight">
-                {lastScannedProduct.name}
-              </h4>
-              <p className="text-emerald-300 font-extrabold text-sm mt-0.5">
-                {formatCurrency(lastScannedProduct.price)} • +1 Adicionado ao Carrinho!
-              </p>
             </div>
           )}
 
