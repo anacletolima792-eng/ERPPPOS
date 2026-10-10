@@ -42,6 +42,7 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
   const isStartingRef = useRef<boolean>(false);
   const isProcessingRef = useRef<boolean>(false);
   const lastScannedCodeRef = useRef<string>('');
+  const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const scannerContainerId = 'clean-camera-barcode-viewport';
 
   // Play audio beep on scan
@@ -65,7 +66,7 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
     }
   };
 
-  // Process single scan and lock until user clicks 'Escanear Novamente' ou 'Resetar Leitor'
+  // Process single scan and automatically close the modal upon reading
   const handleLookupAndAdd = (rawCode: string) => {
     const clean = rawCode.trim().toLowerCase();
     if (!clean) return;
@@ -80,7 +81,7 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
     setProcessingBarcode(true);
     lastScannedCodeRef.current = clean;
 
-    // 2. Processe o código lido (salve ou mostre o resultado)
+    // 2. Processe o código lido
     playBeep();
     setScannedCode(rawCode);
 
@@ -100,15 +101,34 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
       addItem(found, 1);
       setLastScannedProduct(found);
       setNotFoundCode(null);
+
+      // Fecha a tela da câmera automaticamente assim que fizer a leitura
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+      }
+      autoCloseTimerRef.current = setTimeout(() => {
+        handleClose();
+      }, 350);
     } else {
       setNotFoundCode(rawCode);
       setLastScannedProduct(null);
+
+      // Se produto não cadastrado, fecha automaticamente após 1.5s
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+      }
+      autoCloseTimerRef.current = setTimeout(() => {
+        handleClose();
+      }, 1500);
     }
-    // 3. Permanece bloqueado até que o usuário clique em 'Resetar Leitor' ou 'Escanear Novamente'
   };
 
-  // Resetar leitor para permitir nova leitura
+  // Resetar leitor para permitir nova leitura manual se necessário
   const handleResetScanner = () => {
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
+    }
     setLastScannedProduct(null);
     setScannedCode(null);
     setNotFoundCode(null);
@@ -231,17 +251,34 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
   };
 
   const handleClose = () => {
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
+    }
     isProcessingRef.current = false;
     setProcessingBarcode(false);
     setLastScannedProduct(null);
     setScannedCode(null);
     setNotFoundCode(null);
+    lastScannedCodeRef.current = '';
     onClose();
     stopCamera().catch(() => {});
   };
 
   useEffect(() => {
     if (isOpen) {
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+        autoCloseTimerRef.current = null;
+      }
+      isProcessingRef.current = false;
+      setProcessingBarcode(false);
+      setLastScannedProduct(null);
+      setScannedCode(null);
+      setNotFoundCode(null);
+      lastScannedCodeRef.current = '';
+      setManualCode('');
+
       const timer = setTimeout(() => {
         startCamera();
       }, 100);
@@ -249,6 +286,10 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
         clearTimeout(timer);
       };
     } else {
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+        autoCloseTimerRef.current = null;
+      }
       stopCamera();
     }
   }, [isOpen]);
@@ -256,6 +297,10 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
   // Clean up on unmount
   useEffect(() => {
     return () => {
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+        autoCloseTimerRef.current = null;
+      }
       if (html5QrCodeRef.current) {
         if (html5QrCodeRef.current.isScanning) {
           html5QrCodeRef.current.stop().catch(() => {});
@@ -404,8 +449,9 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
                   Aponte para o código de barras
                 </span>
               ) : (
-                <span className="mt-3 text-[11px] font-bold text-emerald-300 bg-emerald-950/90 px-3 py-1 rounded-full border border-emerald-500/50 shadow-md">
-                  ✓ Leitura Realizada
+                <span className="mt-3 text-[11px] font-bold text-emerald-300 bg-emerald-950/90 px-3 py-1 rounded-full border border-emerald-500/50 shadow-md flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Leitura Realizada • Fechando tela...</span>
                 </span>
               )}
             </div>
@@ -435,9 +481,9 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
           )}
         </div>
 
-        {/* Painel de Resultado da Leitura com Botões: Escanear Novamente & Concluir */}
+        {/* Painel de Confirmação da Leitura */}
         {processingBarcode && lastScannedProduct && (
-          <div className="p-4 bg-slate-900 border-t border-slate-800 space-y-3 animate-in fade-in duration-150">
+          <div className="p-4 bg-slate-900 border-t border-slate-800 space-y-2 animate-in fade-in duration-150">
             <div className="p-3 bg-slate-800/90 rounded-2xl border border-emerald-500/50 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md font-bold">
                 <Check className="w-5 h-5 stroke-[3]" />
@@ -461,29 +507,9 @@ export const CleanCameraBarcodeScannerModal: React.FC<CleanCameraBarcodeScannerM
                 </p>
               </div>
             </div>
-
-            {/* Ações pós-leitura: Escanear Novamente ou Concluir */}
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <button
-                type="button"
-                id="btn-scan-again"
-                onClick={handleResetScanner}
-                className="w-full py-2.5 px-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm active:scale-98"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Escanear Novamente</span>
-              </button>
-
-              <button
-                type="button"
-                id="btn-finish-scanner"
-                onClick={handleClose}
-                className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm active:scale-98"
-              >
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Concluir</span>
-              </button>
-            </div>
+            <p className="text-center text-[11px] text-slate-400 font-medium">
+              Fechando leitor automaticamente...
+            </p>
           </div>
         )}
 

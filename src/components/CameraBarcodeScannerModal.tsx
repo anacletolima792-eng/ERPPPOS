@@ -41,6 +41,7 @@ export const CameraBarcodeScannerModal: React.FC<
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const isStartingRef = useRef<boolean>(false);
   const isProcessingRef = useRef<boolean>(false);
+  const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const scannerContainerId = 'interactive-camera-barcode-scanner';
 
   // Play audio beep on scan
@@ -77,16 +78,32 @@ export const CameraBarcodeScannerModal: React.FC<
 
     // 2. Processe o código lido
     onScan(cleanText);
+
+    // Fecha a tela automaticamente assim que ler o código
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+    }
+    autoCloseTimerRef.current = setTimeout(() => {
+      handleSafeClose();
+    }, 350);
   };
 
   // 3. Resetar Leitor / Escanear Novamente mediante clique do usuário
   const handleResetScanner = () => {
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
+    }
     setScannedCode(null);
     isProcessingRef.current = false;
     setProcessingBarcode(false);
   };
 
   const handleSafeClose = () => {
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
+    }
     isProcessingRef.current = false;
     setProcessingBarcode(false);
     setScannedCode(null);
@@ -209,6 +226,15 @@ export const CameraBarcodeScannerModal: React.FC<
 
   useEffect(() => {
     if (isOpen) {
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+        autoCloseTimerRef.current = null;
+      }
+      isProcessingRef.current = false;
+      setProcessingBarcode(false);
+      setScannedCode(null);
+      setManualCode('');
+
       // Small timeout to ensure DOM container is rendered
       const timer = setTimeout(() => {
         startCamera();
@@ -218,6 +244,10 @@ export const CameraBarcodeScannerModal: React.FC<
         stopCamera();
       };
     } else {
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+        autoCloseTimerRef.current = null;
+      }
       stopCamera();
     }
   }, [isOpen]);
