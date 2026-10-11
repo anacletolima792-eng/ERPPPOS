@@ -4,6 +4,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut,
   updateProfile,
   User as FirebaseUser,
@@ -30,6 +32,7 @@ export interface AuthContextType {
   isAdmin: boolean;
   isSeller: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (companyName: string, adminName: string, email: string, password: string) => Promise<void>;
   loginAsDemo: (demoCompanyName?: string) => Promise<void>;
   switchUser: (userId: string, pin?: string) => Promise<boolean>;
@@ -257,6 +260,78 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Login with Google (SaaS Tenant)
+  const loginWithGoogle = async (): Promise<void> => {
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      const res = await signInWithPopup(auth, provider);
+      const tid = res.user.uid;
+      const userName = res.user.displayName || 'Administrador';
+      const userEmail = res.user.email || '';
+      const compName = res.user.displayName ? `Empresa de ${res.user.displayName}` : 'Minha Empresa';
+
+      safeStorage.removeItem('pdv_demo_session');
+      setTenantId(tid);
+      setCompanyId(tid);
+
+      // Check if store settings already exist in Firestore for this tenant
+      try {
+        const existingSettings = await getStoreSettings();
+        if (!existingSettings || !existingSettings.storeName || existingSettings.storeName === 'Meu Estabelecimento') {
+          await saveStoreSettings({
+            storeName: compName,
+            cnpj: '',
+            phone: '',
+            email: userEmail,
+            address: '',
+            pixKey: '',
+            pixKeyType: 'random',
+            receiptFooter: 'Obrigado pela preferência! Volte sempre.',
+          });
+          setCompanyName(compName);
+          safeStorage.setItem('pdv_company_name', compName);
+
+          // Ensure default customer for POS
+          await createCustomer({
+            name: 'Consumidor Final (Balcão)',
+            phone: '',
+            email: '',
+            document: '',
+            notes: 'Cliente padrão para vendas rápidas no balcão',
+          });
+        } else {
+          setCompanyName(existingSettings.storeName);
+          safeStorage.setItem('pdv_company_name', existingSettings.storeName);
+        }
+      } catch (err) {
+        console.warn('Aviso ao inicializar configurações da empresa via Google:', err);
+      }
+
+      // Initial admin user profile
+      const initialAdmin: UserProfile = {
+        id: `user-${tid}`,
+        name: userName,
+        email: userEmail,
+        role: 'admin',
+        active: true,
+        pin: '1234',
+        createdAt: new Date().toISOString(),
+      };
+      await saveUserProfile(initialAdmin);
+      setCurrentUser(initialAdmin);
+      setAvailableUsers([initialAdmin]);
+      safeStorage.setItem('pdv_current_user', JSON.stringify(initialAdmin));
+
+      setIsAuthenticated(true);
+      setLoading(false);
+    } catch (err: any) {
+      setLoading(false);
+      throw err;
+    }
+  };
+
   // Quick Demo / Test mode starting with clean company
   const loginAsDemo = async (customCompanyName?: string): Promise<void> => {
     setLoading(true);
@@ -369,6 +444,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAdmin,
         isSeller,
         login,
+        loginWithGoogle,
         register,
         loginAsDemo,
         switchUser,
