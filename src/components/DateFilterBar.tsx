@@ -10,6 +10,7 @@ interface DateFilterBarProps {
   className?: string;
   alignPopover?: 'left' | 'right';
   compact?: boolean;
+  pill?: boolean;
 }
 
 export const DateFilterBar: React.FC<DateFilterBarProps> = ({
@@ -18,6 +19,7 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
   className = '',
   alignPopover = 'right',
   compact = false,
+  pill = false,
 }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -62,7 +64,13 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
 
   return (
     <div className={`relative inline-flex ${className}`}>
-      <div className={`flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 ${compact ? 'text-[11px]' : 'text-xs'} font-bold items-center`}>
+      <div
+        className={`flex ${
+          pill
+            ? 'bg-white dark:bg-slate-800 p-0.5 sm:p-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-2xs'
+            : 'bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700'
+        } ${compact ? 'text-[11px]' : 'text-xs'} font-bold items-center gap-0.5 sm:gap-1`}
+      >
         {/* Tab 1: Hoje */}
         <button
           type="button"
@@ -75,10 +83,12 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
               customMonth: getMonthStr(),
             });
           }}
-          className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+          className={`px-2.5 sm:px-3 py-1 sm:py-1.5 ${
+            pill ? 'rounded-full' : 'rounded-lg'
+          } transition-all cursor-pointer ${
             currentFilter.type === 'today'
               ? 'bg-blue-600 text-white shadow-2xs font-black'
-              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
+              : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/60'
           }`}
         >
           Hoje
@@ -96,34 +106,40 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
               customMonth: getMonthStr(),
             });
           }}
-          className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+          className={`px-2.5 sm:px-3 py-1 sm:py-1.5 ${
+            pill ? 'rounded-full' : 'rounded-lg'
+          } transition-all cursor-pointer ${
             currentFilter.type === 'month'
               ? 'bg-blue-600 text-white shadow-2xs font-black'
-              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
+              : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/60'
           }`}
         >
           Mês
         </button>
 
-        {/* Tab 4: Tudo / Calendário popover */}
+        {/* Tab 3: Tudo / Calendário popover */}
         <button
           type="button"
           id="period-tab-all"
           onClick={() => setIsPopoverOpen(!isPopoverOpen)}
           title="Clique para escolher qualquer data, intervalo de datas ou todo o histórico"
-          className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-2.5 sm:px-3 py-1 sm:py-1.5 ${
+            pill
+              ? 'rounded-full border border-blue-200/90 dark:border-blue-800'
+              : 'rounded-lg'
+          } transition-all cursor-pointer flex items-center gap-1.5 ${
             isCustomActive
-              ? 'bg-blue-600 text-white shadow-2xs font-black'
+              ? 'bg-blue-50/80 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-extrabold shadow-2xs ring-1 ring-blue-300 dark:ring-blue-800'
               : isPopoverOpen
               ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-2xs font-extrabold ring-1 ring-blue-400/50'
-              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
+              : 'text-blue-600 dark:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/30'
           }`}
         >
-          <CalendarDays className="w-3.5 h-3.5 shrink-0" />
-          <span className="whitespace-nowrap">{getTudoButtonLabel()}</span>
+          <CalendarDays className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+          <span className="whitespace-nowrap text-blue-700 dark:text-blue-300 font-bold">{getTudoButtonLabel()}</span>
           <ChevronDown
-            className={`w-3 h-3 opacity-70 shrink-0 transition-transform duration-200 ${
-              isPopoverOpen ? 'rotate-180 text-blue-600 opacity-100' : ''
+            className={`w-3 h-3 text-blue-600 dark:text-blue-400 opacity-80 shrink-0 transition-transform duration-200 ${
+              isPopoverOpen ? 'rotate-180 opacity-100' : ''
             }`}
           />
         </button>

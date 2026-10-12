@@ -226,52 +226,52 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col pb-24 transition-colors">
-      {/* Header with Segmented Period Selector and 4 Action Controls on the same line */}
-      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2.5 sm:py-3 shadow-xs transition-colors">
-        <div className="max-w-7xl mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 sm:gap-3">
-          {/* Top Row / Left Section: Title, Count, Theme, Quotes and Period selector */}
-          <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-3 flex-wrap">
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight whitespace-nowrap">
+      {/* Header matching exact layout from attached image */}
+      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3.5 sm:py-4 shadow-xs transition-colors">
+        <div className="max-w-4xl mx-auto space-y-3 sm:space-y-3.5">
+          {/* Row 1: Title, Effective Sales Badge and Controls */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                 Histórico de Vendas
               </h1>
               <span
                 id="badge-effective-sales-count"
-                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-black bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs whitespace-nowrap"
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs"
                 title="Quantidade de vendas efetivadas conforme data escolhida"
               >
                 {effectiveSalesCount} {effectiveSalesCount === 1 ? 'efetivada' : 'efetivadas'}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 ml-auto sm:ml-0">
-              <ThemeToggle />
-
-              {/* Quotes Access Button */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Optional Export Button cleanly positioned in top corner */}
               <button
                 type="button"
-                id="btn-sales-view-quotes"
-                onClick={() => setIsQuoteModalOpen(true)}
-                className="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-2 sm:px-2.5 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 text-xs font-bold text-indigo-700 dark:text-indigo-300 transition-colors shrink-0 shadow-2xs cursor-pointer"
-                title="Consultar e gerenciar orçamentos salvos"
+                id="btn-export-sales-csv"
+                onClick={handleExportCSV}
+                className="h-8 px-3 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                title="Exportar Vendas para planilha Excel / CSV"
               >
-                <FileText className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                <span className="hidden xs:inline">Orçamentos</span>
+                <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span className="hidden sm:inline">Exportar</span>
               </button>
-
-              {/* Standardized Period selector tabs matching Dashboard */}
-              <DateFilterBar
-                currentFilter={dateFilter}
-                onFilterChange={(newFilter) => setDateFilter(newFilter)}
-                alignPopover="left"
-                compact={true}
-              />
+              <ThemeToggle />
             </div>
           </div>
 
-          {/* Group of 4 Controls on the same line: Status, Forma de Pagamento, Exportar Vendas (na frente da busca) e Área de Busca */}
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-nowrap flex-1 min-w-0 xl:max-w-2xl xl:justify-end">
-            {/* 1. Small Dropdown Button: Status */}
+          {/* Row 2: [ Hoje Mês 📅 Tudo ⌵ ] on left, [ 🌪 Status ⌵ ] on right */}
+          <div className="flex items-center justify-between gap-3">
+            {/* Date filter pill */}
+            <DateFilterBar
+              currentFilter={dateFilter}
+              onFilterChange={(newFilter) => setDateFilter(newFilter)}
+              alignPopover="left"
+              pill={true}
+              className="shrink-0"
+            />
+
+            {/* Status pill dropdown button */}
             <div
               className="relative inline-flex shrink-0"
               title={`Status: ${
@@ -285,14 +285,23 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
               }`}
             >
               <div
-                className={`h-9 px-2 sm:px-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border rounded-xl flex items-center justify-center gap-1 shadow-2xs transition-colors cursor-pointer shrink-0 ${
+                className={`h-9 px-3.5 sm:px-4 rounded-full border ${
                   statusFilter !== 'all'
-                    ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-bold'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
-                }`}
+                    ? 'border-blue-500 bg-blue-50/70 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200'
+                } text-xs sm:text-sm font-bold flex items-center gap-2 shadow-2xs transition-colors cursor-pointer`}
               >
-                <Filter className="w-3.5 h-3.5" />
-                <ChevronDown className="w-3 h-3 text-slate-400" />
+                <Filter className="w-4 h-4 text-slate-700 dark:text-slate-300 shrink-0" />
+                <span>
+                  {statusFilter === 'all'
+                    ? 'Status'
+                    : statusFilter === 'completed'
+                    ? 'Concluídas'
+                    : statusFilter === 'returned'
+                    ? 'Devoluções'
+                    : 'Canceladas'}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
                 {statusFilter !== 'all' && (
                   <span className="w-2 h-2 rounded-full bg-blue-600 absolute -top-0.5 -right-0.5 ring-2 ring-white dark:ring-slate-900" />
                 )}
@@ -310,8 +319,23 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
                 <option value="canceled">Canceladas</option>
               </select>
             </div>
+          </div>
 
-            {/* 2. Small Dropdown Button: Forma de Pagamento */}
+          {/* Row 3: [ 📄 Orçamentos ] on left, [ 💳 Pagamento ⌵ ] on right */}
+          <div className="flex items-center justify-between gap-3">
+            {/* Orçamentos pill button */}
+            <button
+              type="button"
+              id="btn-sales-view-quotes"
+              onClick={() => setIsQuoteModalOpen(true)}
+              className="h-9 px-4 rounded-full border border-indigo-200 dark:border-indigo-800/80 bg-white dark:bg-slate-800 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs sm:text-sm font-bold flex items-center gap-2 shadow-2xs transition-colors cursor-pointer shrink-0"
+              title="Consultar e gerenciar orçamentos salvos"
+            >
+              <FileText className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <span>Orçamentos</span>
+            </button>
+
+            {/* Pagamento pill dropdown button */}
             <div
               className="relative inline-flex shrink-0"
               title={`Forma de Pagamento: ${
@@ -321,14 +345,15 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
               }`}
             >
               <div
-                className={`h-9 px-2 sm:px-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border rounded-xl flex items-center justify-center gap-1 shadow-2xs transition-colors cursor-pointer shrink-0 ${
+                className={`h-9 px-3.5 sm:px-4 rounded-full border ${
                   paymentFilter !== 'all'
-                    ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-bold'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
-                }`}
+                    ? 'border-blue-500 bg-blue-50/70 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
+                    : 'border-blue-300 dark:border-blue-700/80 bg-white dark:bg-slate-800 hover:bg-blue-50/40 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200'
+                } text-xs sm:text-sm font-bold flex items-center gap-2 shadow-2xs transition-colors cursor-pointer`}
               >
-                <CreditCard className="w-3.5 h-3.5" />
-                <ChevronDown className="w-3 h-3 text-slate-400" />
+                <CreditCard className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>{paymentFilter === 'all' ? 'Pagamento' : paymentFilter.toUpperCase()}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
                 {paymentFilter !== 'all' && (
                   <span className="w-2 h-2 rounded-full bg-blue-600 absolute -top-0.5 -right-0.5 ring-2 ring-white dark:ring-slate-900" />
                 )}
@@ -348,45 +373,32 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
                 <option value="prazo">A Prazo</option>
               </select>
             </div>
+          </div>
 
-            {/* 3. Export Sales to Excel Button (na frente da área de busca) */}
-            <button
-              type="button"
-              id="btn-export-sales-csv"
-              onClick={handleExportCSV}
-              className="h-9 px-2 sm:px-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200 dark:border-slate-700 shadow-2xs cursor-pointer shrink-0 whitespace-nowrap"
-              title="Exportar Vendas para planilha Excel / CSV"
-            >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span className="hidden sm:inline">Exportar Vendas</span>
-              <span className="sm:hidden">Exportar</span>
-            </button>
-
-            {/* 4. Search Input (redimensionável com flex-1 para manter todos os 4 na mesma linha) */}
-            <div className="relative flex-1 min-w-[120px] sm:min-w-[170px] group">
-              <input
-                type="text"
-                id="input-sales-search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Busca por intenção (cupom, cliente, PIX)..."
-                title="Busca Semântica por Intenção ou Correspondência Parcial (ex: cliente, produto vendido, pix, canceladas, desconto, >100)"
-                className="w-full h-9 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-8 pr-8 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-700 transition-all shadow-2xs"
-              />
-              <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              {searchTerm && (
-                <button
-                  type="button"
-                  id="btn-clear-sales-search"
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer"
-                  title="Limpar busca"
-                  aria-label="Limpar busca"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
+          {/* Row 4: Full-width search input [ 🔍 Buscar cupom #, cliente... ] */}
+          <div className="relative w-full">
+            <input
+              type="text"
+              id="input-sales-search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar cupom #, cliente..."
+              title="Busca Semântica por Intenção ou Correspondência Parcial (ex: cliente, produto vendido, pix, canceladas, desconto, >100)"
+              className="w-full h-10 sm:h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full pl-10 pr-10 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs transition-all"
+            />
+            <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            {searchTerm && (
+              <button
+                type="button"
+                id="btn-clear-sales-search"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer"
+                title="Limpar busca"
+                aria-label="Limpar busca"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </header>
