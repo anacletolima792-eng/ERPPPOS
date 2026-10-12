@@ -653,7 +653,7 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Banco de Dados Isolado</span>
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                  Conta: <strong className="text-slate-900 dark:text-slate-100">{firebaseUser?.email || 'Modo Demonstração'}</strong>
+                  Conta: <strong className="text-slate-900 dark:text-slate-100">{firebaseUser?.email || 'Conectado'}</strong>
                 </p>
                 {companyId && (
                   <p className="text-[11px] text-slate-500 dark:text-slate-500 font-mono mt-0.5">

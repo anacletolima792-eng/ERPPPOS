@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithCredential,
   GoogleAuthProvider,
   signOut,
   updateProfile,
@@ -32,7 +33,7 @@ export interface AuthContextType {
   isAdmin: boolean;
   isSeller: boolean;
   login: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (googleCredentialToken?: string) => Promise<void>;
   register: (companyName: string, adminName: string, email: string, password: string) => Promise<void>;
   loginAsDemo: (demoCompanyName?: string) => Promise<void>;
   switchUser: (userId: string, pin?: string) => Promise<boolean>;
@@ -174,7 +175,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Login with existing account
   const login = async (email: string, password: string): Promise<void> => {
-    setLoading(true);
     try {
       const res = await signInWithEmailAndPassword(auth, email.trim(), password);
       safeStorage.removeItem('pdv_demo_session');
@@ -183,7 +183,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setCompanyId(tid);
       setIsAuthenticated(true);
     } catch (err: any) {
-      setLoading(false);
       throw err;
     }
   };
@@ -195,7 +194,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     email: string,
     password: string
   ): Promise<void> => {
-    setLoading(true);
     try {
       const res = await createUserWithEmailAndPassword(auth, email.trim(), password);
       const tid = res.user.uid;
@@ -253,24 +251,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // Products, sales, categories, and quotes start 100% EMPTY (0 items)
       setIsAuthenticated(true);
-      setLoading(false);
     } catch (err: any) {
-      setLoading(false);
       throw err;
     }
   };
 
   // Login with Google (SaaS Tenant)
-  const loginWithGoogle = async (): Promise<void> => {
-    setLoading(true);
+  const loginWithGoogle = async (googleCredentialToken?: string): Promise<void> => {
     try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      const res = await signInWithPopup(auth, provider);
-      const tid = res.user.uid;
-      const userName = res.user.displayName || 'Administrador';
-      const userEmail = res.user.email || '';
-      const compName = res.user.displayName ? `Empresa de ${res.user.displayName}` : 'Minha Empresa';
+      let resUser: FirebaseUser;
+
+      if (googleCredentialToken) {
+        // Authenticate with Google ID Token via Google Identity Services
+        const credential = GoogleAuthProvider.credential(googleCredentialToken);
+        const res = await signInWithCredential(auth, credential);
+        resUser = res.user;
+      } else {
+        // Authenticate with Firebase Popup
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        provider.addScope('email');
+        provider.addScope('profile');
+        const res = await signInWithPopup(auth, provider);
+        resUser = res.user;
+      }
+
+      const tid = resUser.uid;
+      const userName = resUser.displayName || 'Administrador';
+      const userEmail = resUser.email || '';
+      const compName = resUser.displayName ? `Empresa de ${resUser.displayName}` : 'Minha Empresa';
 
       safeStorage.removeItem('pdv_demo_session');
       setTenantId(tid);
@@ -325,16 +334,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       safeStorage.setItem('pdv_current_user', JSON.stringify(initialAdmin));
 
       setIsAuthenticated(true);
-      setLoading(false);
     } catch (err: any) {
-      setLoading(false);
+      console.error('[useAuth] Falha no login Google:', err);
       throw err;
     }
   };
 
   // Quick Demo / Test mode starting with clean company
   const loginAsDemo = async (customCompanyName?: string): Promise<void> => {
-    setLoading(true);
     try {
       const demoId = `demo-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
       const name = customCompanyName?.trim() || 'Minha Empresa Demonstração';
@@ -372,9 +379,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
 
       setIsAuthenticated(true);
-      setLoading(false);
     } catch (err: any) {
-      setLoading(false);
       throw err;
     }
   };
