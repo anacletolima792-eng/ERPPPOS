@@ -10,9 +10,7 @@ import { ReceiptModal } from '../components/ReceiptModal';
 import { OperatorSwitchModal } from '../components/OperatorSwitchModal';
 import { CustomerSelectModal } from '../components/CustomerSelectModal';
 import { BarcodeScannerModal } from '../components/BarcodeScannerModal';
-import { ProductFormModal } from '../components/ProductFormModal';
 import { CategoryDropdown } from '../components/CategoryDropdown';
-import { seedInitialDemoData } from '../services/firestoreService';
 import { useAuth } from '../hooks/useAuth';
 
 interface PDVPageProps {
@@ -35,8 +33,6 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
   const [isOperatorModalOpen, setIsOperatorModalOpen] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-  const [isProductFormOpen, setIsProductFormOpen] = useState(false);
-  const [isSeeding, setIsSeeding] = useState(false);
 
   // Filter products by search term (name, code, barcode) and category
   const filteredProducts = useMemo(() => {
@@ -62,17 +58,6 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
   const handleSaleCompleted = (sale: Sale) => {
     setCompletedSale(sale);
     setIsReceiptOpen(true);
-  };
-
-  const handleSeedData = async () => {
-    try {
-      setIsSeeding(true);
-      await seedInitialDemoData();
-    } catch (err) {
-      console.error('Erro ao popular dados:', err);
-    } finally {
-      setIsSeeding(false);
-    }
   };
 
   return (
@@ -178,20 +163,9 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
               <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1">
                 {searchTerm
                   ? `Nenhum resultado para "${searchTerm}". Tente outro termo ou código.`
-                  : 'O banco de dados ainda não possui produtos cadastrados.'}
+                  : 'Nenhum produto cadastrado no catálogo para venda.'}
               </p>
             </div>
-
-            {products.length === 0 && (
-              <button
-                type="button"
-                id="btn-add-first-product"
-                onClick={() => setIsProductFormOpen(true)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-xs transition-all cursor-pointer"
-              >
-                <span>Cadastrar Primeiro Produto</span>
-              </button>
-            )}
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3 pb-6">
@@ -255,12 +229,6 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
         isOpen={isScannerOpen}
         products={products}
         onClose={() => setIsScannerOpen(false)}
-      />
-
-      <ProductFormModal
-        isOpen={isProductFormOpen}
-        categories={categories}
-        onClose={() => setIsProductFormOpen(false)}
       />
     </div>
   );

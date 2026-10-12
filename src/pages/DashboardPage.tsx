@@ -441,9 +441,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <span className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#9db0d8]">
                 FATURAMENTO TOTAL
               </span>
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#1d5bf6] flex items-center justify-center shrink-0 shadow-xs">
-                <span className="text-sm font-black text-white tracking-tight leading-none">R$</span>
-              </div>
             </div>
 
             <div className="mt-1">
