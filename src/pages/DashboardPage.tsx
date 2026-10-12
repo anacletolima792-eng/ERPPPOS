@@ -15,15 +15,6 @@ import {
   X,
   Filter,
 } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from 'recharts';
 import { Product, Sale } from '../types';
 import {
   formatCurrency,
@@ -161,28 +152,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const lowStockProducts = useMemo(() => {
     return products.filter((p) => p.stock <= p.minStock);
   }, [products]);
-
-  // Chart 1: Revenue & Sales by Day
-  const chartDailyData = useMemo(() => {
-    const map = new Map<string, { label: string; total: number; count: number }>();
-
-    // Sort ascending for chart
-    const sorted = [...filteredSales].sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
-
-    sorted.forEach((sale) => {
-      const key = formatDateShort(sale.createdAt);
-      const current = map.get(key) || { label: key, total: 0, count: 0 };
-      map.set(key, {
-        label: key,
-        total: current.total + sale.total,
-        count: current.count + 1,
-      });
-    });
-
-    return Array.from(map.values());
-  }, [filteredSales]);
 
   // Payment Methods written breakdown (no chart)
   const paymentMethodsSummary = useMemo(() => {
@@ -543,64 +512,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Chart 1: Revenue Timeline */}
-          <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">Faturamento no Período</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Evolução de receitas ao longo do tempo</p>
-              </div>
-              <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-200 dark:border-blue-800">
-                {formatCurrency(totalRevenue)}
-              </span>
-            </div>
-
-            <div className="h-64 w-full">
-              {chartDailyData.length === 0 ? (
-                <div className="h-full flex items-center justify-center text-slate-400 text-xs font-semibold">
-                  Sem vendas registradas neste período
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartDailyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0.0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
-                    <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} />
-                    <Tooltip
-                      content={({ active, payload, label }) => {
-                        if (active && payload && payload.length) {
-                          const val = Number(payload[0].value ?? 0);
-                          return (
-                            <div className="bg-[#0f172a] border border-slate-700/80 text-white px-3 py-2 rounded-xl shadow-xl text-xs">
-                              <div className="font-bold text-white text-[11px] mb-1">
-                                {label}
-                              </div>
-                              <div className="text-[#05df72] font-semibold flex items-center gap-1.5">
-                                <span>Faturamento :</span>
-                                <span className="font-bold">{formatCurrency(val)}</span>
-                              </div>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <Area type="monotone" dataKey="total" stroke="#2563eb" strokeWidth={2.5} fillOpacity={1} fill="url(#colorTotal)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-
-          {/* Payment Methods - Written Information (No Chart) */}
+        {/* Detailed Analytics Widgets: Formas de Pagamento, Produtos Mais Vendidos, Categorias & Alertas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Widget 1: Formas de Pagamento */}
           <div
             id="card-payment-methods-summary"
             className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between"
@@ -662,11 +576,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <span className="text-sm font-black text-slate-900 dark:text-slate-100">{formatCurrency(totalRevenue)}</span>
             </div>
           </div>
-        </div>
 
-        {/* Top Products, Category Sales & Critical Stock List */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Widget 1: Top Selling Products */}
+          {/* Widget 2: Top Selling Products */}
           <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-1">

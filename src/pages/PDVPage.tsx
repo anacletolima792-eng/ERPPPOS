@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Barcode, LayoutGrid, List, Filter, PackageX, Sparkles, ChevronDown } from 'lucide-react';
+import { Search, Barcode, LayoutGrid, List, Filter, PackageX, Sparkles, ChevronDown, X } from 'lucide-react';
 import { Product, Category, Sale } from '../types';
+import { filterProductsSemantically } from '../utils/semanticSearch';
 import { Header } from '../components/Header';
 import { ActionBanner } from '../components/ActionBanner';
 import { ProductCard } from '../components/ProductCard';
@@ -34,24 +35,13 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
-  // Filter products by search term (name, code, barcode) and category
+  // Filter products by partial match, code, barcode and semantic intents
   const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      const term = searchTerm.toLowerCase().trim();
-      const name = (p.name || '').toLowerCase();
-      const code = (p.code || '').toLowerCase();
-      const barcode = (p.barcode || '').toLowerCase();
-
-      const matchesSearch =
-        !term ||
-        name.includes(term) ||
-        code.includes(term) ||
-        barcode.includes(term);
-
+    const semanticallyFiltered = filterProductsSemantically(products, searchTerm);
+    return semanticallyFiltered.filter((p) => {
       const matchesCategory =
         selectedCategoryId === 'all' || p.categoryId === selectedCategoryId;
-
-      return matchesSearch && matchesCategory;
+      return matchesCategory;
     });
   }, [products, searchTerm, selectedCategoryId]);
 
@@ -87,10 +77,23 @@ export const PDVPage: React.FC<PDVPageProps> = ({ products, categories, loading 
                 id="input-pdv-search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar por nome, código ou bipar..."
-                className="w-full bg-white dark:bg-slate-900 sm:bg-slate-100 dark:sm:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg py-2 pl-9 sm:pl-10 pr-3 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-800 transition-all shadow-2xs"
+                placeholder="Buscar por nome, código, bipar ou intenção..."
+                title="Busca por correspondência parcial ou intenção"
+                className="w-full bg-white dark:bg-slate-900 sm:bg-slate-100 dark:sm:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg py-2 pl-9 sm:pl-10 pr-9 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-800 transition-all shadow-2xs"
               />
               <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5" />
+              {searchTerm && (
+                <button
+                  type="button"
+                  id="btn-clear-pdv-search"
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer"
+                  title="Limpar busca"
+                  aria-label="Limpar busca"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-1.5 shrink-0">

@@ -13,9 +13,11 @@ import {
   Barcode,
   ScanLine,
   ZoomIn,
+  X,
 } from 'lucide-react';
 import { Product, Category } from '../types';
 import { formatCurrency } from '../utils/formatters';
+import { filterProductsSemantically } from '../utils/semanticSearch';
 import { adjustProductStock, deleteProduct } from '../services/firestoreService';
 import { ProductFormModal } from '../components/ProductFormModal';
 import { CameraBarcodeScannerModal } from '../components/CameraBarcodeScannerModal';
@@ -43,25 +45,13 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
   const [isCameraSearchOpen, setIsCameraSearchOpen] = useState(false);
   const [zoomedProduct, setZoomedProduct] = useState<Product | null>(null);
 
-  // Filter products
+  // Filter products semantically with partial matching, code, barcode and category
   const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      const term = searchTerm.toLowerCase().trim();
-      const name = (p.name || '').toLowerCase();
-      const code = (p.code || '').toLowerCase();
-      const barcode = (p.barcode || '').toLowerCase();
-
-      const matchesSearch =
-        !term ||
-        name.includes(term) ||
-        code.includes(term) ||
-        barcode.includes(term);
-
+    const semanticallyFiltered = filterProductsSemantically(products, searchTerm);
+    return semanticallyFiltered.filter((p) => {
       const matchesCategory = selectedCategory === 'all' || p.categoryId === selectedCategory;
-
       const matchesLowStock = !filterLowStockOnly || p.stock <= p.minStock;
-
-      return matchesSearch && matchesCategory && matchesLowStock;
+      return matchesCategory && matchesLowStock;
     });
   }, [products, searchTerm, selectedCategory, filterLowStockOnly]);
 
@@ -233,10 +223,24 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
               id="input-inventory-search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar por nome, código ou código de barras..."
-              className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pl-9 pr-12 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-800 transition-all shadow-2xs"
+              placeholder="Buscar por nome, código, código de barras ou intenção..."
+              title="Busca por correspondência parcial ou intenção"
+              className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pl-9 pr-20 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-800 transition-all shadow-2xs"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+
+            {searchTerm && (
+              <button
+                type="button"
+                id="btn-clear-inventory-search"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-11 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer"
+                title="Limpar busca"
+                aria-label="Limpar busca"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
 
             <button
               type="button"

@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Clock,
   User,
+  Sparkles,
 } from 'lucide-react';
 import { Sale } from '../types';
 import {
@@ -26,6 +27,7 @@ import {
   formatMonthYear,
   formatTime,
 } from '../utils/formatters';
+import { filterSalesSemantically, parseSearchQuery } from '../utils/semanticSearch';
 import { SaleDetailModal } from '../components/SaleDetailModal';
 import { ReceiptModal } from '../components/ReceiptModal';
 import {
@@ -33,10 +35,8 @@ import {
   DateFilterConfig,
 } from '../components/DateFilterModal';
 import { DateFilterBar } from '../components/DateFilterBar';
-import { OperatorSwitchModal } from '../components/OperatorSwitchModal';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { QuoteModal } from '../components/QuoteModal';
-import { useAuth } from '../hooks/useAuth';
 
 interface SalesHistoryPageProps {
   sales: Sale[];
@@ -44,7 +44,6 @@ interface SalesHistoryPageProps {
 }
 
 export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loading }) => {
-  const { currentUser, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'returned' | 'canceled'>('all');
   const [paymentFilter, setPaymentFilter] = useState<string>('all');
@@ -73,25 +72,19 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [receiptSale, setReceiptSale] = useState<Sale | null>(null);
-  const [isOperatorModalOpen, setIsOperatorModalOpen] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
-  // Filter sales
+  // Semantic and intent parsing for search
+  const parsedSearch = useMemo(() => {
+    return parseSearchQuery(searchTerm);
+  }, [searchTerm]);
+
+  // Filter sales with semantic matching, partial words, intents, status, payment and date
   const filteredSales = useMemo(() => {
     const now = new Date();
+    const { filtered } = filterSalesSemantically(sales, searchTerm);
 
-    return sales.filter((s) => {
-      const term = searchTerm.toLowerCase().trim();
-      const saleNum = (s.saleNumber || '').toLowerCase();
-      const custName = (s.customerName || '').toLowerCase();
-      const opName = (s.operatorName || '').toLowerCase();
-
-      const matchesSearch =
-        !term ||
-        saleNum.includes(term) ||
-        custName.includes(term) ||
-        opName.includes(term);
-
+    return filtered.filter((s) => {
       const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
       const matchesPayment = paymentFilter === 'all' || s.paymentMethod === paymentFilter;
 
@@ -128,7 +121,7 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
         matchesDate = t >= startT && t <= endT;
       }
 
-      return matchesSearch && matchesStatus && matchesPayment && matchesDate;
+      return matchesStatus && matchesPayment && matchesDate;
     });
   }, [sales, searchTerm, statusFilter, paymentFilter, dateFilter]);
 
@@ -233,73 +226,54 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col pb-24 transition-colors">
-      {/* Header with Segmented Period Selector */}
-      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 shadow-xs transition-colors">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center justify-between sm:justify-start gap-3">
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">Histórico de Vendas</h1>
-                <span
-                  id="badge-effective-sales-count"
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs"
-                  title="Quantidade de vendas efetivadas conforme data escolhida"
-                >
-                  {effectiveSalesCount} {effectiveSalesCount === 1 ? 'efetivada' : 'efetivadas'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Consultas de cupons fiscais, estornos e faturamento</p>
+      {/* Header with Segmented Period Selector and 4 Action Controls on the same line */}
+      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2.5 sm:py-3 shadow-xs transition-colors">
+        <div className="max-w-7xl mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 sm:gap-3">
+          {/* Top Row / Left Section: Title, Count, Theme, Quotes and Period selector */}
+          <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight whitespace-nowrap">
+                Histórico de Vendas
+              </h1>
+              <span
+                id="badge-effective-sales-count"
+                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-black bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs whitespace-nowrap"
+                title="Quantidade de vendas efetivadas conforme data escolhida"
+              >
+                {effectiveSalesCount} {effectiveSalesCount === 1 ? 'efetivada' : 'efetivadas'}
+              </span>
             </div>
-            {/* ThemeToggle visible on mobile next to title */}
-            <div className="sm:hidden shrink-0">
+
+            <div className="flex items-center gap-1.5 sm:gap-2 ml-auto sm:ml-0">
               <ThemeToggle />
+
+              {/* Quotes Access Button */}
+              <button
+                type="button"
+                id="btn-sales-view-quotes"
+                onClick={() => setIsQuoteModalOpen(true)}
+                className="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-2 sm:px-2.5 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 text-xs font-bold text-indigo-700 dark:text-indigo-300 transition-colors shrink-0 shadow-2xs cursor-pointer"
+                title="Consultar e gerenciar orçamentos salvos"
+              >
+                <FileText className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                <span className="hidden xs:inline">Orçamentos</span>
+              </button>
+
+              {/* Standardized Period selector tabs matching Dashboard */}
+              <DateFilterBar
+                currentFilter={dateFilter}
+                onFilterChange={(newFilter) => setDateFilter(newFilter)}
+                alignPopover="left"
+                compact={true}
+              />
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap">
-            {/* ThemeToggle on larger screens */}
-            <div className="hidden sm:block shrink-0">
-              <ThemeToggle />
-            </div>
-
-            {/* Operator Switcher */}
-            <button
-              type="button"
-              id="btn-sales-operator-switch"
-              onClick={() => setIsOperatorModalOpen(true)}
-              className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors shrink-0 shadow-2xs cursor-pointer"
-              title="Trocar operador do sistema"
-            >
-              <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-black shrink-0">
-                {currentUser.name.charAt(0).toUpperCase()}
-              </div>
-              <span className="max-w-[120px] truncate text-xs font-bold text-slate-800 dark:text-slate-100">
-                {currentUser.name}
-              </span>
-            </button>
-
-            {/* Quotes Access Button */}
-            <button
-              type="button"
-              id="btn-sales-view-quotes"
-              onClick={() => setIsQuoteModalOpen(true)}
-              className="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-2.5 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 text-xs font-bold text-indigo-700 dark:text-indigo-300 transition-colors shrink-0 shadow-2xs cursor-pointer"
-              title="Consultar e gerenciar orçamentos salvos"
-            >
-              <FileText className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              <span>Orçamentos</span>
-            </button>
-
-            {/* Standardized Period selector tabs matching Dashboard */}
-            <DateFilterBar
-              currentFilter={dateFilter}
-              onFilterChange={(newFilter) => setDateFilter(newFilter)}
-              alignPopover="left"
-            />
-
-            {/* Small Dropdown Button: Status */}
+          {/* Group of 4 Controls on the same line: Status, Forma de Pagamento, Exportar Vendas (na frente da busca) e Área de Busca */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-nowrap flex-1 min-w-0 xl:max-w-2xl xl:justify-end">
+            {/* 1. Small Dropdown Button: Status */}
             <div
-              className="relative inline-flex"
+              className="relative inline-flex shrink-0"
               title={`Status: ${
                 statusFilter === 'all'
                   ? 'Todos os Status'
@@ -311,9 +285,9 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
               }`}
             >
               <div
-                className={`h-9 px-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border rounded-xl flex items-center justify-center gap-1 shadow-2xs transition-colors cursor-pointer ${
+                className={`h-9 px-2 sm:px-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border rounded-xl flex items-center justify-center gap-1 shadow-2xs transition-colors cursor-pointer shrink-0 ${
                   statusFilter !== 'all'
-                    ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300'
+                    ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-bold'
                     : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
                 }`}
               >
@@ -337,9 +311,9 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
               </select>
             </div>
 
-            {/* Small Dropdown Button: Forma de Pagamento */}
+            {/* 2. Small Dropdown Button: Forma de Pagamento */}
             <div
-              className="relative inline-flex"
+              className="relative inline-flex shrink-0"
               title={`Forma de Pagamento: ${
                 paymentFilter === 'all'
                   ? 'Todas as Formas'
@@ -347,9 +321,9 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
               }`}
             >
               <div
-                className={`h-9 px-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border rounded-xl flex items-center justify-center gap-1 shadow-2xs transition-colors cursor-pointer ${
+                className={`h-9 px-2 sm:px-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border rounded-xl flex items-center justify-center gap-1 shadow-2xs transition-colors cursor-pointer shrink-0 ${
                   paymentFilter !== 'all'
-                    ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300'
+                    ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-bold'
                     : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
                 }`}
               >
@@ -375,36 +349,41 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
               </select>
             </div>
 
+            {/* 3. Export Sales to Excel Button (na frente da área de busca) */}
             <button
               type="button"
               id="btn-export-sales-csv"
               onClick={handleExportCSV}
-              className="h-9 px-2.5 sm:px-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200 dark:border-slate-700 shadow-2xs cursor-pointer shrink-0"
+              className="h-9 px-2 sm:px-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200 dark:border-slate-700 shadow-2xs cursor-pointer shrink-0 whitespace-nowrap"
               title="Exportar Vendas para planilha Excel / CSV"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="hidden lg:inline">Exportar Vendas</span>
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="hidden sm:inline">Exportar Vendas</span>
+              <span className="sm:hidden">Exportar</span>
             </button>
 
-            {/* Search Input right in front of the export button */}
-            <div className="relative min-w-[150px] sm:min-w-[210px] md:w-64">
+            {/* 4. Search Input (redimensionável com flex-1 para manter todos os 4 na mesma linha) */}
+            <div className="relative flex-1 min-w-[120px] sm:min-w-[170px] group">
               <input
                 type="text"
                 id="input-sales-search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar cupom #, cliente..."
-                className="w-full h-9 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-8 pr-7 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-700 transition-all shadow-2xs"
+                placeholder="Busca por intenção (cupom, cliente, PIX)..."
+                title="Busca Semântica por Intenção ou Correspondência Parcial (ex: cliente, produto vendido, pix, canceladas, desconto, >100)"
+                className="w-full h-9 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-8 pr-8 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-700 transition-all shadow-2xs"
               />
-              <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               {searchTerm && (
                 <button
                   type="button"
+                  id="btn-clear-sales-search"
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer"
                   title="Limpar busca"
+                  aria-label="Limpar busca"
                 >
-                  <X className="w-3 h-3" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -412,7 +391,37 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 space-y-4">
+      <main className="max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 space-y-3">
+        {/* Semantic Search Detected Intents Bar */}
+        {parsedSearch.detectedIntents.length > 0 && (
+          <div
+            id="bar-semantic-search-intents"
+            className="flex flex-wrap items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/30 border border-blue-200/80 dark:border-blue-900/60 rounded-xl text-xs text-blue-900 dark:text-blue-200 shadow-2xs"
+          >
+            <div className="flex items-center gap-1.5 font-bold text-blue-700 dark:text-blue-300">
+              <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Intenção detectada:</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {parsedSearch.detectedIntents.map((intent, idx) => (
+                <span
+                  key={idx}
+                  className="inline-flex items-center px-2 py-0.5 rounded-lg bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 text-[11px] font-bold text-blue-700 dark:text-blue-300 shadow-2xs"
+                >
+                  {intent.label}
+                </span>
+              ))}
+            </div>
+            {parsedSearch.residualTokens.length > 0 && (
+              <span className="text-slate-600 dark:text-slate-400 text-[11px]">
+                Termos parciais: &quot;{parsedSearch.residualTokens.join(' ')}&quot;
+              </span>
+            )}
+            <span className="text-slate-500 dark:text-slate-400 text-[11px] ml-auto font-medium">
+              {filteredSales.length} {filteredSales.length === 1 ? 'venda' : 'vendas'}
+            </span>
+          </div>
+        )}
         {/* Sales List as a scrollable container */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden flex flex-col transition-colors">
           {/* Scrollable list area */}
@@ -501,12 +510,6 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
         onApply={(newFilter) => setDateFilter(newFilter)}
         currentFilter={dateFilter}
         sales={sales}
-      />
-
-      {/* Operator Switch Modal */}
-      <OperatorSwitchModal
-        isOpen={isOperatorModalOpen}
-        onClose={() => setIsOperatorModalOpen(false)}
       />
 
       {/* Quote Modal */}
