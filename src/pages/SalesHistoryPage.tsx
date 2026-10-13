@@ -35,7 +35,6 @@ import {
   DateFilterConfig,
 } from '../components/DateFilterModal';
 import { DateFilterBar } from '../components/DateFilterBar';
-import { ThemeToggle } from '../components/ThemeToggle';
 import { QuoteModal } from '../components/QuoteModal';
 
 interface SalesHistoryPageProps {
@@ -256,7 +255,6 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
                 <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span className="hidden sm:inline">Exportar</span>
               </button>
-              <ThemeToggle />
             </div>
           </div>
 

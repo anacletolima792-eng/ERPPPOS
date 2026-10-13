@@ -12,10 +12,13 @@ interface CartContextType {
   updateItemDiscount: (productId: string, discount: number) => void;
   globalDiscount: number;
   setGlobalDiscount: (discount: number) => void;
+  globalSurcharge: number;
+  setGlobalSurcharge: (surcharge: number) => void;
   clearCart: () => void;
-  loadCart: (items: CartItem[], customer?: Customer | null, discount?: number) => void;
+  loadCart: (items: CartItem[], customer?: Customer | null, discount?: number, surcharge?: number) => void;
   subtotal: number;
   totalDiscount: number;
+  totalSurcharge: number;
   total: number;
   totalCost: number;
   itemCount: number;
@@ -62,6 +65,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   const [globalDiscount, setGlobalDiscount] = useState<number>(0);
+  const [globalSurcharge, setGlobalSurcharge] = useState<number>(0);
 
   const [lastAddedProductId, setLastAddedProductId] = useState<string | null>(() => {
     return safeStorage.getItem('pdv_cart_last_added_id') || null;
@@ -156,19 +160,21 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const clearCart = () => {
     setItems([]);
     setGlobalDiscount(0);
+    setGlobalSurcharge(0);
     setCustomer(DEFAULT_CUSTOMER);
     setLastAddedProductId(null);
     safeStorage.removeItem('pdv_cart_items');
     safeStorage.removeItem('pdv_cart_last_added_id');
   };
 
-  const loadCart = (newItems: CartItem[], newCustomer?: Customer | null, discount = 0) => {
+  const loadCart = (newItems: CartItem[], newCustomer?: Customer | null, discount = 0, surcharge = 0) => {
     const valid = Array.isArray(newItems) ? newItems.filter((i) => i && i.product && i.product.id) : [];
     setItems(valid);
     if (newCustomer) {
       setCustomer(newCustomer);
     }
     setGlobalDiscount(discount || 0);
+    setGlobalSurcharge(surcharge || 0);
     if (valid.length > 0) {
       setLastAddedProductId(valid[valid.length - 1].product.id);
     }
@@ -178,7 +184,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const subtotal = validItems.reduce((sum, item) => sum + (Number(item?.quantity) || 0) * (Number(item?.unitPrice) || 0), 0);
   const itemsDiscount = validItems.reduce((sum, item) => sum + (Number(item?.discount) || 0), 0);
   const totalDiscount = itemsDiscount + (Number(globalDiscount) || 0);
-  const total = Math.max(0, subtotal - totalDiscount);
+  const totalSurcharge = Number(globalSurcharge) || 0;
+  const total = Math.max(0, subtotal - totalDiscount + totalSurcharge);
   const totalCost = validItems.reduce((sum, item) => sum + (Number(item?.quantity) || 0) * (Number(item?.product?.costPrice) || 0), 0);
   const itemCount = validItems.reduce((sum, item) => sum + (Number(item?.quantity) || 0), 0);
 
@@ -203,10 +210,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updateItemDiscount,
         globalDiscount,
         setGlobalDiscount,
+        globalSurcharge,
+        setGlobalSurcharge,
         clearCart,
         loadCart,
         subtotal,
         totalDiscount,
+        totalSurcharge,
         total,
         totalCost,
         itemCount,

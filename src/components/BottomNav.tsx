@@ -15,11 +15,11 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, currentTab, onT
   const { isAdmin } = useAuth();
   const current = activeTab || currentTab || 'pdv';
 
-  // Se o operador for um vendedor (não admin), exibe estritamente as abas PDV e VENDAS
+  // Se o operador for um vendedor (não admin), exibe estritamente as abas PDV, ESTOQUE e VENDAS
   if (!isAdmin) {
     return (
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 h-16 sm:h-20 flex items-center justify-around px-4 sm:px-12 shadow-sm pb-safe transition-colors">
-        <div className="max-w-md mx-auto w-full flex items-center justify-around h-full gap-4">
+        <div className="max-w-md mx-auto w-full flex items-center justify-around h-full gap-3 sm:gap-6">
           {/* 1. PDV */}
           <button
             type="button"
@@ -42,7 +42,22 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, currentTab, onT
             <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider">PDV</span>
           </button>
 
-          {/* 2. Vendas */}
+          {/* 2. Estoque */}
+          <button
+            type="button"
+            id="nav-tab-estoque"
+            onClick={() => onTabChange('inventory')}
+            className={`flex flex-col items-center justify-center flex-1 h-full cursor-pointer transition-colors rounded-xl py-1 ${
+              current === 'inventory'
+                ? 'text-blue-600 dark:text-blue-400 font-black bg-blue-50/50 dark:bg-blue-950/40'
+                : 'text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400'
+            }`}
+          >
+            <Package className="w-5 h-5 sm:w-6 sm:h-6 mb-1" />
+            <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider">Estoque</span>
+          </button>
+
+          {/* 3. Vendas */}
           <button
             type="button"
             id="nav-tab-vendas"

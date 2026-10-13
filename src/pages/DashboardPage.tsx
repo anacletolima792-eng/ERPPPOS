@@ -31,7 +31,6 @@ import {
 import { DateFilterBar } from '../components/DateFilterBar';
 import { CategorySalesModal } from '../components/CategorySalesModal';
 import { AllSoldProductsModal } from '../components/AllSoldProductsModal';
-import { ThemeToggle } from '../components/ThemeToggle';
 
 interface DashboardPageProps {
   sales: Sale[];
@@ -297,6 +296,19 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     return Array.from(catMap.values()).sort((a, b) => b.revenue - a.revenue);
   }, [filteredSales, products]);
 
+  // Totais Gerais de Estoque (Transferidos do Controle de Estoque)
+  const totalStockItems = useMemo(() => {
+    return products.reduce((sum, p) => sum + (p.stock || 0), 0);
+  }, [products]);
+
+  const totalSaleValue = useMemo(() => {
+    return products.reduce((sum, p) => sum + (p.stock || 0) * (p.price || 0), 0);
+  }, [products]);
+
+  const totalCostValue = useMemo(() => {
+    return products.reduce((sum, p) => sum + (p.stock || 0) * (p.costPrice || 0), 0);
+  }, [products]);
+
   // Helper to get active period label
   const getPeriodLabel = () => {
     if (dateFilter.type === 'today') return 'Hoje';
@@ -340,10 +352,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               onFilterChange={(newFilter) => setDateFilter(newFilter)}
               alignPopover="right"
             />
-            {/* Theme Mode Switcher */}
-            <div className="shrink-0">
-              <ThemeToggle id="dashboard-theme-toggle" />
-            </div>
           </div>
         </div>
       </header>
@@ -779,6 +787,92 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* Seção de Posição de Estoque - Transferida do Controle de Estoque para o final do Dashboard */}
+        <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex items-center justify-center shrink-0">
+                <Package className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm sm:text-base tracking-tight">
+                  Posição Geral do Estoque
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Totalização patrimonial de produtos e capital em estoque
+                </p>
+              </div>
+            </div>
+
+            {onNavigateToInventory && (
+              <button
+                type="button"
+                onClick={onNavigateToInventory}
+                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 hover:underline cursor-pointer self-start sm:self-auto"
+              >
+                <span>Acessar Controle de Estoque</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {/* Card 1: Total de Produtos */}
+            <div className="bg-slate-50/70 dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Total de Produtos
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 leading-tight block">
+                  {products.length} itens
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
+                  {totalStockItems} unidades em estoque físico
+                </span>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-700/80 text-blue-600 dark:text-blue-400 border border-slate-200 dark:border-slate-600 flex items-center justify-center shrink-0 shadow-2xs">
+                <Package className="w-5 h-5" />
+              </div>
+            </div>
+
+            {/* Card 2: Valor em Estoque */}
+            <div className="bg-slate-50/70 dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Valor em Estoque
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 leading-tight block">
+                  {formatCurrency(totalSaleValue)}
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
+                  Valor total a preço de venda
+                </span>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-700/80 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-slate-600 flex items-center justify-center shrink-0 shadow-2xs">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+            </div>
+
+            {/* Card 3: Custo Total do Estoque */}
+            <div className="bg-slate-50/70 dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Custo Total do Estoque
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-slate-800 dark:text-slate-100 leading-tight block">
+                  {isAdmin ? formatCurrency(totalCostValue) : 'Restrito (Admin)'}
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
+                  {isAdmin ? 'Custo de aquisição investido' : 'Visível apenas para Administrador'}
+                </span>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-700/80 text-amber-600 dark:text-amber-400 border border-slate-200 dark:border-slate-600 flex items-center justify-center shrink-0 shadow-2xs">
+                <Coins className="w-5 h-5" />
+              </div>
             </div>
           </div>
         </div>

@@ -181,8 +181,8 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                 onChange={(e) => setRole(e.target.value as UserRole)}
                 className="w-full px-3 py-2 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100"
               >
-                <option value="vendedor">Vendedor (PDV)</option>
-                <option value="admin">Administrador (Total)</option>
+                <option value="vendedor">Operador (PDV, Estoque, Vendas)</option>
+                <option value="admin">Administrador (Acesso Total)</option>
               </select>
             </div>
 

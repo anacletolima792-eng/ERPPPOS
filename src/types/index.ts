@@ -87,6 +87,7 @@ export interface Quote {
   items: SaleItem[];
   subtotal: number;
   discount: number;
+  surcharge?: number;
   total: number;
   paymentMethod?: PaymentMethod | string;
   validUntil: string;
@@ -108,6 +109,7 @@ export interface Sale {
   items: SaleItem[];
   subtotal: number;
   discount: number;
+  surcharge?: number;
   total: number;
   totalCost: number;
   paymentMethod: PaymentMethod;

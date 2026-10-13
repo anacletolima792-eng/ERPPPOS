@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Trash2, Plus, Minus, Tag, UserPlus, ShoppingBag, ArrowRight, Percent, RotateCcw, FileText } from 'lucide-react';
+import { X, Trash2, Plus, Minus, Tag, UserPlus, ShoppingBag, ArrowRight, Percent, RotateCcw, FileText, PlusCircle } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { formatCurrency } from '../utils/formatters';
 import { ReturnModal } from './ReturnModal';
@@ -36,20 +36,61 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
     total,
     globalDiscount,
     setGlobalDiscount,
+    globalSurcharge,
+    setGlobalSurcharge,
     updateItemDiscount,
   } = useCart();
 
+  const [discountType, setDiscountType] = useState<'currency' | 'percent'>('currency');
   const [discountInput, setDiscountInput] = useState<number>(globalDiscount > 0 ? globalDiscount : 0);
+  const [discountPercentInput, setDiscountPercentInput] = useState<string>(
+    subtotal > 0 && globalDiscount > 0 ? ((globalDiscount / subtotal) * 100).toFixed(1).replace('.0', '') : ''
+  );
   const [showDiscountInput, setShowDiscountInput] = useState(false);
+
+  const [surchargeType, setSurchargeType] = useState<'currency' | 'percent'>('currency');
+  const [surchargeInput, setSurchargeInput] = useState<number>(globalSurcharge > 0 ? globalSurcharge : 0);
+  const [surchargePercentInput, setSurchargePercentInput] = useState<string>(
+    subtotal > 0 && globalSurcharge > 0 ? ((globalSurcharge / subtotal) * 100).toFixed(1).replace('.0', '') : ''
+  );
+  const [showSurchargeInput, setShowSurchargeInput] = useState(false);
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
   if (!isOpen) return null;
 
   const handleApplyDiscount = () => {
-    if (discountInput >= 0) {
-      setGlobalDiscount(Math.min(subtotal, discountInput));
+    if (discountType === 'currency') {
+      if (discountInput >= 0) {
+        setGlobalDiscount(Math.min(subtotal, Math.max(0, discountInput)));
+        setShowDiscountInput(false);
+      }
+    } else {
+      const p = parseFloat(discountPercentInput.replace(',', '.')) || 0;
+      const validPercent = Math.max(0, Math.min(100, p));
+      const calculatedValue = (subtotal * validPercent) / 100;
+      // Round to 2 decimal places cents
+      const roundedValue = Math.round(calculatedValue * 100) / 100;
+      setGlobalDiscount(Math.min(subtotal, roundedValue));
+      setDiscountInput(roundedValue);
       setShowDiscountInput(false);
+    }
+  };
+
+  const handleApplySurcharge = () => {
+    if (surchargeType === 'currency') {
+      if (surchargeInput >= 0) {
+        setGlobalSurcharge(Math.max(0, surchargeInput));
+        setShowSurchargeInput(false);
+      }
+    } else {
+      const p = parseFloat(surchargePercentInput.replace(',', '.')) || 0;
+      const validPercent = Math.max(0, p);
+      const calculatedValue = (subtotal * validPercent) / 100;
+      const roundedValue = Math.round(calculatedValue * 100) / 100;
+      setGlobalSurcharge(roundedValue);
+      setSurchargeInput(roundedValue);
+      setShowSurchargeInput(false);
     }
   };
 
@@ -205,44 +246,251 @@ export const CartDrawerModal: React.FC<CartDrawerModalProps> = ({
         {/* Footer Summary & Checkout Action */}
         {items.length > 0 && (
           <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-3">
-            {/* Discount Row */}
+            {/* Subtotal Row */}
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-500 font-medium">Subtotal</span>
               <span className="text-slate-800 font-bold">{formatCurrency(subtotal)}</span>
             </div>
 
+            {/* Discount Row */}
             <div className="flex items-center justify-between text-xs">
               <button
                 id="btn-toggle-discount"
-                onClick={() => setShowDiscountInput(!showDiscountInput)}
-                className="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1"
+                onClick={() => {
+                  setShowDiscountInput(!showDiscountInput);
+                  setShowSurchargeInput(false);
+                }}
+                className="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <Tag className="w-3.5 h-3.5" />
-                {globalDiscount > 0 ? `Desconto Aplicado (-${formatCurrency(globalDiscount)})` : '+ Adicionar Desconto'}
+                <span className="underline underline-offset-2">
+                  {globalDiscount > 0 ? `Desconto Aplicado (-${formatCurrency(globalDiscount)})` : '+ Adicionar Desconto'}
+                </span>
               </button>
               {globalDiscount > 0 && (
-                <span className="font-bold text-red-600">-{formatCurrency(globalDiscount)}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-red-600">-{formatCurrency(globalDiscount)}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGlobalDiscount(0);
+                      setDiscountInput(0);
+                    }}
+                    className="text-slate-400 hover:text-red-500 text-[10px] p-0.5 rounded cursor-pointer"
+                    title="Remover desconto"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
               )}
             </div>
 
             {showDiscountInput && (
-              <div className="flex items-center gap-2 p-2 bg-white rounded-xl border border-slate-200">
-                <div className="flex-1">
-                  <CurrencyInput
-                    id="input-cart-discount"
-                    value={discountInput}
-                    onChange={(val) => setDiscountInput(val)}
-                    placeholder="0,00"
-                    className="w-full py-1 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-orange-500 font-bold"
-                  />
+              <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-2 animate-in fade-in duration-150 shadow-2xs">
+                {/* Selector R$ vs % */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold text-slate-500">Tipo de Desconto:</span>
+                  <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                    <button
+                      type="button"
+                      id="btn-discount-type-currency"
+                      onClick={() => setDiscountType('currency')}
+                      className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${
+                        discountType === 'currency'
+                          ? 'bg-white text-orange-600 shadow-xs'
+                          : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      R$ (Valor)
+                    </button>
+                    <button
+                      type="button"
+                      id="btn-discount-type-percent"
+                      onClick={() => setDiscountType('percent')}
+                      className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${
+                        discountType === 'percent'
+                          ? 'bg-white text-orange-600 shadow-xs'
+                          : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      % (Porcentagem)
+                    </button>
+                  </div>
                 </div>
-                <button
-                  id="btn-apply-discount"
-                  onClick={handleApplyDiscount}
-                  className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 shrink-0"
-                >
-                  Aplicar
-                </button>
+
+                {/* Input Row */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    {discountType === 'currency' ? (
+                      <CurrencyInput
+                        id="input-cart-discount"
+                        value={discountInput}
+                        onChange={(val) => setDiscountInput(val)}
+                        placeholder="0,00"
+                        className="w-full py-1 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-orange-500 font-bold"
+                      />
+                    ) : (
+                      <div className="relative flex items-center w-full">
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          id="input-cart-discount-percent"
+                          value={discountPercentInput}
+                          onChange={(e) => {
+                            const raw = e.target.value.replace(/[^0-9.,]/g, '');
+                            setDiscountPercentInput(raw);
+                          }}
+                          placeholder="Ex: 10"
+                          className="w-full py-1.5 pl-3 pr-8 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-orange-500 font-bold text-slate-800"
+                        />
+                        <span className="absolute right-3 text-xs font-bold text-slate-400 select-none pointer-events-none">
+                          %
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    id="btn-apply-discount"
+                    onClick={handleApplyDiscount}
+                    className="px-3.5 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 shrink-0 cursor-pointer shadow-xs active:scale-95 transition-all"
+                  >
+                    Aplicar
+                  </button>
+                </div>
+
+                {/* Preview helper for percentage */}
+                {discountType === 'percent' && discountPercentInput && (
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Equivale a{' '}
+                    <strong className="text-orange-600 font-bold">
+                      {formatCurrency(
+                        (subtotal * Math.max(0, Math.min(100, parseFloat(discountPercentInput.replace(',', '.')) || 0))) / 100
+                      )}
+                    </strong>{' '}
+                    de desconto sobre o subtotal.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Surcharge (Acréscimo) Row */}
+            <div className="flex items-center justify-between text-xs">
+              <button
+                id="btn-toggle-surcharge"
+                onClick={() => {
+                  setShowSurchargeInput(!showSurchargeInput);
+                  setShowDiscountInput(false);
+                }}
+                className="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-orange-600" />
+                <span className="underline underline-offset-2">
+                  {globalSurcharge > 0 ? `Acréscimo Aplicado (+${formatCurrency(globalSurcharge)})` : '+ Adicionar Acréscimo'}
+                </span>
+              </button>
+              {globalSurcharge > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-emerald-600">+{formatCurrency(globalSurcharge)}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGlobalSurcharge(0);
+                      setSurchargeInput(0);
+                    }}
+                    className="text-slate-400 hover:text-red-500 text-[10px] p-0.5 rounded cursor-pointer"
+                    title="Remover acréscimo"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {showSurchargeInput && (
+              <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-2 animate-in fade-in duration-150 shadow-2xs">
+                {/* Selector R$ vs % for Surcharge */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold text-slate-500">Tipo de Acréscimo:</span>
+                  <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                    <button
+                      type="button"
+                      id="btn-surcharge-type-currency"
+                      onClick={() => setSurchargeType('currency')}
+                      className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${
+                        surchargeType === 'currency'
+                          ? 'bg-white text-orange-600 shadow-xs'
+                          : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      R$ (Valor)
+                    </button>
+                    <button
+                      type="button"
+                      id="btn-surcharge-type-percent"
+                      onClick={() => setSurchargeType('percent')}
+                      className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${
+                        surchargeType === 'percent'
+                          ? 'bg-white text-orange-600 shadow-xs'
+                          : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      % (Porcentagem)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Input Row */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    {surchargeType === 'currency' ? (
+                      <CurrencyInput
+                        id="input-cart-surcharge"
+                        value={surchargeInput}
+                        onChange={(val) => setSurchargeInput(val)}
+                        placeholder="0,00"
+                        className="w-full py-1 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-orange-500 font-bold"
+                      />
+                    ) : (
+                      <div className="relative flex items-center w-full">
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          id="input-cart-surcharge-percent"
+                          value={surchargePercentInput}
+                          onChange={(e) => {
+                            const raw = e.target.value.replace(/[^0-9.,]/g, '');
+                            setSurchargePercentInput(raw);
+                          }}
+                          placeholder="Ex: 5"
+                          className="w-full py-1.5 pl-3 pr-8 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-orange-500 font-bold text-slate-800"
+                        />
+                        <span className="absolute right-3 text-xs font-bold text-slate-400 select-none pointer-events-none">
+                          %
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    id="btn-apply-surcharge"
+                    onClick={handleApplySurcharge}
+                    className="px-3.5 py-1.5 bg-orange-600 text-white rounded-lg text-xs font-bold hover:bg-orange-700 shrink-0 cursor-pointer shadow-xs active:scale-95 transition-all"
+                  >
+                    Aplicar
+                  </button>
+                </div>
+
+                {/* Preview helper for percentage */}
+                {surchargeType === 'percent' && surchargePercentInput && (
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Equivale a{' '}
+                    <strong className="text-emerald-600 font-bold">
+                      +{formatCurrency(
+                        (subtotal * Math.max(0, parseFloat(surchargePercentInput.replace(',', '.')) || 0)) / 100
+                      )}
+                    </strong>{' '}
+                    de acréscimo sobre o subtotal.
+                  </p>
+                )}
               </div>
             )}
 

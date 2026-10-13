@@ -183,6 +183,12 @@ export const SaleDetailModal: React.FC<SaleDetailModalProps> = ({
                 <span>-{formatCurrency(sale.discount)}</span>
               </div>
             )}
+            {!!sale.surcharge && sale.surcharge > 0 && (
+              <div className="flex justify-between text-emerald-600 font-bold">
+                <span>Acréscimo Aplicado</span>
+                <span>+{formatCurrency(sale.surcharge)}</span>
+              </div>
+            )}
             <div className="flex justify-between pt-1 border-t border-slate-200 font-black text-sm">
               <span>TOTAL</span>
               <span>{formatCurrency(sale.total)}</span>

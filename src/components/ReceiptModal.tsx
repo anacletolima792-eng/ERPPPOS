@@ -134,6 +134,15 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, isOpen, onClos
       </div>`
           : ''
       }
+      ${
+        sale.surcharge && sale.surcharge > 0
+          ? `
+      <div style="display: flex; justify-content: space-between; margin: 2px 0; color: #000;">
+        <span>ACRÉSCIMO:</span>
+        <span>+${formatCurrency(sale.surcharge)}</span>
+      </div>`
+          : ''
+      }
 
       <div style="display: flex; justify-content: space-between; font-size: 1.15em; font-weight: 900; margin: 4px 0; padding: 3px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
         <span>${isReturned ? 'TOTAL ESTORNADO:' : 'TOTAL A PAGAR:'}</span>
@@ -502,6 +511,12 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, isOpen, onClos
                 <div className="flex justify-between text-red-600 font-bold">
                   <span>DESCONTO</span>
                   <span>-{formatCurrency(sale.discount)}</span>
+                </div>
+              )}
+              {!!sale.surcharge && sale.surcharge > 0 && (
+                <div className="flex justify-between text-emerald-600 font-bold">
+                  <span>ACRÉSCIMO</span>
+                  <span>+{formatCurrency(sale.surcharge)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm font-black pt-1 border-t border-slate-200">

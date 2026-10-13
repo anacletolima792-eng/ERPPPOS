@@ -34,9 +34,9 @@ const MainApp: React.FC = () => {
   const [users, setUsers] = useState<UserProfile[]>(() => getStoredUsers());
   const [loading, setLoading] = useState(false);
 
-  // Se o operador logado for qualquer vendedor (não admin), permite estritamente as abas PDV e Vendas
+  // Se o operador logado for vendedor/não-admin, permite estritamente as abas PDV, Estoque e Vendas
   useEffect(() => {
-    if (!isAdmin && activeTab !== 'pdv' && activeTab !== 'sales') {
+    if (!isAdmin && activeTab !== 'pdv' && activeTab !== 'inventory' && activeTab !== 'sales') {
       setActiveTab('pdv');
     }
   }, [isAdmin, activeTab]);
@@ -118,7 +118,7 @@ const MainApp: React.FC = () => {
         />
       )}
 
-      {isAdmin && activeTab === 'inventory' && (
+      {activeTab === 'inventory' && (
         <InventoryPage
           products={products}
           categories={categories}

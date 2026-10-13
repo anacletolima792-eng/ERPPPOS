@@ -13,7 +13,6 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { ThemeToggle } from './ThemeToggle';
 
 export const AuthScreen: React.FC = () => {
   const { login, register } = useAuth();
@@ -127,8 +126,6 @@ export const AuthScreen: React.FC = () => {
             <p className="text-xs text-slate-500 dark:text-slate-400">Sistema Multi-Empresa em Tempo Real</p>
           </div>
         </div>
-
-        <ThemeToggle id="auth-theme-toggle" />
       </header>
 
       {/* Main Container */}

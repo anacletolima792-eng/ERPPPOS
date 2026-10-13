@@ -26,6 +26,7 @@ import {
   Camera,
   Upload,
 } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -42,6 +43,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   categories,
   onSuccess,
 }) => {
+  const { isAdmin } = useAuth();
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [barcode, setBarcode] = useState('');
@@ -763,7 +765,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           </div>
 
           <div className="pt-2 flex items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-800">
-            {productToEdit ? (
+            {productToEdit && isAdmin ? (
               <button
                 type="button"
                 id="btn-delete-product"

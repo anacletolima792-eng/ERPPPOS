@@ -14,6 +14,7 @@ import {
   ScanLine,
   ZoomIn,
   X,
+  AlertTriangle,
 } from 'lucide-react';
 import { Product, Category } from '../types';
 import { formatCurrency } from '../utils/formatters';
@@ -25,7 +26,6 @@ import { ConfirmModal } from '../components/ConfirmModal';
 import { QuantityStepper } from '../components/QuantityStepper';
 import { ProductImageZoomModal } from '../components/ProductImageZoomModal';
 import { useAuth } from '../hooks/useAuth';
-import { ThemeToggle } from '../components/ThemeToggle';
 
 interface InventoryPageProps {
   products: Product[];
@@ -34,7 +34,7 @@ interface InventoryPageProps {
 }
 
 export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categories, loading }) => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isAuthenticated, currentUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [filterLowStockOnly, setFilterLowStockOnly] = useState(false);
@@ -55,17 +55,9 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
     });
   }, [products, searchTerm, selectedCategory, filterLowStockOnly]);
 
-  // Inventory Totals
-  const totalStockItems = useMemo(() => {
-    return products.reduce((sum, p) => sum + p.stock, 0);
-  }, [products]);
-
-  const totalSaleValue = useMemo(() => {
-    return products.reduce((sum, p) => sum + p.stock * p.price, 0);
-  }, [products]);
-
-  const totalCostValue = useMemo(() => {
-    return products.reduce((sum, p) => sum + p.stock * (p.costPrice || 0), 0);
+  // Low Stock Count
+  const lowStockCount = useMemo(() => {
+    return products.filter((p) => p.stock <= p.minStock).length;
   }, [products]);
 
   const handleQuickStock = async (product: Product, delta: number) => {
@@ -128,12 +120,45 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col pb-24 transition-colors">
       {/* Fixed Top Section: Header + 4 Cards (no gap) + Search Bar */}
       <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2.5 shadow-xs space-y-2.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">Controle de Estoque</h1>
+
+            {(isAdmin || isAuthenticated || !!currentUser) && (
+              <button
+                type="button"
+                id="btn-add-product-inventory"
+                onClick={() => {
+                  setEditingProduct(null);
+                  setIsFormOpen(true);
+                }}
+                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0"
+                title="Cadastrar Novo Produto"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Novo Produto</span>
+              </button>
+            )}
+
+            {lowStockCount > 0 && (
+              <button
+                type="button"
+                id="btn-filter-low-stock"
+                onClick={() => setFilterLowStockOnly(!filterLowStockOnly)}
+                className={`px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border ${
+                  filterLowStockOnly
+                    ? 'bg-orange-500 text-white border-orange-600 shadow-2xs'
+                    : 'bg-orange-50 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800 hover:bg-orange-100/60'
+                }`}
+                title="Clique para filtrar apenas itens com estoque baixo"
+              >
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>Estoque Baixo ({lowStockCount})</span>
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               id="btn-export-csv"
@@ -144,74 +169,6 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
               <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span className="hidden sm:inline">Exportar CSV</span>
             </button>
-
-            {isAdmin && (
-              <button
-                type="button"
-                id="btn-add-product-inventory"
-                onClick={() => {
-                  setEditingProduct(null);
-                  setIsFormOpen(true);
-                }}
-                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Novo Produto</span>
-              </button>
-            )}
-
-            <div className="shrink-0 ml-1">
-              <ThemeToggle id="inventory-theme-toggle" />
-            </div>
-          </div>
-        </div>
-
-        {/* Inventory KPI Summary - Connected with NO space between cards */}
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-slate-50/50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-slate-200 dark:divide-slate-800 overflow-hidden">
-            <div className="bg-white dark:bg-slate-900 px-2.5 py-1.5 sm:px-3 sm:py-2">
-              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-slate-400 tracking-tight block truncate">
-                Total de Produtos
-              </span>
-              <span className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 leading-tight block">
-                {products.length} itens
-              </span>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 px-2.5 py-1.5 sm:px-3 sm:py-2">
-              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-slate-400 tracking-tight block truncate">
-                Valor em Estoque
-              </span>
-              <span className="text-sm sm:text-base font-black text-blue-600 dark:text-blue-400 leading-tight block">
-                {formatCurrency(totalSaleValue)}
-              </span>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 px-2.5 py-1.5 sm:px-3 sm:py-2">
-              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-slate-400 tracking-tight block truncate">
-                Custo Total do Estoque
-              </span>
-              <span className="text-sm sm:text-base font-black text-slate-800 dark:text-slate-200 leading-tight block">
-                {isAdmin ? formatCurrency(totalCostValue) : '***'}
-              </span>
-            </div>
-
-            <div
-              onClick={() => setFilterLowStockOnly(!filterLowStockOnly)}
-              className={`px-2.5 py-1.5 sm:px-3 sm:py-2 cursor-pointer transition-colors ${
-                filterLowStockOnly
-                  ? 'bg-orange-100/90 dark:bg-orange-950/80 text-orange-950 dark:text-orange-200 font-bold'
-                  : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-              }`}
-              title="Clique para filtrar itens com estoque baixo"
-            >
-              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-slate-400 tracking-tight block truncate">
-                Estoque Baixo
-              </span>
-              <span className="text-sm sm:text-base font-black text-orange-700 dark:text-orange-400 leading-tight block">
-                {products.filter((p) => p.stock <= p.minStock).length} itens
-              </span>
-            </div>
           </div>
         </div>
 
@@ -264,6 +221,19 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
                 <Package className="w-12 h-12 mx-auto stroke-1 mb-2 text-slate-300 dark:text-slate-600" />
                 <p className="font-bold text-slate-700 dark:text-slate-300 text-sm">Nenhum produto encontrado</p>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Ajuste os filtros de busca para visualizar os itens.</p>
+                {(isAdmin || isAuthenticated || !!currentUser) && products.length === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingProduct(null);
+                      setIsFormOpen(true);
+                    }}
+                    className="mt-3 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Cadastrar Primeiro Produto</span>
+                  </button>
+                )}
               </div>
             ) : (
               filteredProducts.map((p) => {
@@ -389,8 +359,8 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
                       </div>
 
                       {/* Edit & Delete Buttons */}
-                      {isAdmin && (
-                        <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1">
+                        {(isAdmin || isAuthenticated || !!currentUser) && (
                           <button
                             type="button"
                             id={`btn-edit-prod-${p.id}`}
@@ -403,6 +373,8 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
+                        )}
+                        {isAdmin && (
                           <button
                             type="button"
                             id={`btn-delete-prod-${p.id}`}
@@ -412,8 +384,8 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 );

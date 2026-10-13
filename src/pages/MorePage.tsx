@@ -31,7 +31,6 @@ import { CustomerFormModal } from '../components/CustomerFormModal';
 import { CategoryFormModal } from '../components/CategoryFormModal';
 import { UserFormModal } from '../components/UserFormModal';
 import { ConfirmModal } from '../components/ConfirmModal';
-import { ThemeToggle } from '../components/ThemeToggle';
 import {
   clearAllDatabaseData,
   seedInitialDemoData,
@@ -269,10 +268,6 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Sair</span>
             </button>
-
-            <div className="shrink-0">
-              <ThemeToggle id="more-theme-toggle" />
-            </div>
           </div>
         </div>
       </header>
@@ -543,7 +538,7 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-extrabold text-slate-900 text-base">Operadores & Acesso</h2>
-                <p className="text-xs text-slate-500">Controle de papéis (Admin vs Vendedor) e PINs</p>
+                <p className="text-xs text-slate-500">Controle de papéis (Admin vs Operador) e PINs</p>
               </div>
               {isAdmin && (
                 <button
@@ -599,7 +594,7 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
                                 : 'bg-blue-50 text-blue-700 border border-blue-100'
                             }`}
                           >
-                            {u.role === 'admin' ? 'Administrador' : 'Vendedor (PDV)'}
+                            {u.role === 'admin' ? 'Administrador' : 'Operador (PDV, Estoque, Vendas)'}
                           </span>
                           <span className="text-[11px] text-slate-400 font-mono">PIN: ••••</span>
                         </div>

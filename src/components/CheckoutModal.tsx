@@ -31,7 +31,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onClose,
   onSaleComplete,
 }) => {
-  const { items, customer, subtotal, totalDiscount, total, totalCost, clearCart } = useCart();
+  const { items, customer, subtotal, totalDiscount, totalSurcharge, total, totalCost, clearCart } = useCart();
   const { currentUser } = useAuth();
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('dinheiro');
@@ -40,7 +40,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [notes, setNotes] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [copiedPix, setCopiedPix] = useState(false);
   const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
 
   useEffect(() => {
@@ -57,13 +56,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const cashAmountNum = parsedCash > 0 ? parsedCash : total;
   const changeAmount = Math.max(0, (parsedCash > 0 ? parsedCash : total) - total);
   const isCashInsufficient = paymentMethod === 'dinheiro' && parsedCash > 0 && parsedCash < total;
-
-  const handleCopyPix = () => {
-    const pixKey = storeSettings?.pixKey || 'comercial@empresa.com.br';
-    navigator.clipboard.writeText(pixKey);
-    setCopiedPix(true);
-    setTimeout(() => setCopiedPix(false), 2500);
-  };
 
   const handleFinishSale = async () => {
     if (isProcessing) return;
@@ -118,6 +110,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         })),
         subtotal,
         discount: totalDiscount,
+        surcharge: totalSurcharge > 0 ? totalSurcharge : undefined,
         total,
         totalCost: totalCost || 0,
         paymentMethod,
@@ -195,11 +188,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             <div className="text-3xl sm:text-4xl font-black mt-1 text-white tracking-tight">
               {formatCurrency(total)}
             </div>
-            {totalDiscount > 0 && (
-              <span className="inline-block mt-2 px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-bold">
-                Desconto de {formatCurrency(totalDiscount)} incluso
-              </span>
-            )}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+              {totalDiscount > 0 && (
+                <span className="inline-block px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-bold">
+                  Desconto de {formatCurrency(totalDiscount)} incluso
+                </span>
+              )}
+              {totalSurcharge > 0 && (
+                <span className="inline-block px-2.5 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-xs font-bold">
+                  Acréscimo de +{formatCurrency(totalSurcharge)} incluso
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Payment Method Selector Tabs */}
@@ -307,32 +307,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             </div>
           )}
 
-          {paymentMethod === 'pix' && (
-            <div className="p-2.5 bg-teal-50/80 border border-teal-200 rounded-xl space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-teal-950">Chave PIX da Loja</span>
-                <span className="text-[10px] text-teal-700 font-semibold">Instantâneo</span>
-              </div>
-
-              <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-teal-200">
-                <div className="min-w-0 flex-1">
-                  <span className="text-[9px] text-slate-500 block uppercase font-bold">Chave ({storeSettings?.pixKeyType || 'E-mail'})</span>
-                  <span className="text-xs font-mono font-bold text-slate-900 truncate block">
-                    {storeSettings?.pixKey || 'comercial@empresa.com.br'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  id="btn-copy-pix-key"
-                  onClick={handleCopyPix}
-                  className="px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-bold flex items-center gap-1 shrink-0"
-                >
-                  {copiedPix ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                  <span>{copiedPix ? 'Copiado!' : 'Copiar'}</span>
-                </button>
-              </div>
-            </div>
-          )}
 
           {paymentMethod === 'credito' && (
             <div className="p-2.5 bg-blue-50/70 border border-blue-200 rounded-xl space-y-1.5">
