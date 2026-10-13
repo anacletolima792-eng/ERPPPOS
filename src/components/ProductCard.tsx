@@ -92,7 +92,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelectProdu
             </div>
 
             <div className="text-xs text-slate-400 dark:text-slate-500 font-mono">#{product.code}</div>
-            <div className="font-bold text-slate-800 dark:text-slate-100 leading-tight mb-1 text-sm line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <div className="font-extrabold text-slate-900 dark:text-slate-100 leading-tight mb-1 text-sm sm:text-base line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {product.name}
             </div>
           </div>
@@ -193,7 +193,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelectProdu
                 </span>
               )}
             </div>
-            <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 tracking-tight truncate leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mt-0.5">
+            <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-slate-100 tracking-tight truncate leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mt-0.5">
               {product.name}
             </h3>
 
@@ -222,8 +222,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelectProdu
             {formatCurrency(product.price)}
           </span>
 
-          {/* Stepper or Add button */}
-          {inCartQty > 0 ? (
+          {/* Stepper with - / + and directly editable number appears only after clicking the product card (inCartQty > 0) */}
+          {inCartQty > 0 && (
             <QuantityStepper
               id={`stepper-card-${product.id}`}
               value={inCartQty}
@@ -232,20 +232,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelectProdu
               size="sm"
               colorScheme="blue"
             />
-          ) : (
-            <button
-              id={`btn-add-product-${product.id}`}
-              onClick={() => addItem(product, 1)}
-              disabled={isOutOfStock}
-              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all ${
-                isOutOfStock
-                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
-                  : 'bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-600 text-blue-600 dark:text-blue-400 hover:text-white border border-blue-200 dark:border-blue-800 hover:border-blue-600 active:scale-90 shadow-xs'
-              }`}
-              title="Adicionar ao carrinho"
-            >
-              <Plus className="w-4 h-4 font-bold" />
-            </button>
           )}
         </div>
       </div>

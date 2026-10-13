@@ -285,12 +285,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-3 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/70 backdrop-blur-xs p-0 sm:p-4 overflow-x-hidden">
       <div
-        className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
+        className="w-full sm:max-w-xl bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[94vh] sm:max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold">
               <Package className="w-4 h-4" />
@@ -311,7 +311,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
           {error && (
             <div className="p-3 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-xs rounded-xl flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -764,27 +764,27 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </div>
           </div>
 
-          <div className="pt-2 flex items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-800">
+          <div className="pt-3 pb-1 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 dark:border-slate-800 shrink-0">
             {productToEdit && isAdmin ? (
               <button
                 type="button"
                 id="btn-delete-product"
                 onClick={handleDelete}
                 disabled={isSaving}
-                className="px-4 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/60 rounded-xl font-bold text-xs flex items-center gap-1 cursor-pointer"
+                className="px-3.5 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/60 rounded-xl font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5 shrink-0" />
                 <span>Excluir</span>
               </button>
             ) : <div />}
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 ml-auto">
               <button
                 type="button"
                 id="btn-cancel-product-form"
                 onClick={onClose}
                 disabled={isSaving}
-                className="px-4 py-2.5 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                className="px-3.5 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
               >
                 Cancelar
               </button>
@@ -792,9 +792,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 type="submit"
                 id="btn-save-product"
                 disabled={isSaving}
-                className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 active:scale-98 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                className="px-4.5 py-2 bg-orange-500 hover:bg-orange-600 active:scale-98 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
               >
-                <Save className="w-4 h-4" />
+                <Save className="w-4 h-4 shrink-0" />
                 <span>{isSaving ? 'Salvando...' : 'Salvar Produto'}</span>
               </button>
             </div>
