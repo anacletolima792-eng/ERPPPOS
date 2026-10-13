@@ -31,6 +31,7 @@ import {
 import { DateFilterBar } from '../components/DateFilterBar';
 import { CategorySalesModal } from '../components/CategorySalesModal';
 import { AllSoldProductsModal } from '../components/AllSoldProductsModal';
+import { LowStockProductsModal } from '../components/LowStockProductsModal';
 
 interface DashboardPageProps {
   sales: Sale[];
@@ -69,6 +70,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isCategorySalesOpen, setIsCategorySalesOpen] = useState(false);
   const [isAllSoldProductsOpen, setIsAllSoldProductsOpen] = useState(false);
+  const [isLowStockModalOpen, setIsLowStockModalOpen] = useState(false);
 
   // Filter sales by selected period (excluding canceled sales)
   const filteredSales = useMemo(() => {
@@ -493,11 +495,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
           {/* Card 5: Alerta Estoque Baixo */}
           <div
-            onClick={onNavigateToInventory}
-            className={`p-3.5 sm:p-5 rounded-2xl border shadow-xs flex flex-col justify-between cursor-pointer transition-all ${
+            id="card-critical-stock-alert"
+            onClick={() => setIsLowStockModalOpen(true)}
+            className={`p-3.5 sm:p-5 rounded-2xl border shadow-xs flex flex-col justify-between cursor-pointer transition-all active:scale-[0.99] ${
               lowStockProducts.length > 0
-                ? 'bg-orange-50/60 dark:bg-orange-950/40 border-orange-200 dark:border-orange-800 hover:border-orange-300'
-                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+                ? 'bg-orange-50/60 dark:bg-orange-950/40 border-orange-200 dark:border-orange-800 hover:border-orange-300 hover:shadow-md'
+                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300'
             }`}
           >
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1.5 sm:mb-2">
@@ -754,10 +757,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               </div>
               <button
                 type="button"
-                onClick={onNavigateToInventory}
-                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                onClick={() => setIsLowStockModalOpen(true)}
+                className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer"
               >
-                Estoque
+                Ver todos ({lowStockProducts.length})
               </button>
             </div>
 
@@ -911,6 +914,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         isAdmin={isAdmin}
         currentFilter={dateFilter}
         onFilterChange={(newFilter) => setDateFilter(newFilter)}
+      />
+
+      {/* Dedicated Low Stock / Critical Stock Products Modal */}
+      <LowStockProductsModal
+        isOpen={isLowStockModalOpen}
+        onClose={() => setIsLowStockModalOpen(false)}
+        products={products}
+        onOpenFullInventory={onNavigateToInventory}
       />
     </div>
   );
