@@ -236,13 +236,18 @@ export const LowStockProductsModal: React.FC<LowStockProductsModalProps> = ({
                 >
                   {/* Left: Product Info */}
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    {/* Image / Fallback */}
-                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
-                      {p.imageUrl ? (
-                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <Package className="w-6 h-6 text-slate-400 stroke-1.5" />
-                      )}
+                    {/* Image Column with Product Code badge directly above it */}
+                    <div className="flex flex-col items-center shrink-0">
+                      <span className="text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 leading-none mb-1 shadow-2xs">
+                        {p.code}
+                      </span>
+                      <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
+                        {p.imageUrl ? (
+                          <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Package className="w-6 h-6 text-slate-400 stroke-1.5" />
+                        )}
+                      </div>
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -267,7 +272,6 @@ export const LowStockProductsModal: React.FC<LowStockProductsModalProps> = ({
                       </div>
 
                       <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium mt-1 flex-wrap">
-                        <span>Cód: <strong className="text-slate-700 dark:text-slate-200">{p.code}</strong></span>
                         <span>Preço: <strong className="text-slate-800 dark:text-slate-100">{formatCurrency(p.price)}</strong></span>
                         {p.costPrice !== undefined && p.costPrice > 0 && (
                           <span>Custo: <strong className="text-slate-700 dark:text-slate-300">{formatCurrency(p.costPrice)}</strong></span>

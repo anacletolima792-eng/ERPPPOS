@@ -122,7 +122,7 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
       <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2.5 shadow-xs space-y-2.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">Controle de Estoque</h1>
+            <h1 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">Estoque</h1>
 
             {(isAdmin || isAuthenticated || !!currentUser) && (
               <button
@@ -247,43 +247,46 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
                   >
                     {/* Info */}
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div
-                        onClick={(e) => {
-                          if (p.imageUrl) {
-                            e.stopPropagation();
-                            setZoomedProduct(p);
-                          }
-                        }}
-                        className={`w-11 h-11 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden relative group/img ${
-                          p.imageUrl ? 'cursor-zoom-in hover:ring-2 hover:ring-orange-400' : ''
-                        }`}
-                        title={p.imageUrl ? 'Clique para ampliar a foto' : undefined}
-                      >
-                        {p.imageUrl ? (
-                          <>
-                            <img
-                              src={p.imageUrl}
-                              alt={p.name}
-                              referrerPolicy="no-referrer"
-                              className="w-full h-full object-cover transition-transform group-hover/img:scale-110"
-                            />
-                            {/* Zoom hint on hover */}
-                            <div className="absolute inset-0 bg-black/25 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                              <ZoomIn className="w-3.5 h-3.5 text-white drop-shadow" />
-                            </div>
-                          </>
-                        ) : (
-                          <Package className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-                        )}
+                      {/* Image Column with Product Code badge directly above it */}
+                      <div className="flex flex-col items-center shrink-0">
+                        <span className="text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 leading-none mb-1 shadow-2xs">
+                          {p.code}
+                        </span>
+                        <div
+                          onClick={(e) => {
+                            if (p.imageUrl) {
+                              e.stopPropagation();
+                              setZoomedProduct(p);
+                            }
+                          }}
+                          className={`w-11 h-11 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden relative group/img ${
+                            p.imageUrl ? 'cursor-zoom-in hover:ring-2 hover:ring-orange-400' : ''
+                          }`}
+                          title={p.imageUrl ? 'Clique para ampliar a foto' : undefined}
+                        >
+                          {p.imageUrl ? (
+                            <>
+                              <img
+                                src={p.imageUrl}
+                                alt={p.name}
+                                referrerPolicy="no-referrer"
+                                className="w-full h-full object-cover transition-transform group-hover/img:scale-110"
+                              />
+                              {/* Zoom hint on hover */}
+                              <div className="absolute inset-0 bg-black/25 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                                <ZoomIn className="w-3.5 h-3.5 text-white drop-shadow" />
+                              </div>
+                            </>
+                          ) : (
+                            <Package className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+                          )}
+                        </div>
                       </div>
 
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-extrabold text-slate-900 dark:text-slate-100 text-base sm:text-lg tracking-tight">
                             {p.name}
-                          </span>
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                            {p.code}
                           </span>
                           {p.categoryName && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/60">

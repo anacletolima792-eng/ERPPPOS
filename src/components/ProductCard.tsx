@@ -48,6 +48,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelectProdu
           } ${isOutOfStock ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}`}
         >
           <div>
+            {/* Product ID / Code Above Image */}
+            <div className="flex items-center justify-between mb-1.5 leading-none">
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/90 dark:border-slate-700 shadow-2xs">
+                #{product.code}
+              </span>
+              {product.categoryName && (
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate max-w-[90px]">
+                  {product.categoryName}
+                </span>
+              )}
+            </div>
+
             {/* Image */}
             <div
               onClick={handleImageClick}
@@ -91,7 +103,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelectProdu
               )}
             </div>
 
-            <div className="text-xs text-slate-400 dark:text-slate-500 font-mono">#{product.code}</div>
             <div className="font-extrabold text-slate-900 dark:text-slate-100 leading-tight mb-1 text-sm sm:text-base line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {product.name}
             </div>
@@ -148,52 +159,56 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelectProdu
         } ${isOutOfStock ? 'opacity-70 bg-slate-50 dark:bg-slate-850' : 'cursor-pointer active:scale-[0.99]'}`}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          {/* Product Image */}
-          <div
-            onClick={handleImageClick}
-            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden relative group/img ${
-              product.imageUrl ? 'cursor-zoom-in hover:ring-2 hover:ring-blue-400' : ''
-            }`}
-            title={product.imageUrl ? 'Clique para ampliar a foto' : undefined}
-          >
-            {product.imageUrl ? (
-              <>
-                <img
-                  src={product.imageUrl}
-                  alt={product.name}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover transition-transform duration-200 group-hover/img:scale-110"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
-                  }}
-                />
-                {/* Subtle zoom hint overlay on hover */}
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                  <ZoomIn className="w-3.5 h-3.5 text-white drop-shadow" />
-                </div>
-              </>
-            ) : (
-              <Package className="w-5 h-5 text-slate-400 dark:text-slate-500 stroke-[1.5]" />
-            )}
+          {/* Image Column with Product Code badge above it */}
+          <div className="flex flex-col items-center shrink-0">
+            <span className="text-[9px] font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1 py-0.2 rounded border border-slate-200 dark:border-slate-700 leading-none mb-1 shadow-2xs">
+              #{product.code}
+            </span>
+            <div
+              onClick={handleImageClick}
+              className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden relative group/img ${
+                product.imageUrl ? 'cursor-zoom-in hover:ring-2 hover:ring-blue-400' : ''
+              }`}
+              title={product.imageUrl ? 'Clique para ampliar a foto' : undefined}
+            >
+              {product.imageUrl ? (
+                <>
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover transition-transform duration-200 group-hover/img:scale-110"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                  {/* Subtle zoom hint overlay on hover */}
+                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                    <ZoomIn className="w-3.5 h-3.5 text-white drop-shadow" />
+                  </div>
+                </>
+              ) : (
+                <Package className="w-5 h-5 text-slate-400 dark:text-slate-500 stroke-[1.5]" />
+              )}
 
-            {inCartQty > 0 && (
-              <div className="absolute inset-0 bg-blue-600/90 flex items-center justify-center text-white font-black text-xs">
-                {inCartQty}x
-              </div>
-            )}
+              {inCartQty > 0 && (
+                <div className="absolute inset-0 bg-blue-600/90 flex items-center justify-center text-white font-black text-xs">
+                  {inCartQty}x
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Product Info */}
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 leading-none">
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">#{product.code}</span>
-              {product.categoryName && (
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium hidden sm:inline truncate">
-                  • {product.categoryName}
+            {product.categoryName && (
+              <div className="leading-none mb-0.5">
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
+                  {product.categoryName}
                 </span>
-              )}
-            </div>
-            <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-slate-100 tracking-tight truncate leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mt-0.5">
+              </div>
+            )}
+            <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-slate-100 tracking-tight truncate leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {product.name}
             </h3>
 
