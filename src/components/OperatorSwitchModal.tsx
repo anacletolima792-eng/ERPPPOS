@@ -104,7 +104,7 @@ export const OperatorSwitchModal: React.FC<OperatorSwitchModalProps> = ({
                           )}
                         </div>
                         <span className="text-xs text-slate-500 dark:text-slate-400 font-medium capitalize">
-                          Papel: {user.role} {user.role === 'admin' ? '🛡️' : '💼'}
+                          {user.role === 'admin' ? 'Admin' : 'Vendedor'} {user.role === 'admin' ? '🛡️' : '💼'}
                         </span>
                       </div>
                     </div>

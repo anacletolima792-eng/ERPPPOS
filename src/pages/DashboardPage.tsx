@@ -747,51 +747,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               )}
             </div>
           </div>
-
-          {/* Widget 3: Low Stock Alerts */}
-          <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">Alertas de Reposição</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Itens com estoque crítico</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsLowStockModalOpen(true)}
-                className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer"
-              >
-                Ver todos ({lowStockProducts.length})
-              </button>
-            </div>
-
-            <div className="space-y-2 pt-1 flex-1">
-              {lowStockProducts.length === 0 ? (
-                <div className="p-6 text-center text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800 text-xs font-bold">
-                  ✓ Todos os produtos estão com estoque regular!
-                </div>
-              ) : (
-                lowStockProducts.slice(0, 4).map((prod) => (
-                  <div
-                    key={prod.id}
-                    className="p-2.5 bg-orange-50/50 dark:bg-orange-950/40 rounded-xl border border-orange-200 dark:border-orange-800 flex items-center justify-between text-xs"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <span className="font-bold text-slate-900 dark:text-slate-100 truncate block">{prod.name}</span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400">Cód: {prod.code} • Mín: {prod.minStock} {prod.unit}</span>
-                    </div>
-                    <div className="text-right shrink-0 pl-2">
-                      <span className={`font-black text-sm block ${prod.stock <= 0 ? 'text-red-600 dark:text-red-400' : 'text-orange-700 dark:text-orange-400'}`}>
-                        {prod.stock} {prod.unit}
-                      </span>
-                      <span className="text-[10px] uppercase font-bold text-red-600 dark:text-red-400">
-                        {prod.stock <= 0 ? 'Esgotado' : 'Crítico'}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
         </div>
 
         {/* Seção de Posição de Estoque - Transferida do Controle de Estoque para o final do Dashboard */}

@@ -245,19 +245,11 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
       <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">Gestão & Configurações</h1>
+            <h1 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">Configurações</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Clientes, categorias, operadores e dados da loja</p>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="font-bold text-slate-700 dark:text-slate-300">{currentUser.name}</span>
-              <span className="text-[10px] uppercase font-bold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/70 px-1.5 py-0.2 rounded border border-blue-200 dark:border-blue-800">
-                {currentUser.role}
-              </span>
-            </div>
-
             <button
               type="button"
               id="btn-header-more-logout"
@@ -380,8 +372,7 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-extrabold text-slate-900 text-base">Clientes Cadastrados</h2>
-                <p className="text-xs text-slate-500">Histórico de compras e controle de crediário</p>
+                <h2 className="font-extrabold text-slate-900 dark:text-slate-100 text-base">Clientes Cadastrados</h2>
               </div>
               <button
                 type="button"
@@ -638,36 +629,6 @@ export const MorePage: React.FC<MorePageProps> = ({ customers, categories, users
         {/* SECTION 4: COMPANY SETTINGS */}
         {activeSection === 'company' && (
           <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs max-w-2xl text-slate-900 dark:text-slate-100 transition-colors">
-            {/* SaaS Account info card */}
-            <div className="mb-6 p-4 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-xs">
-                    SaaS Cloud Ativo
-                  </span>
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Banco de Dados Isolado</span>
-                </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                  Conta: <strong className="text-slate-900 dark:text-slate-100">{firebaseUser?.email || 'Conectado'}</strong>
-                </p>
-                {companyId && (
-                  <p className="text-[11px] text-slate-500 dark:text-slate-500 font-mono mt-0.5">
-                    Tenant ID: {companyId}
-                  </p>
-                )}
-              </div>
-
-              <button
-                type="button"
-                id="btn-logout-company-more-section"
-                onClick={() => logout()}
-                className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs cursor-pointer shrink-0"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sair da Conta</span>
-              </button>
-            </div>
-
             <h2 className="font-extrabold text-slate-900 dark:text-slate-100 text-base mb-1">Dados da Empresa & Cupom Fiscal</h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Informações impressas no recibo térmico e chave PIX padrão</p>
 

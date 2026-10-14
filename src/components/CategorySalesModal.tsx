@@ -520,36 +520,36 @@ export const CategorySalesModal: React.FC<CategorySalesModalProps> = ({
 
                         {/* Valor da Venda */}
                         <div>
-                          <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                            Valor da Venda
+                          <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none mb-1">
+                            VENDA
                           </span>
-                          <span className="text-xs sm:text-sm font-black text-blue-600">
+                          <span className="text-xs sm:text-sm font-black text-blue-600 block leading-tight">
                             {formatCurrency(cat.totalRevenue)}
                           </span>
                         </div>
 
                         {/* Valor de Custo */}
                         <div>
-                          <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                            Valor de Custo
+                          <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none mb-1">
+                            CUSTO
                           </span>
-                          <span className="text-xs sm:text-sm font-bold text-slate-700">
+                          <span className="text-xs sm:text-sm font-bold text-slate-700 block leading-tight">
                             {isAdmin ? formatCurrency(cat.totalCost) : 'Restrito'}
                           </span>
                         </div>
 
                         {/* Valor do Lucro */}
                         <div>
-                          <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                            Valor do Lucro
+                          <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none mb-1">
+                            LUCRO
                           </span>
                           <div className="flex items-center justify-end gap-1">
-                            <span className="text-xs sm:text-sm font-black text-emerald-700">
+                            <span className="text-xs sm:text-sm font-black text-emerald-700 leading-tight">
                               {isAdmin ? formatCurrency(cat.totalProfit) : 'Restrito'}
                             </span>
                           </div>
                           {isAdmin && (
-                            <span className="text-[9px] font-bold text-emerald-600 block">
+                            <span className="text-[9px] font-bold text-emerald-600 block mt-0.5 leading-none">
                               Margem: {cat.margin.toFixed(1)}%
                             </span>
                           )}

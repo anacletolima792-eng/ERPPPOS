@@ -445,43 +445,49 @@ export const AllSoldProductsModal: React.FC<AllSoldProductsModalProps> = ({
                 <div
                   key={item.id}
                   id={`sold-product-row-${item.id}`}
-                  className="px-2.5 py-1.5 sm:px-3 sm:py-2 bg-white hover:bg-slate-50/90 border border-slate-200 rounded-lg sm:rounded-xl transition-all shadow-2xs hover:border-blue-300 flex items-center justify-between gap-2 sm:gap-4"
+                  className="px-3 py-2 bg-white dark:bg-slate-800/80 hover:bg-slate-50/90 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 rounded-xl transition-all shadow-2xs hover:border-blue-300 flex flex-col gap-1.5"
                 >
-                  {/* 1. Nome do Produto */}
-                  <div className="min-w-0 flex-1">
-                    <span className="font-extrabold text-xs sm:text-sm text-slate-900 block truncate">
+                  {/* Linha 1: Nome do Produto em linha própria para visualização ampla */}
+                  <div className="w-full min-w-0">
+                    <span
+                      className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-slate-100 block truncate"
+                      title={item.name}
+                    >
                       {item.name}
                     </span>
                   </div>
 
-                  {/* 2. Quantidade Vendida | 3. Custo da Mercadoria | 4. Faturamento */}
-                  <div className="flex items-center justify-end gap-2.5 sm:gap-6 shrink-0">
-                    {/* Quantidade Vendida */}
-                    <div className="text-right min-w-[55px] sm:min-w-[70px]">
-                      <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 block leading-none mb-0.5">
-                        Qtd
+                  {/* Linha 2: As 3 informações (QTD, CUSTO, FATURAMENTO) com fontes menores e layout limpo */}
+                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-700/60">
+                    {/* 1. Quantidade Vendida */}
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 dark:text-slate-400 tracking-wider">
+                        QTD:
                       </span>
-                      <span className="text-xs sm:text-sm font-black text-blue-600 leading-tight block">
-                        {item.quantity} <span className="text-[9px] sm:text-[10px] font-semibold text-slate-500">{item.unit}</span>
+                      <span className="text-[11px] sm:text-xs font-black text-blue-600 dark:text-blue-400">
+                        {item.quantity}{' '}
+                        <span className="text-[9px] font-semibold text-slate-500 dark:text-slate-400">
+                          {item.unit}
+                        </span>
                       </span>
                     </div>
 
-                    {/* Custo da Mercadoria */}
-                    <div className="text-right min-w-[65px] sm:min-w-[90px] border-l border-slate-100 pl-1.5 sm:pl-0 sm:border-l-0">
-                      <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 block leading-none mb-0.5">
-                        Custo
+                    {/* 2. Custo da Mercadoria */}
+                    <div className="flex items-center gap-1.5 min-w-0 border-l border-slate-200/80 dark:border-slate-700 pl-2 sm:pl-3">
+                      <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 dark:text-slate-400 tracking-wider">
+                        CUSTO:
                       </span>
-                      <span className="text-xs sm:text-sm font-bold text-slate-700 leading-tight block">
+                      <span className="text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-300">
                         {formatCurrency(item.cost)}
                       </span>
                     </div>
 
-                    {/* Faturamento */}
-                    <div className="text-right min-w-[75px] sm:min-w-[95px] border-l border-slate-100 pl-1.5 sm:pl-0 sm:border-l-0">
-                      <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 block leading-none mb-0.5">
-                        Faturamento
+                    {/* 3. Faturamento */}
+                    <div className="flex items-center gap-1.5 min-w-0 border-l border-slate-200/80 dark:border-slate-700 pl-2 sm:pl-3">
+                      <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 dark:text-slate-400 tracking-wider">
+                        FATURAMENTO:
                       </span>
-                      <span className="text-xs sm:text-sm font-black text-emerald-700 leading-tight block">
+                      <span className="text-[11px] sm:text-xs font-black text-emerald-600 dark:text-emerald-400">
                         {formatCurrency(item.revenue)}
                       </span>
                     </div>
