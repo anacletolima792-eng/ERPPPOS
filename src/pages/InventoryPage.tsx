@@ -136,7 +136,7 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
                 title="Cadastrar Novo Produto"
               >
                 <Plus className="w-4 h-4" />
-                <span>Novo Produto</span>
+                <span>Novo</span>
               </button>
             )}
 
