@@ -232,7 +232,7 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                Histórico de Vendas
+                Vendas
               </h1>
               <span
                 id="badge-effective-sales-count"
