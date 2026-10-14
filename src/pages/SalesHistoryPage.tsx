@@ -242,20 +242,6 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
                 {effectiveSalesCount} {effectiveSalesCount === 1 ? 'efetivada' : 'efetivadas'}
               </span>
             </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              {/* Optional Export Button cleanly positioned in top corner */}
-              <button
-                type="button"
-                id="btn-export-sales-csv"
-                onClick={handleExportCSV}
-                className="h-8 px-3 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                title="Exportar Vendas para planilha Excel / CSV"
-              >
-                <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span className="hidden sm:inline">Exportar</span>
-              </button>
-            </div>
           </div>
 
           {/* Row 2: [ Hoje Mês 📅 Tudo ⌵ ] on left, [ 🌪 Status ⌵ ] on right */}
