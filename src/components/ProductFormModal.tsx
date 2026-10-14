@@ -496,25 +496,25 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             return (
               <div
                 id="box-product-margin-preview"
-                className={`p-2.5 rounded-xl border transition-all ${
+                className={`p-1.5 sm:p-2 rounded-xl border transition-all ${
                   diff > 0
-                    ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200'
+                    ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-200/90 dark:border-emerald-800/80 text-emerald-950 dark:text-emerald-200'
                     : diff < 0
-                    ? 'bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800 text-rose-950 dark:text-rose-200'
-                    : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200'
+                    ? 'bg-rose-50/70 dark:bg-rose-950/40 border-rose-200/90 dark:border-rose-800/80 text-rose-950 dark:text-rose-200'
+                    : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200'
                 }`}
               >
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="bg-white/80 dark:bg-slate-900/80 p-2 rounded-lg border border-black/5 dark:border-white/5">
-                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block uppercase">
-                      Diferença (Lucro)
+                <div className="grid grid-cols-3 gap-1.5 text-center">
+                  <div className="bg-white/90 dark:bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800 shadow-2xs flex flex-col justify-center">
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 block uppercase leading-tight truncate">
+                      Lucro
                     </span>
                     <strong
-                      className={`text-xs sm:text-sm font-black block mt-0.5 ${
+                      className={`text-xs font-black block leading-snug mt-0.5 truncate ${
                         diff > 0
-                          ? 'text-emerald-700 dark:text-emerald-400'
+                          ? 'text-emerald-600 dark:text-emerald-400'
                           : diff < 0
-                          ? 'text-rose-700 dark:text-rose-400'
+                          ? 'text-rose-600 dark:text-rose-400'
                           : 'text-slate-700 dark:text-slate-300'
                       }`}
                     >
@@ -523,16 +523,16 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     </strong>
                   </div>
 
-                  <div className="bg-white/80 dark:bg-slate-900/80 p-2 rounded-lg border border-black/5 dark:border-white/5">
-                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block uppercase">
-                      Margem s/ Venda
+                  <div className="bg-white/90 dark:bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800 shadow-2xs flex flex-col justify-center">
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 block uppercase leading-tight truncate">
+                      Margem Venda
                     </span>
                     <strong
-                      className={`text-xs sm:text-sm font-black block mt-0.5 ${
+                      className={`text-xs font-black block leading-snug mt-0.5 truncate ${
                         margin > 0
-                          ? 'text-emerald-700 dark:text-emerald-400'
+                          ? 'text-emerald-600 dark:text-emerald-400'
                           : margin < 0
-                          ? 'text-rose-700 dark:text-rose-400'
+                          ? 'text-rose-600 dark:text-rose-400'
                           : 'text-slate-700 dark:text-slate-300'
                       }`}
                     >
@@ -540,11 +540,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     </strong>
                   </div>
 
-                  <div className="bg-white/80 dark:bg-slate-900/80 p-2 rounded-lg border border-black/5 dark:border-white/5">
-                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block uppercase">
-                      Markup s/ Custo
+                  <div className="bg-white/90 dark:bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800 shadow-2xs flex flex-col justify-center">
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 block uppercase leading-tight truncate">
+                      Markup Custo
                     </span>
-                    <strong className="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200 block mt-0.5">
+                    <strong className="text-xs font-black text-slate-800 dark:text-slate-200 block leading-snug mt-0.5 truncate">
                       {costNum > 0 ? `${markup.toFixed(1)}%` : '—'}
                     </strong>
                   </div>
@@ -563,7 +563,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 min={0}
                 size="md"
                 className="w-full"
-                unit={unit}
               />
             </div>
 
@@ -576,7 +575,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 min={0}
                 size="md"
                 className="w-full"
-                unit={unit}
               />
             </div>
           </div>
