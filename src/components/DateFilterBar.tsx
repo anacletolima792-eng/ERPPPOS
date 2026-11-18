@@ -3,6 +3,7 @@ import { CalendarDays, ChevronDown } from 'lucide-react';
 import { DateFilterConfig } from './DateFilterModal';
 import { CalendarPickerPopover } from './CalendarPickerPopover';
 import { formatDateOnly } from '../utils/formatters';
+import { Sale } from '../types';
 
 interface DateFilterBarProps {
   currentFilter: DateFilterConfig;
@@ -11,6 +12,7 @@ interface DateFilterBarProps {
   alignPopover?: 'left' | 'right';
   compact?: boolean;
   pill?: boolean;
+  sales?: Sale[];
 }
 
 export const DateFilterBar: React.FC<DateFilterBarProps> = ({
@@ -20,6 +22,7 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
   alignPopover = 'right',
   compact = false,
   pill = false,
+  sales,
 }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -154,6 +157,7 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
           onFilterChange(filter);
         }}
         align={alignPopover}
+        sales={sales}
       />
     </div>
   );

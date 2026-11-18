@@ -353,6 +353,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               currentFilter={dateFilter}
               onFilterChange={(newFilter) => setDateFilter(newFilter)}
               alignPopover="right"
+              sales={sales}
             />
           </div>
         </div>

@@ -173,6 +173,22 @@ export const DateFilterModal: React.FC<DateFilterModalProps> = ({
     return { count, total };
   }, [sales, mode, selectedDate, rangeStart, rangeEnd]);
 
+  const salesCountByDate = useMemo(() => {
+    const map = new Map<string, number>();
+    if (!sales || sales.length === 0) return map;
+    for (const s of sales) {
+      if (s.status === 'canceled') continue;
+      const d = new Date(s.createdAt);
+      if (isNaN(d.getTime())) continue;
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const key = `${y}-${m}-${day}`;
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+    return map;
+  }, [sales]);
+
   if (!isOpen) return null;
 
   // Month navigation
@@ -506,13 +522,16 @@ export const DateFilterModal: React.FC<DateFilterModalProps> = ({
               const isSelected = isSelectedSingle(cell.dateStr);
               const isEndpoint = isRangeEndpoint(cell.dateStr);
               const inRange = isWithinRange(cell.dateStr);
+              const saleCount = salesCountByDate.get(cell.dateStr) || 0;
+              const hasSale = saleCount > 0;
 
               return (
                 <button
                   key={`${cell.dateStr}-${idx}`}
                   type="button"
                   onClick={() => handleDayClick(cell.dateStr)}
-                  className={`h-8 w-full rounded text-xs transition-all flex items-center justify-center cursor-pointer relative ${
+                  title={hasSale ? `${saleCount} ${saleCount === 1 ? 'venda' : 'vendas'} neste dia` : undefined}
+                  className={`h-9 w-full rounded text-xs transition-all flex items-center justify-center pb-1 cursor-pointer relative ${
                     isSelected || isEndpoint
                       ? 'bg-blue-600 text-white font-black border-2 border-black rounded-md shadow-xs z-10 scale-105'
                       : inRange
@@ -522,7 +541,19 @@ export const DateFilterModal: React.FC<DateFilterModalProps> = ({
                       : 'text-slate-400 font-normal hover:bg-slate-50'
                   }`}
                 >
-                  {cell.dayNumber}
+                  <span>{cell.dayNumber}</span>
+                  {hasSale && (
+                    <span
+                      aria-hidden="true"
+                      className={`absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${
+                        isSelected || isEndpoint
+                          ? 'bg-white'
+                          : cell.isCurrentMonth
+                          ? 'bg-emerald-500'
+                          : 'bg-emerald-400/60'
+                      }`}
+                    />
+                  )}
                 </button>
               );
             })}

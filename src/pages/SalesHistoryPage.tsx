@@ -252,6 +252,7 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ sales, loadi
               onFilterChange={(newFilter) => setDateFilter(newFilter)}
               alignPopover="left"
               pill={true}
+              sales={sales}
               className="shrink-0"
             />
 

@@ -344,6 +344,7 @@ export const CategorySalesModal: React.FC<CategorySalesModalProps> = ({
               onFilterChange={handleFilterChange}
               alignPopover="right"
               compact={true}
+              sales={allSales || sales}
             />
             <button
               type="button"
