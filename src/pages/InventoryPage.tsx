@@ -19,11 +19,11 @@ import {
 import { Product, Category } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import { filterProductsSemantically } from '../utils/semanticSearch';
-import { adjustProductStock, deleteProduct } from '../services/firestoreService';
+import { deleteProduct } from '../services/firestoreService';
 import { ProductFormModal } from '../components/ProductFormModal';
+import { StockMovementModal } from '../components/StockMovementModal';
 import { CameraBarcodeScannerModal } from '../components/CameraBarcodeScannerModal';
 import { ConfirmModal } from '../components/ConfirmModal';
-import { QuantityStepper } from '../components/QuantityStepper';
 import { ProductImageZoomModal } from '../components/ProductImageZoomModal';
 import { useAuth } from '../hooks/useAuth';
 
@@ -39,6 +39,7 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [filterLowStockOnly, setFilterLowStockOnly] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productForMovement, setProductForMovement] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [isDeletingProduct, setIsDeletingProduct] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -59,25 +60,6 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
   const lowStockCount = useMemo(() => {
     return products.filter((p) => p.stock <= p.minStock).length;
   }, [products]);
-
-  const handleQuickStock = async (product: Product, delta: number) => {
-    try {
-      await adjustProductStock(product.id, delta);
-    } catch (err) {
-      console.error('Erro ao ajustar estoque:', err);
-    }
-  };
-
-  const handleSetStock = async (product: Product, newStock: number) => {
-    try {
-      const delta = newStock - product.stock;
-      if (delta !== 0) {
-        await adjustProductStock(product.id, delta);
-      }
-    } catch (err) {
-      console.error('Erro ao ajustar estoque:', err);
-    }
-  };
 
   const handleConfirmDeleteProduct = async () => {
     if (!productToDelete) return;
@@ -324,45 +306,40 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
 
                     {/* Stock status & quick adjustments */}
                     <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800">
-                      {/* Stock Counter with QuantityStepper */}
-                      <div className="flex items-center gap-2">
-                        {isAdmin ? (
-                          <div className="flex flex-col items-center">
-                            <QuantityStepper
-                              id={`stepper-inv-${p.id}`}
-                              value={p.stock}
-                              onChange={(newStock) => handleSetStock(p, newStock)}
-                              min={0}
-                              size="sm"
-                              colorScheme="blue"
-                              unit={p.unit || 'UN'}
-                            />
-                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase mt-0.5">
-                              {isOutOfStock ? 'Esgotado' : isLowStock ? 'Mín: ' + p.minStock : 'Estoque'}
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="text-center px-1">
-                            <span
-                              className={`text-xs font-black block leading-none ${
-                                isOutOfStock
-                                  ? 'text-red-600 dark:text-red-400'
-                                  : isLowStock
-                                  ? 'text-orange-600 dark:text-orange-400'
-                                  : 'text-slate-800 dark:text-slate-200'
-                              }`}
-                            >
-                              {p.stock} {p.unit || 'UN'}
-                            </span>
-                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase">
-                              {isOutOfStock ? 'Esgotado' : isLowStock ? 'Mín: ' + p.minStock : 'Estoque'}
-                            </span>
-                          </div>
-                        )}
+                      {/* Fixed Stock Display */}
+                      <div className="text-center px-2 py-0.5 min-w-[64px]">
+                        <span
+                          className={`text-sm sm:text-base font-black block leading-none ${
+                            isOutOfStock
+                              ? 'text-red-600 dark:text-red-400'
+                              : isLowStock
+                              ? 'text-orange-600 dark:text-orange-400'
+                              : 'text-slate-900 dark:text-slate-100'
+                          }`}
+                        >
+                          {p.stock}{' '}
+                          <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                            {p.unit || 'UN'}
+                          </span>
+                        </span>
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block mt-1">
+                          {isOutOfStock ? 'Esgotado' : isLowStock ? `Mín: ${p.minStock}` : 'ESTOQUE'}
+                        </span>
                       </div>
 
-                      {/* Edit & Delete Buttons */}
+                      {/* Movement, Edit & Delete Buttons */}
                       <div className="flex items-center gap-1">
+                        {(isAdmin || isAuthenticated || !!currentUser) && (
+                          <button
+                            type="button"
+                            id={`btn-movement-prod-${p.id}`}
+                            onClick={() => setProductForMovement(p)}
+                            className="p-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded-lg transition-colors border border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-600 cursor-pointer shadow-2xs"
+                            title="Movimentar Estoque (+ / -)"
+                          >
+                            <ArrowUpDown className="w-4 h-4" />
+                          </button>
+                        )}
                         {(isAdmin || isAuthenticated || !!currentUser) && (
                           <button
                             type="button"
@@ -403,6 +380,13 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ products, categori
         onClose={() => setIsFormOpen(false)}
         productToEdit={editingProduct}
         categories={categories}
+      />
+
+      {/* Stock Movement Modal for direct adjustments */}
+      <StockMovementModal
+        isOpen={Boolean(productForMovement)}
+        onClose={() => setProductForMovement(null)}
+        product={productForMovement}
       />
 
       {/* Camera Barcode Scanner for Inventory Lookup */}

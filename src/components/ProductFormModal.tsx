@@ -12,6 +12,10 @@ import {
   ZoomIn,
   Plus,
   Tag,
+  ArrowUpDown,
+  PackagePlus,
+  PackageMinus,
+  ArrowRight,
 } from 'lucide-react';
 import { Product, Category } from '../types';
 import { createProduct, updateProduct, deleteProduct, createCategory } from '../services/firestoreService';
@@ -70,6 +74,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [quickCategoryColor, setQuickCategoryColor] = useState('#0ea5e9');
   const [isSavingCategory, setIsSavingCategory] = useState(false);
   const [quickCategoryError, setQuickCategoryError] = useState<string | null>(null);
+
+  // Stock movement state
+  const [isStockMovementOpen, setIsStockMovementOpen] = useState(false);
+  const [stockMovementType, setStockMovementType] = useState<'add' | 'remove'>('add');
+  const [stockMovementQty, setStockMovementQty] = useState<number>(1);
+  const [stockMovementFeedback, setStockMovementFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     setLocalCategories(categories);
@@ -191,6 +201,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setUnit('UN');
       setImageUrl('');
     }
+    setIsStockMovementOpen(false);
+    setStockMovementFeedback(null);
+    setStockMovementQty(1);
     setError(null);
   }, [productToEdit, isOpen, categories]);
 
@@ -555,7 +568,19 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Estoque Atual *</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Estoque Atual *</label>
+                <button
+                  type="button"
+                  id="btn-toggle-stock-movement"
+                  onClick={() => setIsStockMovementOpen(!isStockMovementOpen)}
+                  className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 cursor-pointer transition-colors"
+                  title="Movimentar estoque (Adicionar ou Retirar)"
+                >
+                  <ArrowUpDown className="w-3.5 h-3.5" />
+                  <span>Movimentar</span>
+                </button>
+              </div>
               <QuantityStepper
                 id="input-prod-stock"
                 value={isNaN(parseInt(stock.toString(), 10)) ? 1 : parseInt(stock.toString(), 10)}
@@ -577,6 +602,108 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 className="w-full"
               />
             </div>
+
+            {/* Expandable Stock Movement Panel */}
+            {isStockMovementOpen && (
+              <div className="col-span-2 p-3 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-2xl animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-black text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <ArrowUpDown className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                    Movimentação de Estoque
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsStockMovementOpen(false)}
+                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold cursor-pointer"
+                  >
+                    Fechar
+                  </button>
+                </div>
+
+                {/* Operation Toggle: Adicionar vs Retirar */}
+                <div className="grid grid-cols-2 gap-2 mb-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setStockMovementType('add')}
+                    className={`py-1.5 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      stockMovementType === 'add'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    <PackagePlus className="w-3.5 h-3.5" />
+                    <span>+ Adicionar (Entrada)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setStockMovementType('remove')}
+                    className={`py-1.5 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      stockMovementType === 'remove'
+                        ? 'bg-rose-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    <PackageMinus className="w-3.5 h-3.5" />
+                    <span>- Retirar (Saída)</span>
+                  </button>
+                </div>
+
+                {/* Amount to move */}
+                <div className="mb-2.5">
+                  <QuantityStepper
+                    id="stepper-stock-move-qty"
+                    value={stockMovementQty}
+                    onChange={(val) => setStockMovementQty(Math.max(1, val))}
+                    min={1}
+                    size="md"
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Calculation preview & Apply */}
+                {(() => {
+                  const curStock = isNaN(parseInt(stock.toString(), 10)) ? 0 : parseInt(stock.toString(), 10);
+                  const delta = stockMovementType === 'add' ? stockMovementQty : -stockMovementQty;
+                  const targetStock = Math.max(0, curStock + delta);
+                  return (
+                    <div className="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-2 rounded-xl border border-blue-100 dark:border-blue-900/50">
+                      <div className="text-xs">
+                        <span className="text-slate-500 dark:text-slate-400">Novo Estoque: </span>
+                        <strong className="font-bold text-slate-700 dark:text-slate-300">{curStock}</strong>
+                        <span className={stockMovementType === 'add' ? 'text-emerald-600 font-bold mx-1' : 'text-rose-600 font-bold mx-1'}>
+                          {stockMovementType === 'add' ? `+ ${stockMovementQty}` : `- ${stockMovementQty}`}
+                        </span>
+                        <span>= </span>
+                        <strong className={`text-sm font-black ${stockMovementType === 'add' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {targetStock} {unit || 'UN'}
+                        </strong>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStock(targetStock.toString());
+                          setStockMovementFeedback(`Estoque atualizado para ${targetStock}!`);
+                          setTimeout(() => setStockMovementFeedback(null), 3000);
+                        }}
+                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-black text-xs shadow-2xs cursor-pointer flex items-center gap-1 active:scale-95 transition-all"
+                      >
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <span>Aplicar</span>
+                      </button>
+                    </div>
+                  );
+                })()}
+
+                {stockMovementFeedback && (
+                  <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-1.5 flex items-center gap-1">
+                    <Check className="w-3 h-3" />
+                    {stockMovementFeedback}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
